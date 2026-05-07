@@ -64,6 +64,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     connect(PanControl->btnConfig, SIGNAL(clicked()), this, SLOT(slotSetModeConfig()));
     connect(PanControl->btnTestProc, SIGNAL(clicked()), this, SLOT(slotSetModeTestProc()));
     connect(PanControl->btnReports, SIGNAL(clicked()), this, SLOT(slotSetModeReports()));
+    
+    connect(PanControl->cbDutName, SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotPopulateTestSpecVersions()));
     connect(PanControl->cbSpecVersion, SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotSelectSpec()));
     connect(PanControl->btnStart, SIGNAL(clicked()), this, SLOT(slotStartTest()));
     connect(PanControl->btnStop, SIGNAL(clicked()), this, SLOT(slotStopTest()));
@@ -334,14 +336,26 @@ void tPetrelTT::LoadTestProcedure() {
     //Project.CloseTestProcedure();
     Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
-    tPanDevCfg* pan = Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
-    DockLeft->Add(pan);
-    pan->SetLayout(0);
-    pan = Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
-    DockLeft->Add(pan);
-    pan->SetLayout(0);
+
+    PanDutConfig = Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
+    DockLeft->Add(PanDutConfig);
+    PanDutConfig->SetLayout(0);
+
+    PanDptConfig = Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
+    DockLeft->Add(PanDptConfig);
+    PanDptConfig->SetLayout(0);
+
     if (Project.TP->GetValid()) SetState(St::TestProc);
-    
+}
+
+void tPetrelTT::CloseTestProcedure() {
+    // Connect to dll
+    SetState(St::Init);
+    Project.CloseTestProcedure();
+    //Project.CreateTestProcedure();
+    if (Project.TP == nullptr) return;
+    DockLeft->Remove(PanDutConfig);
+    DockLeft->Remove(PanDptConfig);
 }
 
 void tPetrelTT::slotSelectSpec() {
@@ -355,8 +369,9 @@ void tPetrelTT::PopulateTestProcedures() {
     Project.DiscoverTestProcedures(); // Call from better spot
     PanControl->PopulateDutList(Project.DutNameList);
     PanControl->TrySetDutName(Project.Cfg.DutName);
+    
+    //PopulateTestSpecVersions()
     Project.DiscoverSpecVersions();
-
     IsLoadTp = false;
     PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
     qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
@@ -365,4 +380,23 @@ void tPetrelTT::PopulateTestProcedures() {
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     LoadTestProcedure();
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+}
+
+
+void tPetrelTT::slotPopulateTestSpecVersions() {
+    //PanControl->TrySetDutName(Project.Cfg.DutName);
+    Project.Cfg.DutName = PanControl->cbDutName->currentText();
+    Project.BuildDirNames();
+    Project.DiscoverSpecVersions();
+    IsLoadTp = false;
+    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
+    qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
+    PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    IsLoadTp = true;
+    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+    //Project.CloseTestProcedure();
+    //LoadTestProcedure();
+    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+    Project.Cfg.ReportCurrent->Refresh();
+    //SetState(tPetrelTT::St::TestProc);
 }

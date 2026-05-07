@@ -45,11 +45,14 @@ void tPetrelProject::FindPlugins() {
     QDir dir(Cfg.PluginDir);
     auto flist = dir.entryList(QStringList() << "*.dll", QDir::Files);
     for (const auto& fname : flist) {
-        
-        qDebug() << "Found file" << fname;
-        QLibrary lib(fname);
+        QString fullName = Cfg.PluginDir + "/" + fname;
+        Log.LogSystemMessage("Found file " + fullName);
+        QLibrary lib(fullName);
         lib.load();
-        if (!lib.isLoaded()) continue;
+        if (!lib.isLoaded()) {
+            Log.LogSystemMessage("Failed to load dll");
+            continue;
+        }
 
         typedef char* (*tDutNameFunc)();
         tDutNameFunc func = (tDutNameFunc) lib.resolve("GetTestProcName");
@@ -96,7 +99,7 @@ bool tPetrelProject::OpenPlugin() {
     if (IsPlugged) ClosePlugin();
     if (0 == PluginList.count(Cfg.DutName)) return IsPlugged;
     QString fname = PluginList.at(Cfg.DutName);
-    PluginLib.setFileName(fname);
+    PluginLib.setFileName(Cfg.PluginDir + "/" + fname);
     PluginLib.load();
     IsPlugged = PluginLib.isLoaded();
     return IsPlugged;

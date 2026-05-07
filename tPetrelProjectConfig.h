@@ -5,7 +5,8 @@ class tReportRoot;
 struct tPetrelProjectConfig {
     //tProjectSettings Project;
     //tApplicationNameAndVer App;
-    const QString PluginDir = "../x64/Debug";
+    //const QString PluginDir = "../x64/Debug";
+    const QString PluginDir = "C:/PetrelTT/TestProcedures";
     const QString TestProcDir = "C:/PetrelTT/TestProcedures";
     const QString WorkingDir = "C:/PetrelTT/Work";
     const QString TmpDir = "C:/tmp/PetrelTT";

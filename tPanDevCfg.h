@@ -10,12 +10,18 @@
 
 class tPanDevCfg : public tPanPetrel {
     //Q_OBJECT
+    //QLabel labName = QLabel("Name");
 public:
     tPanDevCfg(QWidget* parent, int id, QString caption = "") 
-        : tPanPetrel(parent, id, caption) 
-    {
+        : tPanPetrel(parent, id, caption) {
+        //AddWidget(&labName);
+        AddLayout(0, 0, tPanelStyle(eBorderStyle::None, true), StdH);
+        SetLayout(1);
+        auto lo = GetCurLayoutPtr();
+        int y = PaddingY;
+        int dy = LabH * 1.5;
+        //lo->AddWidget(&labName, X_1_3, y, W_1_3, LabH);
     }
-
 };
 
 class tPanDevCfg_SingleComPort : public tPanDevCfg {

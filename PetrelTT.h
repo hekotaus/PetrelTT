@@ -71,8 +71,10 @@ class tPetrelTT : public QMainWindow {
 
     tPanControl* PanControl = nullptr;
     tPanTestTree* PanTestTree = nullptr;
-    //tPanConfig* PanDutConfig = nullptr;
-    //tPanConfig* PanDptConfig = nullptr;
+    tPanDevCfg* PanDutConfig = nullptr;
+    tPanDevCfg* PanDptConfig = nullptr;
+    //tPanConfig TODO: check if used ever
+
     tPanLog* PanLog = nullptr;
     //tPanTestTree* PanTestTree = nullptr;
     tPanReport* PanReport = nullptr;
@@ -107,7 +109,9 @@ class tPetrelTT : public QMainWindow {
 
     void SetState(St st);
     void PopulateTestProcedures();
+    
     void LoadTestProcedure();
+    void CloseTestProcedure();
 
 public:
     tPetrelTT(QWidget *parent = nullptr);
@@ -144,6 +148,6 @@ public slots:
     void slotColorizeTree() { 
         Project.ColorizeAutoTestTree(); 
     }
-
+    void slotPopulateTestSpecVersions();
 };
 

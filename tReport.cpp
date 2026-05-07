@@ -228,7 +228,7 @@ void tReport::SetStatus() { // Summarise children's GroupStatus and local TestSt
     } else {
         if (TestSpec->GetIsPureGroup()) Status = GroupStatus;
         else if (TestSpec->GetIsPureTest()) Status = TestStatus;
-        else Status = (tTestStatus)max((int)GroupStatus, (int)TestStatus);
+        else Status = (tTestStatus)std::max((int)GroupStatus, (int)TestStatus);
     }
     // Parent.SetGroupStatus or Root.Refresh
     if (IsRoot) {
@@ -510,7 +510,7 @@ void tReport::Build() { // Standard
     ///TextBox->GetLineFromCharIndex(TextBox->SelectionStart);
 //if (Level > 0) TestNameLineNumber--; //For the root we don't have previous line
     ReportView->setDocument(ReportText);
-    qreal fontSize = max(FontSizeTestNameMin, FontSizeBase - Level * FontSizeTestNameDec);
+    qreal fontSize = std::max(FontSizeTestNameMin, FontSizeBase - Level * FontSizeTestNameDec);
 
     QTextCursor cursor = QTextCursor(Root->ReportText);
     cursor.movePosition(QTextCursor::MoveOperation::End);

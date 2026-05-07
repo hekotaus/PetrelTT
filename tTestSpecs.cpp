@@ -85,7 +85,7 @@ void tTestSpecs::Clear() {
 }
 
  //private 
-bool tTestSpecs::LoadSpecTree(list<tTestSpec>& specs, tinyxml2::XMLElement* elParent, tReport* rep) {
+bool tTestSpecs::LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement* elParent, tReport* rep) {
     using namespace tinyxml2;
     bool res = true;
     //Log.LogSystemMessage("Reading Spec");
@@ -190,9 +190,11 @@ bool tTestSpecs::ReadXml() {
     }
 
     sVersion = XmlAttribute(root, "Version"); // QString("%1").arg(root->Attribute("Version"));
-    bool res;
-    Version = sVersion.toFloat(&res);
-    if (!res) {
+    bool res = true;
+    //Version = sVersion.toFloat(&res);
+    Version = sVersion.toFloat();
+    //if (!res) {
+    if (sVersion == "") {
         errmsg = "Failed to read VERSION";
         Log.LogErrorMessage(errmsg);
         rep1->SetStatus(tTestStatus::Failed, errmsg);

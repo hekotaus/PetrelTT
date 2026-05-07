@@ -37,8 +37,8 @@ protected:
     tLogger& Log;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;
-    tPanDevCfg_SingleComPort* PanDutCfg = nullptr;
-    tPanDevCfg_SingleComPort* PanDptCfg = nullptr;
+    tPanDevCfg* PanDutCfg = nullptr;
+    tPanDevCfg* PanDptCfg = nullptr;
 
     struct tTestStruct {
         tTestInfo Info;

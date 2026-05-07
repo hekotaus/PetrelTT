@@ -43,7 +43,7 @@ public:
     tTestSpec* AddSpec(tTestSpec* spec, tTestForm* manTestDialog = nullptr);
     void LoadAndValidate();
     void Clear();
-    bool LoadSpecTree(list<tTestSpec>& specs, tinyxml2::XMLElement* el, tReport* rep);
+    bool LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement* el, tReport* rep);
     bool ReadXml();
     void BuildNameList(QStringList& specNames);
 //    void BuildTestTree(QTreeWidgetItem* treeNode);

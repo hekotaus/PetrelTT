@@ -114,6 +114,7 @@ bool tTestProcInfo::ReadXml(tReport* rep) {
     bool res;
     Version = sVersion.toFloat(&res);
     if (!res) {
+    //if (sVersion == "") {
         errmsg = "Failed to read VERSION";
         Log.LogErrorMessage(errmsg);
         rep1->SetStatus(tTestStatus::Failed, errmsg);
