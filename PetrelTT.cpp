@@ -208,11 +208,11 @@ void tPetrelTT::SetState(St st) {
         ArrangeDocks();
     }
 
-    if ((oldState != St::ManualRunning) && (State == St::ManualStopped)) {
+    if ((oldState == St::ManualRunning) && (State == St::ManualStopped)) { // Stopping manual test
         Project.InitManualTest();
     }
 
-    if ((oldState == St::ManualStopped) && (State != St::ManualRunning)) {
+    if ((oldState == St::ManualStopped) && (State != St::ManualRunning)) { // Switch from manual test tab
         Project.DoneManualTest();
     }
 

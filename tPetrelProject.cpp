@@ -75,7 +75,7 @@ void tPetrelProject::DiscoverTestProcedures() {
             DutNameList.append(sTP);
             Log.LogSystemMessage("Added DUT: " + sTP);
         } else {
-            Log.LogSystemMessage("Plugin not found for DUT: " + sTP);
+            Log.LogSystemMessage("Plugin not found for DUT: " + sTP + " TestProcName mismatch");
         }
     }
 }

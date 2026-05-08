@@ -12,7 +12,7 @@ tTestDevice::tTestDevice(tTestProcedure* tp) {
 }
 
 bool tTestDevice::Init() {
-    //Inited = true;
+    IsInited = true; // Needed for dummy devices
     return IsInited;
 }
 
