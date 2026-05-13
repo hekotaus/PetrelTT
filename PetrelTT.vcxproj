@@ -133,10 +133,11 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="tPanReport.h" />
-    <ClInclude Include="tPanTestTree.h" />
+    <QtMoc Include="tPanTestTree.h" />
     <QtMoc Include="tReport.h" />
     <ClInclude Include="tReportRoot.h" />
     <ClInclude Include="tTestDevice.h" />
+    <ClInclude Include="tTestDialog.h" />
     <ClInclude Include="tTestForm.h" />
     <QtMoc Include="tTestProcedure.h" />
     <ClInclude Include="tTestProcInfo.h" />

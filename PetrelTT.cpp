@@ -35,11 +35,11 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     PanLog = AddSidePanel(new tPanLog(this, ePanLogId));
     connect(&Logger, SIGNAL(sigLogString(QString)), PanLog, SLOT(slotAddLog(QString)));
     
+    PanTestDialog = AddSidePanel(new tPanTestDialog(this, ePanTestDialogId));
+
     PanReport = AddSidePanel(new tPanReport(this, ePanReportId, &Logger, Project.Cfg));
     connect(&g_ReportSignaler, SIGNAL(sigStatusUpdated()), this, SLOT(slotColorizeTree()));
 
-
-    
     Logger.LogSystemMessage(CurrentDateTime());
     Logger.LogSystemMessage("Init Test shell...");
 
@@ -73,6 +73,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     connect(&PanDebug->btnReloadTP, SIGNAL(clicked()), this, SLOT(slotSelectSpec()));
 
+    connect(PanTestTree, SIGNAL(sigChangeGroupName(const QString&)), this, SLOT(slotTestGroupChanged(const QString&)));
+
     auto& cfg = Project.Cfg;
     auto pParGrpProj = Project.ParGrpProject;
     pParGrpProj->GetParamByStorage(&cfg.OperatorName)->AssignWidget(new tParamWidget_QComboBox_QString(PanControl->cbOperatorName));
@@ -85,6 +87,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     DockRight->Add(PanDebug);    
     DockRight->Add(PanLog);
+
+    DockCenter->Add(PanTestDialog);
     DockCenter->Add(PanReport);
     Logger.LogSystemMessage("Test shell initialised");
 
@@ -143,6 +147,7 @@ void tPetrelTT::testReport() {
 }
 
 tPetrelTT::~tPetrelTT() {
+    PanTestDialog->SetTestDialog(nullptr); // Unuse it before destructing
     Project.CloseTestProcedure();
 }
 
@@ -180,6 +185,7 @@ void tPetrelTT::SetState(St st) {
     bool isTestRunning = ((State == St::ManualRunning) || (State == St::AutoRunning));
     bool isConfig = (State == St::Config);
     bool isTestProc = (State == St::TestProc);
+    bool isManual = ((State == St::ManualRunning) || (State == St::ManualStopped));
 
     PanControl->btnAutoTest->setEnabled(!isInit);
     PanControl->btnManualTest->setEnabled(!isInit);
@@ -216,6 +222,7 @@ void tPetrelTT::SetState(St st) {
         Project.DoneManualTest();
     }
 
+    PanTestDialog->Show(isManual);
     //PanControl->progTestProgress->setEnabled(isConfig);
 }
 
@@ -399,4 +406,22 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     Project.Cfg.ReportCurrent->Refresh();
     //SetState(tPetrelTT::St::TestProc);
+}
+
+void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
+
+    switch (State) {
+    case St::ManualStopped:
+        if (Project.TP != nullptr) {
+            // Hide previous and Show new
+            tTestDialog* pDialog = Project.TP->GetManualTestDialog(groupName);
+            PanTestDialog->SetTestDialog(pDialog);
+            PanTestDialog->SetCaption("Test " + groupName);
+        }
+        break;
+        
+    }
+    qDebug() << "Petrel: Selected test" << groupName;
+
+
 }

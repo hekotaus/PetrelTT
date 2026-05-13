@@ -15,7 +15,8 @@ struct tProjectState {
     int tmp;
 };
 
-class tPetrelProject {
+class tPetrelProject /*: public QObject*/ {
+//    Q_OBJECT
     tLogger& Log;
     bool Changed = false;
     bool IsPlugged = false; // If the dll is connected
@@ -101,9 +102,6 @@ public:
         return res;
     }
 
-    //template <class T>
-    //T* GetPluginObjectPtr(const QString& objName) {
-    //    T* res = (T*)PluginLib.resolve(objName);
-    //    return res;
-    //}
+//public slots:
+    
 };

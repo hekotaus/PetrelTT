@@ -14,6 +14,7 @@
 #include "tTestProcInfo.h"
 #include "tPetrelProjectConfig.h"
 #include "tTestResult.h"
+#include "tTestDialog.h"
 
 class tReport;
 class tTestSpecs;
@@ -84,6 +85,7 @@ public:
     void DeletePanCfg();
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
+    virtual tTestDialog* GetManualTestDialog(const QString& groupName) = 0;
     virtual bool InitAutoTests(QString& details);
     virtual bool InitManualTest() = 0;
     virtual void DoneAutoTests();

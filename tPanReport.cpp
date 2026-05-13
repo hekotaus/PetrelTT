@@ -85,17 +85,21 @@ void tPanReport::SetHeight(int h) { // TODO: move to tPanel
     int loH = h - paddings.top() - paddings.bottom();
     SetAllLayoutsHeight(loH);
     lo->Elements[&ReportView].H = loH - RepY - PaddingY;// -lo->GetPaddings().top() - lo->GetPaddings().bottom();
+
+
     SetLayout();
 }
+
 void tPanReport::resizeEvent(QResizeEvent* event) {
     auto Lo1 = GetLayoutPtr(1);
     tLayoutElement& loel = Lo1->Elements[&ReportView];
     QSize loSiz = Lo1->GetSize();
     //loel.X;// = PaddingX;
     loel.W = loSiz.width() - 2 * PaddingX;
+
     //loel.Y = PaddingY;
     //qDebug() << "panRep.siz" << event->size().height();
-    //SetLayout();
+    SetLayout();
     tPanPetrel::resizeEvent(event);
 }
 

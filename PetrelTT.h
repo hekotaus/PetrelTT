@@ -13,10 +13,13 @@
 #include "tPanControl.h"
 #include "tPanConfig.h"
 #include "tPanTestTree.h"
+#include "tPanTestDialog.h"
 #include "tPanReport.h"
 #include "tPanDebug.h"
 #include "tPanLog.h"
 #include "tPetrelProject.h"
+#include "tTestDialog.h"
+
 //#include "tDeviceConfigDialog.h"
 
 enum ePanelsId {
@@ -70,6 +73,7 @@ class tPetrelTT : public QMainWindow {
     //tDock* DockMain = nullptr;
 
     tPanControl* PanControl = nullptr;
+    tPanTestDialog* PanTestDialog = nullptr;
     tPanTestTree* PanTestTree = nullptr;
     tPanDevCfg* PanDutConfig = nullptr;
     tPanDevCfg* PanDptConfig = nullptr;
@@ -149,5 +153,6 @@ public slots:
         Project.ColorizeAutoTestTree(); 
     }
     void slotPopulateTestSpecVersions();
+    void slotTestGroupChanged(const QString& groupName);
 };
 

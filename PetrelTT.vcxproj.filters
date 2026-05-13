@@ -81,9 +81,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tPetrelProject.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="tStateMachine.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -111,7 +108,10 @@
     <ClInclude Include="tTestStatus.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="tPanTestTree.h">
+    <ClInclude Include="tPetrelProject.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tTestDialog.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -138,6 +138,9 @@
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="tReport.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="tPanTestTree.h">
       <Filter>Source Files</Filter>
     </QtMoc>
   </ItemGroup>
