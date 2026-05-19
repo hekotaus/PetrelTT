@@ -24,6 +24,7 @@ void tTestRunner::AbortTest(bool byUser) {
 
 //public 
 void tTestRunner::RunTest() {
+    IsRunningTest = true;
     //InterruptFlag = false;
     QString testName = CurrentTestReport->GetName(); // Group name for Manual or test name for Auto
     //TReport rep = spec.BuildManualTestReport(Report);
@@ -42,13 +43,16 @@ void tTestRunner::RunTest() {
     //TP->SetCurrentTestInfo(info);
 
     TP->moveToThread(&TestThread);
+    qDebug() << "Test Runner is preparing test...";
     TestThread.start();
+    qDebug() << "Test Runner is starting test...";
     emit sigRunTest();
-
+    qDebug() << "Test Runner is entering waiting loop...";
     // Wait untils test TESTED or SKIPPED or TEST ERROR or timeout
     do {
         QApplication::processEvents();
-        QThread::msleep(100);
+        QThread::msleep(1000);
+        qDebug() << "Test Runner is running test...";
     } while (!InterruptFlag && !TestTimeout.IsExpired() && CurrentTestReport->IsNotFinished());
     QApplication::processEvents();
 
@@ -105,6 +109,8 @@ void tTestRunner::RunTest() {
     //TP->SetTestInfo(CurrentTestReport->GetName(), info); // TODO: needed???
     if (CurrentTestReport->GetStatus() != info.Status)
         CurrentTestReport->SetStatus(info.Status);
+    IsRunningTest = false;
+    emit sigTestFinished();
 }
 
 //public 

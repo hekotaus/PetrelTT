@@ -136,14 +136,19 @@ public slots:
     void slotSetModeConfig() { SetState(St::Config); }
     void slotSetModeTestProc() { SetState(St::TestProc); }
     void slotSetModeReports() { SetState(St::Reports); }
-    void slotStartTest() {
-        if (State == St::AutoStopped) {
+    void slotStartTest() { // Start button pressed
+        switch (State) {
+        case St::AutoStopped:
             SetState(St::AutoRunning);
             Project.StartAutoTests();
             SetState(St::AutoStopped);
+            break;
+        case St::ManualStopped: // Run default test for the current group
+            // TODO:
+            break;
         }
     }
-    void slotStopTest() { 
+    void slotStopTest() { // Stop button pressed
         Project.StopTests(); 
     }
 
@@ -154,5 +159,8 @@ public slots:
     }
     void slotPopulateTestSpecVersions();
     void slotTestGroupChanged(const QString& groupName);
+
+    void slotStartManualTest(const QString&); // From TP
+    void slotTestFinished(); // From TP. Informs on test status changes
 };
 

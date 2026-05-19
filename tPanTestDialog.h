@@ -53,6 +53,7 @@ public:
 
     void Show(bool st) {
         if (st) SetLayout(1); else SetLayout(0);
+        show();
     }
 
     void SetTestDialog(tTestDialog* testDialog) {
@@ -61,10 +62,15 @@ public:
         pTestDialog = testDialog;
         if (pTestDialog != nullptr) {
             AddWidget(pTestDialog);
-            Lo1->AddWidget(pTestDialog, 0, 0, 100, 100);
+            QSize loSiz = Lo1->GetSize();
+            Lo1->AddWidget(pTestDialog, 
+                PaddingX, PaddingY, 
+                loSiz.width() - 2 * PaddingX, 
+                //loSiz.height() - 2 * PaddingY);
+                100);
         }
         SetLayout();
-        resize(width(), height());
+        //resize(width(), height());
     }
 
     //template <typename T>

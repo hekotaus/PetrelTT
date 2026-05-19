@@ -83,7 +83,7 @@ public:
 
     //void StartTest(const QString& testName);
     void StartAutoTests();
-    void StartManualTest() {};
+    bool StartManualTest(const QString& testName);
     void RunAutoTests();
     void StopTests();
     bool InitManualTest();

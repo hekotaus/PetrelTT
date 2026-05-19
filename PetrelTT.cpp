@@ -75,6 +75,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     connect(PanTestTree, SIGNAL(sigChangeGroupName(const QString&)), this, SLOT(slotTestGroupChanged(const QString&)));
 
+    connect(&Project.TestRunner, SIGNAL(sigTestFinished()), this, SLOT(slotTestFinished()));
+
     auto& cfg = Project.Cfg;
     auto pParGrpProj = Project.ParGrpProject;
     pParGrpProj->GetParamByStorage(&cfg.OperatorName)->AssignWidget(new tParamWidget_QComboBox_QString(PanControl->cbOperatorName));
@@ -353,6 +355,8 @@ void tPetrelTT::LoadTestProcedure() {
     PanDptConfig->SetLayout(0);
 
     if (Project.TP->GetValid()) SetState(St::TestProc);
+
+    connect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
 }
 
 void tPetrelTT::CloseTestProcedure() {
@@ -361,6 +365,7 @@ void tPetrelTT::CloseTestProcedure() {
     Project.CloseTestProcedure();
     //Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
+    disconnect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
     DockLeft->Remove(PanDutConfig);
     DockLeft->Remove(PanDptConfig);
 }
@@ -409,19 +414,33 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
 }
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
-
     switch (State) {
     case St::ManualStopped:
         if (Project.TP != nullptr) {
             // Hide previous and Show new
             tTestDialog* pDialog = Project.TP->GetManualTestDialog(groupName);
             PanTestDialog->SetTestDialog(pDialog);
-            PanTestDialog->SetCaption("Test " + groupName);
+            if (pDialog == nullptr)
+                PanTestDialog->SetCaption("Test ");
+            else
+                PanTestDialog->SetCaption("Test " + groupName);
         }
         break;
         
     }
     qDebug() << "Petrel: Selected test" << groupName;
+}
 
+void tPetrelTT::slotStartManualTest(const QString& testName) { // From TP
+    if (State != St::ManualStopped) return;
+    SetState(St::ManualRunning);
+    if (!Project.StartManualTest(testName))
+        SetState(St::ManualStopped);
+}
 
+void tPetrelTT::slotTestFinished() {
+    switch (State) {
+    case St::AutoRunning: SetState(St::AutoStopped); break;
+    case St::ManualRunning: SetState(St::ManualStopped); break;
+    }
 }

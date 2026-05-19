@@ -128,12 +128,12 @@ public:
     bool Validate(tReport* rep);
     bool FindByName(const QString& name);
     void BuildNameList(QStringList& specNames);
-    void BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests); // test == non-groups
+    void BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual); // test == non-groups
     //void BuildAutoTree(tTreeNode* treeNode);
     //void BuildManualTree(tTreeNode* treeNode);
-    tReport* BuildTestReport(tReport* report, bool allowDuplicates/*, test type*/);
+    tReport* BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual);
     tTestSpec* GetSpec(QString name); // Returns testSpec with specified name
-    bool CloneTree(tTestSpec* destParent); // clone all the children of the group
+    //bool CloneTree(tTestSpec* destParent); // clone all the children of the group
     void FindManualDialog(QString name, tTestForm* manDialog);
     QString CheckTypeToString();
 };

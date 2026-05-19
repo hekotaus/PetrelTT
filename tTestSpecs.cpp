@@ -333,13 +333,13 @@ void tTestSpecs::BuildTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
 }
 #endif
-#if 1
+
 //public
 void tTestSpecs::BuildAutoTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Auto test");
     for (tTestSpec& s : Specs) {
         if (s.GetIsAutoTest()) {
-            s.BuildTestTree(treeNode, true);
+            s.BuildTestTree(treeNode, true, true, false);
         }
     }
     //treeNode->setExpanded(true); // Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
@@ -350,16 +350,16 @@ void tTestSpecs::BuildManualTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Manual test");
     for (tTestSpec& s : Specs) {
         if (s.GetIsManualTest() && (s.Children.size() != 0))
-            s.BuildTestTree(treeNode, false);
+            s.BuildTestTree(treeNode, false, false, true);
     }
     //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
 }
-#endif
+
 //public 
-void tTestSpecs::BuildTestReport(tReport* report, QString name, bool allowDuplicates) { // start building test re[ort from "name"
+void tTestSpecs::BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual) { // start building test re[ort from "name"
     //report.SetName(name);
     for(tTestSpec& ch : Specs) {
-        ch.BuildTestReport(report, allowDuplicates);
+        ch.BuildTestReport(report, allowDuplicates, includeAuto, includeManual);
     }
 }
 
@@ -394,6 +394,7 @@ tTestSpec* tTestSpecs::GetSpec(QString name) { // Returns testSpec with specifie
 }
 
 //public
+#if 0
 bool tTestSpecs::CloneGroup(QString sourceName, tTestSpec* destParent) { // clone all the children of the group
     bool res = false;
     tTestSpec* src = GetSpec(sourceName);
@@ -410,4 +411,4 @@ bool tTestSpecs::CloneGroup(QString sourceName, tTestSpec* destParent) { // clon
     }
     return res;
 }
-
+#endif

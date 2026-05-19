@@ -20,6 +20,7 @@ private:
     ///bool IsAcceptSignals = false;
     QThread TestThread;
     QTreeWidgetItem* TestTree = nullptr;
+    bool IsRunningTest = false;
     //void ProcessSignals();
     void AbortTest(bool byUser);
 
@@ -31,6 +32,7 @@ public:
     //void FlushSignals();
     void RunTest();
     void SetTP(tTestProcedure* tp) { TP = tp; }
+    bool GetRunningTest() const { return IsRunningTest; }
 public slots:
     // Settings
     void slotSetTestInfo(tTestInfo* ti);   // Procedure -> Runner <tTestInfo>
@@ -42,6 +44,7 @@ public slots:
     void sigFinishTest(); // Move TP back to main thread
     void sigInterruptTest(); // Runner -> Procedure <void>
     void sigSetProgressBar(int); // -> App->ProgressBar
+    void sigTestFinished(); // Runner->App
     //UseSerialNumber, // Procedure -> Runner
     //
     //void signalSetTestParams(); // used to transfer params TestForm->TestRunner->TestProcedure <???>

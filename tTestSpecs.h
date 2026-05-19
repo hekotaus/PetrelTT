@@ -47,10 +47,10 @@ public:
     bool ReadXml();
     void BuildNameList(QStringList& specNames);
 //    void BuildTestTree(QTreeWidgetItem* treeNode);
-    void BuildAutoTestTree(QTreeWidgetItem* treeRoot);
-    void BuildManualTestTree(QTreeWidgetItem* treeRoot);
-    void BuildTestReport(tReport* report, QString name, bool allowDuplicates); // start building test re[ort from "name"
+    void BuildAutoTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
+    void BuildManualTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
+    void BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual); // start building test re[ort from "name"
     void FindManualDialog(QString name, tTestForm* manDialog);
     tTestSpec* GetSpec(QString name);
-    bool CloneGroup(QString sourceName, tTestSpec* destParent);
+    //bool CloneGroup(QString sourceName, tTestSpec* destParent);
 };

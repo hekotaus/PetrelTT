@@ -332,6 +332,54 @@ void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* rep
     }
 }
 
+bool tPetrelProject::StartManualTest(const QString & testName) {
+    if (TP == nullptr) return false;
+    TestRunner.InterruptFlag = false;
+    TestRunner.SetCurTestTree(&ManualTestTree);
+
+    ResetDeviceInfo();
+    ///LinearReports.clear();
+    ///Cfg.ReportCurrent->Clear();
+    Cfg.ReportCurrent->AutoScroll = true;
+    QString manTestInitDetails;
+    //DecolorizeTestTree(&ManualTestTree); // Uncolor Auto test tree
+
+    // TODO: move Manual init report to ManualInit
+    ///tReport* repInitManual = Cfg.ReportCurrent->AddReport("Init Manual Tests");
+    ///if (TP->InitAutoTests(autoTestInitDetails)) {
+    ///    repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
+    //SetupManualTest(); // Builds the test specs tree from common tree
+    tTestSpec* spec = TestSpecs->GetSpec(testName);
+    if (spec == nullptr) {
+        Log.LogErrorMessage("Specs for test " + testName + " not found!");
+        return false;
+    }
+    spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
+    ///    Cfg.ReportCurrent->Refresh();
+
+    TP->ResetCancelTestingFlag();
+    TP->ClearAllTestsInfo();
+        //Cfg.SN.GetSn();
+        //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
+    //LinearReports.clear();
+    BuildReportsList(LinearReports, Cfg.ReportCurrent);
+
+        // Colour test tree
+    ///    ColorizeTestTree(&AutoTestTree);
+
+        //Application.DoEvents();
+        QApplication::processEvents();
+        if (TestRunner.InterruptFlag)
+            StopTests();
+        else
+            RunAutoTests();
+    ///} else {
+    ///    repInitAuto->SetStatus(tTestStatus::TestError, autoTestInitDetails);
+    ///    StopTests();
+    ///}
+    return true;
+}
+
 // Test controls
 void tPetrelProject::StartAutoTests() {
     if (TP == nullptr) return;
@@ -348,7 +396,7 @@ void tPetrelProject::StartAutoTests() {
     tReport* repInitAuto = Cfg.ReportCurrent->AddReport("Init Auto Tests");
     if (TP->InitAutoTests(autoTestInitDetails)) {
         repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
-        TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false);
+        TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false, true, false);
         Cfg.ReportCurrent->Refresh();
 
         TP->ResetCancelTestingFlag();

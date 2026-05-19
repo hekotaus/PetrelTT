@@ -91,8 +91,8 @@ tTestStatus tTestSpec::TestValue(const tTestResult& testResult) {
         else if (Check == tCheckType::Range)
             bRes = ((value >= MinValueInt) && (value <= MaxValueInt));
         else if (Check == tCheckType::Mask) {
-            bool bResPos = ((value & MaskPositive) == MaskPositive);
-            bool bResNeg = ((value & ~MaskNegative) == 0x00);
+            bool bResPos = ((value & uint64_t(MaskPositive)) == MaskPositive);
+            bool bResNeg = ((value & ~uint64_t(MaskNegative)) == 0x00);
             bRes = bResPos && bResNeg;
         }
     }
@@ -424,17 +424,20 @@ void tTestSpec::BuildNameList(QStringList& specNames) {
 }
 
 //public 
-void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests) {
-    QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
-    newNode->setText(0, Name);
-    //treeNode->addChild(newNode);
-    for (tTestSpec& s : Children) {
-        if (includeTests || s.IsGroup)
-            s.BuildTestTree(newNode, includeTests);
+#if 1
+void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual) {
+    if ((includeAuto && IsAutoTest) || (includeManual && IsManualTest)) {
+        QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
+        newNode->setText(0, Name);
+        //treeNode->addChild(newNode);
+        for (tTestSpec& s : Children) {
+            if (includeTests || s.IsGroup)
+                s.BuildTestTree(newNode, includeTests, includeAuto, includeManual);
+        }
+        //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
     }
-    //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
 }
-
+#endif
 //public 
 //void tTestSpec::BuildAutoTree(tTreeNode* treeNode) {
 //    tTreeNode* newNode = treeNode->Nodes.Add(Name);
@@ -460,13 +463,17 @@ void tTestSpec::BuildManualTree(tTreeNode* treeNode) {
 }
 #endif
 //public 
-tReport* tTestSpec::BuildTestReport(tReport* report, bool allowDuplicates/*, test type*/) {
-    tReport* rep = report->AddReportPending(Name, allowDuplicates);
-    if (IsTest) rep->LinkSpec(this);
-    for (tTestSpec& s : Children) {
-        s.BuildTestReport(rep, allowDuplicates);
-    }
-    return rep;
+tReport* tTestSpec::BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual) {
+    if ((includeAuto && IsAutoTest) || (includeManual && IsManualTest)) {
+        tReport* rep = report->AddReportPending(Name, allowDuplicates);
+
+        if (IsTest) rep->LinkSpec(this);
+        for (tTestSpec& s : Children) {
+            s.BuildTestReport(rep, allowDuplicates, includeAuto, includeManual);
+        }
+        return rep;
+    } else
+        return nullptr;
 }
 
 //public 
@@ -483,6 +490,7 @@ tTestSpec* tTestSpec::GetSpec(QString name) { // Returns testSpec with specified
 }
 
 //public
+#if 0
 bool tTestSpec::CloneTree(tTestSpec* destParent) { // clone all the children of the group
     bool res = false;
     for (tTestSpec& s : Children) {
@@ -493,7 +501,7 @@ bool tTestSpec::CloneTree(tTestSpec* destParent) { // clone all the children of 
     res = true;
     return res;
 }
-
+#endif
 //public 
 void tTestSpec::FindManualDialog(QString name, tTestForm* manDialog) {
     if (manDialog == nullptr) {

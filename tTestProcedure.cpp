@@ -266,19 +266,9 @@ void tTestProcedure::Test_Error(const QString& details) {
     //CurrentTest.Info.Details += "\n" + details;
 }
 
-#if 0 
-TO BE DELETED
-///void tTestProcedure::UseSn(QString deviceUid) {
-    //    MainSignalQueue.Emit(Signals.UseSerialNumber);
-    ///SN.UseSn();
-///}
-
-///void tTestProcedure::SetMainSignalQueue(TSignalQueue signalQueue) { MainSignalQueue = signalQueue; }
-
-///void SignalToMain(Signals signal, dynamic param) {
-///    MainSignalQueue.Emit(signal, param);
-///}
-#endif
+void tTestProcedure::Test_StartManualTest(const QString& testName) {
+    emit sigStartManualTest(testName);
+}
 
 void tTestProcedure::SetTestStatus(tTestStatus newStatus) {
     CurrentTest.Info.Status = newStatus;
@@ -307,25 +297,27 @@ void tTestProcedure::ResetTest(QString groupName, QString testName) {
  ///   if (unit != nullptr) unit->Clear();
     // Reset test variables
 }
-#if 0
-        public void SetupManualTest(string groupName, string testName = "Auto") {
-            TestGroup = groupName;
-            TestName = testName;
-            if (groupName == "") {
-                TTestSpec unit = ManualTestSpecs.GetSpec(testName);
-                BuildCustomSpecTree(groupName, testName, unit);
-                unit.ValidateSilent();
-            } else {
-                TTestSpec unit = ManualTestSpecs.GetSpec(groupName);
-                if (unit != null) {
-                    BuildCustomSpecTree(groupName, testName, unit);
-                    unit.ValidateSilent();
-                }
-            }
-            //TestMode = tTestMode.Manual;
-        }
 
-        public void SetupServiceTest(string groupName, string testName) {
+//public 
+void tTestProcedure::SetupManualTest(const QString& groupName, const QString& testName) {
+    TestGroup = groupName;
+    TestName = testName;
+    //if (groupName == "") { // ???
+    //    tTestSpec* unit = TestSpecs->GetSpec(testName);
+    //    BuildCustomSpecTree(groupName, testName, unit);
+    //    unit.ValidateSilent();
+    //} else {
+        tTestSpec* unit = TestSpecs.GetSpec(groupName);
+        if (unit != nullptr) {
+///            BuildCustomSpecTree(groupName, testName, unit);
+///            unit->ValidateSilent();
+        }
+    //}
+    //TestMode = tTestMode.Manual;
+}
+
+#if 0
+//public void SetupServiceTest(string groupName, string testName) {
             TestGroup = groupName;
             TestName = testName;
             TTestSpec unit = ServiceTestSpecs.GetSpec(groupName);

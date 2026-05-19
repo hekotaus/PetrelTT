@@ -107,10 +107,12 @@ public:
     void ResetCancelTestingFlag(); // This is called before starting test session
     void ResetTest(QString groupName, QString testName = "Auto");
     void SetupTest(QString testName);
+    void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
 ///    tTestForm FindManualDialog(QString name);
     void SetTestInfo(QString name, tTestInfo info);
 
     tTestInfo& GetCurrentTestInfo() { return CurrentTest.Info; }
+    tTestResult GetCurrentTestResult() const { return CurrentTest.Info.Result; }
 
     void ClearAllTestsInfo();
     tTestResult GetTestResultByName(QString testName);
@@ -131,6 +133,7 @@ signals:
     void sigSetTestProgress(double val); // Procedure -> Runner <double>
     void sigSetTestTimeout(double toSec); // Procedure -> Runner <double>
     void sigAddTestDetails(const QString& details); // Procedure -> Runner <QString>
+    void sigStartManualTest(const QString& testName); // Procedure->App
 
     // TEST API
 public:
@@ -151,6 +154,7 @@ public:
     void Test_Skip(const QString& details = "");
     void Test_Interrupt(const QString& details = "");
     void Test_Error(const QString& details = "");
+    void Test_StartManualTest(const QString& testName);
 
     template <typename T>
     void Test_SetResult(T resValue) {
