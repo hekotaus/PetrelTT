@@ -85,6 +85,7 @@ public:
     void StartAutoTests();
     bool StartManualTest(const QString& testName);
     void RunAutoTests();
+    void RunManualTests();
     void StopTests();
     bool InitManualTest();
     //bool InitAutoTest();

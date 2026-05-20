@@ -401,6 +401,7 @@ void tTestProcedure::slotRunTest() {
     }
     SetTestInfo(); // emit signal once to avoid unwanted switching. Do we really need it in the very end? Yes. To signal end of work
     TestName = "";
+    moveToThread(QApplication::instance()->thread());
 }
 
 void tTestProcedure::slotFinishTest() { // Move TP back to main thread

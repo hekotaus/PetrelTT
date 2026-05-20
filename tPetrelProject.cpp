@@ -321,6 +321,7 @@ void tPetrelProject::DecolorizeTestTree(QTreeWidgetItem* curNode) {
 }
 
 void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* report) {
+    repList.clear();
     if (report->GetStatus() == tTestStatus::Pending) { // to avoid adding "Init Auto test, etc.)
         ///if (TP->IsTestFunctionAssigned(report->GetName().toUpper())) { // Skip pure groups
             qDebug() << "Add rep to list" << report->GetName();
@@ -330,6 +331,7 @@ void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* rep
     for (tReport& ch : report->Children) {
         BuildReportsList(repList, &ch);
     }
+    qDebug() << "Linear report size is" << repList.size();
 }
 
 bool tPetrelProject::StartManualTest(const QString & testName) {
@@ -354,7 +356,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
         Log.LogErrorMessage("Specs for test " + testName + " not found!");
         return false;
     }
-    spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
+    tReport* manRep = spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
     ///    Cfg.ReportCurrent->Refresh();
 
     TP->ResetCancelTestingFlag();
@@ -362,7 +364,9 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
         //Cfg.SN.GetSn();
         //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
     //LinearReports.clear();
-    BuildReportsList(LinearReports, Cfg.ReportCurrent);
+    
+    ///BuildReportsList(LinearReports, Cfg.ReportCurrent);
+    BuildReportsList(LinearReports, manRep);
 
         // Colour test tree
     ///    ColorizeTestTree(&AutoTestTree);
@@ -432,11 +436,25 @@ void tPetrelProject::RunAutoTests() {
             }
         }
     } // while
-    
     ///StopTests();
     Cfg.ReportCurrent->Refresh();
-
 }
+
+void tPetrelProject::RunManualTests() {
+    for (tReport* test : LinearReports) {
+        if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
+            TP->ResetTest(test->GetName(), test->GetName()); // Erase old specs, remove old results
+            TestRunner.CurrentTestReport = test; // For Signals processing
+            ///TestRunner.CurrentTestReport = ;
+            if (!TestRunner.InterruptFlag) {
+                TestRunner.RunTest();
+            }
+        }
+    } // while
+    ///StopTests();
+    Cfg.ReportCurrent->Refresh();
+}
+
 
 void tPetrelProject::StopTests() {
     if (TP != nullptr) {

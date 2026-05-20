@@ -27,32 +27,22 @@ void tTestRunner::RunTest() {
     IsRunningTest = true;
     //InterruptFlag = false;
     QString testName = CurrentTestReport->GetName(); // Group name for Manual or test name for Auto
-    //TReport rep = spec.BuildManualTestReport(Report);
-    ///IsAcceptSignals = true;
     emit sigSetProgressBar(0);
     TestTimeout.Restart(10.0);
 
     //TestProcedure.ResetTest(testName, "Auto"); // Erase old specs, remove old results
     TP->SetupTest(testName); // This gets a new specs structure
-    //TP->CurrentSpec = CurrentTestReport->GetSpec();
-//    TP->SetCurrentTest();
-    //tTestInfo info;
-    //info.Status = CurrentTestReport->GetStatus();
-    //info.Result = CurrentTestReport->GetResult();
-    //info.Details = CurrentTestReport->GetDetails();
-    //TP->SetCurrentTestInfo(info);
-
     TP->moveToThread(&TestThread);
-    qDebug() << "Test Runner is preparing test...";
+    qDebug() << "Test Runner is starting the test thread...";
     TestThread.start();
-    qDebug() << "Test Runner is starting test...";
+    qDebug() << "Test Runner is signaling run test...";
     emit sigRunTest();
     qDebug() << "Test Runner is entering waiting loop...";
     // Wait untils test TESTED or SKIPPED or TEST ERROR or timeout
     do {
         QApplication::processEvents();
-        QThread::msleep(1000);
-        qDebug() << "Test Runner is running test...";
+        QThread::msleep(100);
+        //qDebug() << "Test Runner is running test...";
     } while (!InterruptFlag && !TestTimeout.IsExpired() && CurrentTestReport->IsNotFinished());
     QApplication::processEvents();
 
@@ -80,33 +70,26 @@ void tTestRunner::RunTest() {
         TestThread.exit();
         TestThread.wait();
     }
-    emit sigFinishTest();
-    ///TP->moveToThread(QApplication::instance()->thread()); // TODO: Current thread is not the object's thread. Cannot move to target thread
-    //TestProgress->setEnabled(false);
-    //Application.DoEvents();
+
+    // TODO: remove thiese two lines
+    //TP->moveToThread(QApplication::instance()->thread()); // TODO: Current thread is not the object's thread. Cannot move to target thread
+    //emit sigFinishTest(); // Fix for Current thread is not the object's thread. Cannot move to target thread
+    
     emit sigSetProgressBar(0);
 
     tTestInfo& info = TP->GetCurrentTestInfo();
-    ///info.Status = CurrentTestReport->GetStatus();
-    ///info.Result = CurrentTestReport->GetResult();
-    ///info.ResultInternal = CurrentTestReport->GetResultInternal();
-    ///info.Details = CurrentTestReport->GetDetails();
     
     if (info.Status == tTestStatus::Testing) { // Check value range
         info.Details += "Test not finished (result has not been set)";
-        //if (info.Result.IsValueSet())
-        //    info.Status = tTestStatus::Tested;
         info.Status = tTestStatus::TestError; // Result is not set
     }
 
     if (info.Status == tTestStatus::Tested) { // Check value range
-        //tTestSpec* spec = CurrentTestReport->GetSpec();
         tTestSpec* spec = TP->GetTestSpecs()->GetSpec(testName);
         if ((spec != nullptr) && (spec->GetIsTest())) {
             info.Status = spec->TestValue(info.Result);
         }
     }
-    //TP->SetTestInfo(CurrentTestReport->GetName(), info); // TODO: needed???
     if (CurrentTestReport->GetStatus() != info.Status)
         CurrentTestReport->SetStatus(info.Status);
     IsRunningTest = false;
