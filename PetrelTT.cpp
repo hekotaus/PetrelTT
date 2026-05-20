@@ -217,7 +217,7 @@ void tPetrelTT::SetState(St st) {
     }
 
     if ((oldState == St::ManualRunning) && (State == St::ManualStopped)) { // Stopping manual test
-        Project.InitManualTest();
+        //Project.InitManualTest();
     }
 
     if ((oldState == St::ManualStopped) && (State != St::ManualRunning)) { // Switch from manual test tab

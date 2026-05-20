@@ -199,6 +199,8 @@ public:
     bool GetShowDescription() const { return ViewSettings.IsShowDescription; }
 
     void AddDetails(const QString& details);
+    void SetStatusPassFail(bool res, QString details = "");
+    void SetStatusPassError(bool res, QString details = "");
     void SetStatus(tTestStatus newStatus, QString details);
     void SetStatus(tTestStatus newStatus);
     void SetResult(const tTestResult& testRes);

@@ -398,7 +398,8 @@ void tPetrelProject::StartAutoTests() {
     DecolorizeTestTree(&AutoTestTree); // Uncolor Auto test tree
 
     tReport* repInitAuto = Cfg.ReportCurrent->AddReport("Init Auto Tests");
-    if (TP->InitAutoTests(autoTestInitDetails)) {
+    //if (TP->InitAutoTests(autoTestInitDetails)) {
+    if (TP->InitAutoTests(Cfg.ReportAutoTest)) {
         repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
         TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false, true, false);
         Cfg.ReportCurrent->Refresh();
@@ -464,7 +465,11 @@ void tPetrelProject::StopTests() {
 
 bool tPetrelProject::InitManualTest() {
     if (TP == nullptr) return false;
-    return TP->InitManualTest();
+
+    bool res = TP->InitManualTest(Cfg.ReportManualTest);
+    //Cfg.ReportManualTest->Expand(Cfg.ReportManualTest->GetStatus() != tTestStatus::Passed);
+
+    return res;
 }
 
 //bool tPetrelProject::InitAutoTest() {
@@ -474,10 +479,10 @@ bool tPetrelProject::InitManualTest() {
 
 void tPetrelProject::DoneManualTest() {
     if (TP == nullptr) return;
-    TP->DoneManualTest();
+    TP->DoneManualTest(Cfg.ReportManualTest);
 }
 void tPetrelProject::DoneAutoTest() {
     if (TP == nullptr) return;
-    TP->DoneAutoTests();
+    TP->DoneAutoTests(Cfg.ReportAutoTest);
 }
 

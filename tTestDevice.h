@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <qstring.h>
+#include "tReport.h"
 
 class tTestProcedure;
 
@@ -12,8 +13,8 @@ protected:
 public:
     //tTestDevice();
     tTestDevice(tTestProcedure* tp);
-    virtual bool Init();
-    virtual void Done();
+    virtual bool Init(tReport* rep);
+    virtual void Done(tReport* rep);
     bool GetInited() const;
 };
 
@@ -32,17 +33,17 @@ public:
     {
     }
 
-    bool Init() {
+    bool Init(tReport* rep) {
         // TODO: add opening port code
         return true;
     }
 
-    bool Init(QString sport) {
+    bool Init(tReport* rep, QString sport) {
         bool res = true;
-        return SetPort(sport) && Init();
+        return SetPort(sport) && Init(rep);
     }
 
-    void Done() override {
+    void Done(tReport* rep) override {
         // TODO: add closing port code
     }
 

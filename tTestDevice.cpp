@@ -1,5 +1,6 @@
 #include "tTestDevice.h"
 #include "tTestProcedure.h"
+#include "tReport.h"
 
 void tTestDevice::SetTestProgress(double fraction) {
     if (TP != nullptr) {
@@ -11,12 +12,12 @@ tTestDevice::tTestDevice(tTestProcedure* tp) {
     TP = tp;
 }
 
-bool tTestDevice::Init() {
+bool tTestDevice::Init(tReport* rep) {
     IsInited = true; // Needed for dummy devices
     return IsInited;
 }
 
-void tTestDevice::Done() {
+void tTestDevice::Done(tReport* rep) {
     IsInited = false;
 }
 

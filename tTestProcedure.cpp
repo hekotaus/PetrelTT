@@ -349,17 +349,17 @@ void tTestProcedure::SetupTest(QString testName) {
         }
 #endif
 //public virtual 
-bool tTestProcedure::InitAutoTests(QString& details) { // Called once before running tests
+bool tTestProcedure::InitAutoTests(tReport* rep) { // Called once before running tests
     bool res = false;
-    details = "";
-    if (!res)
-        details = "ERROR: Something in InitAutotests went wrong!";
+    //details = "";
+    //if (!res)
+    //    details = "ERROR: Something in InitAutotests went wrong!";
     return res;
 }
 
-void tTestProcedure::DoneAutoTests() { // Called once after running tests
-    if (pDPT != nullptr) pDPT->Done();
-    if (pDUT != nullptr) pDUT->Done();
+void tTestProcedure::DoneAutoTests(tReport* rep) { // Called once after running tests
+    if (pDPT != nullptr) pDPT->Done(rep);
+    if (pDUT != nullptr) pDUT->Done(rep);
     //TestMode = tTestMode.None;
 }
 

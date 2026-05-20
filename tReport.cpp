@@ -242,6 +242,18 @@ void tReport::SetStatus() { // Summarise children's GroupStatus and local TestSt
     }
 }
 
+void tReport::SetStatusPassFail(bool res, QString details) {
+    SetStatus(res ? tTestStatus::Passed : tTestStatus::Failed);
+    if (!details.isEmpty())
+        AddDetails(details);
+}
+
+void tReport::SetStatusPassError(bool res, QString details) {
+    SetStatus(res ? tTestStatus::Passed : tTestStatus::TestError);
+    if (!details.isEmpty())
+        AddDetails(details);
+}
+
 void tReport::SetStatus(tTestStatus newStatus, QString details) { // Change Local TestStatus
     SetStatus(newStatus);
     AddDetails(details);

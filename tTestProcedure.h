@@ -8,7 +8,7 @@
 #include "tPanDevCfg.h"
 #include "tTestSpecs.h"
 #include "tTestDevice.h"
-#include "tReport.h"
+//#include "tReport.h"
 #include "tTestStatus.h"
 #include "tTestInfo.h"
 #include "tTestProcInfo.h"
@@ -19,6 +19,7 @@
 class tReport;
 class tTestSpecs;
 class tTestProcInfo;
+class tTestDevice;
 //using tTestDelegate = bool (*)(tTestInfo&);
 using tTestDelegate = void (*)(tTestInfo&);
 
@@ -86,10 +87,10 @@ public:
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
     virtual tTestDialog* GetManualTestDialog(const QString& groupName) = 0;
-    virtual bool InitAutoTests(QString& details);
-    virtual bool InitManualTest() = 0;
-    virtual void DoneAutoTests();
-    virtual void DoneManualTest() = 0;
+    virtual bool InitAutoTests(tReport* rep);
+    virtual bool InitManualTest(tReport* rep) = 0;
+    virtual void DoneAutoTests(tReport* rep);
+    virtual void DoneManualTest(tReport* rep) = 0;
     virtual void AssignTestFunctions() = 0; // to be called after loading specs
 
     //public SerialNumbers SN; // Moved to TP
