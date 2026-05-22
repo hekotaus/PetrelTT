@@ -376,7 +376,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
         if (TestRunner.InterruptFlag)
             StopTests();
         else
-            RunAutoTests();
+            RunManualTests();
     ///} else {
     ///    repInitAuto->SetStatus(tTestStatus::TestError, autoTestInitDetails);
     ///    StopTests();
@@ -440,7 +440,7 @@ void tPetrelProject::RunAutoTests() {
     ///StopTests();
     Cfg.ReportCurrent->Refresh();
 }
-
+// So far (22/05/2026), it's the same as RunAutoTests, so mey not be needed
 void tPetrelProject::RunManualTests() {
     for (tReport* test : LinearReports) {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
@@ -455,7 +455,6 @@ void tPetrelProject::RunManualTests() {
     ///StopTests();
     Cfg.ReportCurrent->Refresh();
 }
-
 
 void tPetrelProject::StopTests() {
     if (TP != nullptr) {

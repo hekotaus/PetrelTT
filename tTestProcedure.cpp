@@ -15,6 +15,10 @@ tTestProcedure::tTestProcedure(
     , TestSpecs(tTestSpecs(Log, Cfg))
     //, ServiceTestSpecs(serviceTestSpecs)
 {
+//    WaiterTimer.setSingleShot(true);
+//    connect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
+//    connect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+
 //    ManualTestSpecs.Clear(); // WTF
 }
 
@@ -270,6 +274,29 @@ void tTestProcedure::Test_StartManualTest(const QString& testName) {
     emit sigStartManualTest(testName);
 }
 
+void tTestProcedure::Test_ShowMessage(QMessageBox* msgBox) {
+    IsMessageBoxResultReceived = false;
+    emit sigShowMessage(msgBox);
+}
+
+bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutSec) {
+    QEventLoop WaiterLoop; // used for waiting and getting info from main
+    QTimer WaiterTimer;
+    WaiterTimer.setSingleShot(true);
+    connect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
+    connect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+
+    WaiterTimer.start(timeoutSec * 1000);
+    WaiterLoop.exec();
+
+    disconnect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
+    disconnect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+
+
+    messageBoxResult = MessageBoxResult;
+    return WaiterTimer.isActive();
+}
+
 void tTestProcedure::SetTestStatus(tTestStatus newStatus) {
     CurrentTest.Info.Status = newStatus;
 ///    MainSignalQueue.Emit(Signals.SetTestStatus, CurrentTest.Info);
@@ -407,6 +434,13 @@ void tTestProcedure::slotRunTest() {
 void tTestProcedure::slotFinishTest() { // Move TP back to main thread
     moveToThread(QApplication::instance()->thread()); // Fix Current thread is not the object's thread. Cannot move to target thread
 }
+
+void tTestProcedure::slotMessageResult(int result) { // From UI
+    MessageBoxResult = result;
+    IsMessageBoxResultReceived = true; // not really needed now
+    emit sigMessageResult();
+}
+
 #if 0
         public List<TFileInfo> GetFilesByTarget(string target) {
             return TestProcInfo.GetFilesByTarget(target);

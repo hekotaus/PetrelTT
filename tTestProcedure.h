@@ -1,6 +1,8 @@
 #pragma once
 #include <qstring.h>
 #include <qthread.h>
+#include <qmessagebox.h>
+#include <qtimer.h>
 
 #include "logger/tLogger.h"
 
@@ -32,6 +34,10 @@ enum class tTestMode {
 
 class tTestProcedure : public QObject {
     Q_OBJECT
+private:
+//    QEventLoop WaiterLoop; // used for waiting and getting info from main
+//    QTimer WaiterTimer;
+
 protected:
     const QString TestProcName;
     const QString DutName;
@@ -55,6 +61,8 @@ protected:
     tTestSpecs TestSpecs;
     
     //tTestMode TestMode = tTestMode::None;
+    bool IsMessageBoxResultReceived = false;
+    int MessageBoxResult = 0;
     bool IsInexistingTestsWarning = true;
     bool InterruptFlag = false;
     bool CancelTestingFlag = false;
@@ -70,6 +78,9 @@ protected:
     ///virtual void BuildCustomSpecTree(QString groupName, QString testName, tTestSpec specUnit);
 
 public:
+    //QMessageBox TestMessageBox =  QMessageBox(QMessageBox::Icon::Information, "Test procedure", "",
+    //        QMessageBox::Ok, nullptr, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+
     //tTestSpec* CurrentSpec = nullptr; // todo: move to protected
     tTestResult GetResult() const { return CurrentTest.Info.Result; }
     tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg);//, 
@@ -129,12 +140,15 @@ public:
     void slotRunTest();
     void slotInterruptTest(); // Runner -> Procedure <void>
     void slotFinishTest(); // Move TP back to main thread
+    void slotMessageResult(int); // From UI
 signals:
+    void sigMessageResult(); // Received from From and re-emitted to waiter
     void sigSetTestInfo(tTestInfo* ti);   // Procedure -> Runner <tTestInfo>
     void sigSetTestProgress(double val); // Procedure -> Runner <double>
     void sigSetTestTimeout(double toSec); // Procedure -> Runner <double>
     void sigAddTestDetails(const QString& details); // Procedure -> Runner <QString>
     void sigStartManualTest(const QString& testName); // Procedure->App
+    void sigShowMessage(QMessageBox* msgBox);
 
     // TEST API
 public:
@@ -156,6 +170,8 @@ public:
     void Test_Interrupt(const QString& details = "");
     void Test_Error(const QString& details = "");
     void Test_StartManualTest(const QString& testName);
+    void Test_ShowMessage(QMessageBox* msgBox);
+    bool Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutMs);
 
     template <typename T>
     void Test_SetResult(T resValue) {

@@ -357,6 +357,8 @@ void tPetrelTT::LoadTestProcedure() {
     if (Project.TP->GetValid()) SetState(St::TestProc);
 
     connect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
+    connect(Project.TP, SIGNAL(sigShowMessage(QMessageBox*)), this, SLOT(slotShowMessage(QMessageBox*)));
+    connect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult(int)));
 }
 
 void tPetrelTT::CloseTestProcedure() {
@@ -366,6 +368,8 @@ void tPetrelTT::CloseTestProcedure() {
     //Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
     disconnect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
+    disconnect(Project.TP, SIGNAL(sigShowMessage(QMessageBox*)), this, SLOT(slotShowMessage(QMessageBox*)));
+    disconnect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult));
     DockLeft->Remove(PanDutConfig);
     DockLeft->Remove(PanDptConfig);
 }
@@ -443,4 +447,9 @@ void tPetrelTT::slotTestFinished() {
     case St::AutoRunning: SetState(St::AutoStopped); break;
     case St::ManualRunning: SetState(St::ManualStopped); break;
     }
+}
+
+void tPetrelTT::slotShowMessage(QMessageBox* msgBox) { // From TP
+    int result = msgBox->exec();
+    emit sigMessageResult(result);
 }
