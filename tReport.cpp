@@ -19,27 +19,48 @@ const tReport::tRepStatus tReport::StatusList[int(tTestStatus::LAST)] = {
     { "INTERRUPTED", orange},
 };
 
-bool tReport::IsCorrectlyFinished() const { // One of the final states
+bool tReport::IsHaveResult() const {
+    return IsHaveResult(Status);
+}
+bool tReport::IsCorrectlyFinished() const {
+    return IsCorrectlyFinished(Status);
+}
+bool tReport::IsFinalStatus() const {
+    return IsFinalStatus(Status);
+}
+bool tReport::IsNotFinished() const {
+    return IsNotFinished(Status);
+}
+
+bool tReport::IsHaveResult(tTestStatus status) { // One of the final states
     return (
-        (Status == tTestStatus::Failed) ||
-        (Status == tTestStatus::Passed) ||
-        (Status == tTestStatus::TestError) ||
-        (Status == tTestStatus::Skipped)
+        (status == tTestStatus::Failed) ||
+        (status == tTestStatus::Passed) ||
+        (status == tTestStatus::Tested)
         );
 }
 
-bool tReport::IsFinalStatus() const { // One of the final states
+bool tReport::IsCorrectlyFinished(tTestStatus status) { // One of the final states
     return (
-        (Status == tTestStatus::Failed) ||
-        (Status == tTestStatus::Passed) ||
-        (Status == tTestStatus::TestError) ||
-        (Status == tTestStatus::Skipped) ||
-        (Status == tTestStatus::Interrupted)
+        (status == tTestStatus::Failed) ||
+        (status == tTestStatus::Passed) ||
+        (status == tTestStatus::TestError) ||
+        (status == tTestStatus::Skipped)
         );
 }
 
-bool tReport::IsNotFinished() const { // Test shceduled but did not finish
-    return ((Status == tTestStatus::Pending) || (Status == tTestStatus::Testing));
+bool tReport::IsFinalStatus(tTestStatus status) { // One of the final states
+    return (
+        (status == tTestStatus::Failed) ||
+        (status == tTestStatus::Passed) ||
+        (status == tTestStatus::TestError) ||
+        (status == tTestStatus::Skipped) ||
+        (status == tTestStatus::Interrupted)
+        );
+}
+
+bool tReport::IsNotFinished(tTestStatus status) { // Test shceduled but did not finish
+    return ((status == tTestStatus::Pending) || (status == tTestStatus::Testing));
 }
 
 void tReport::LinkSpec(tTestSpec* spec) {

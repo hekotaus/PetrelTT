@@ -159,9 +159,16 @@ public:
     QString GetDescription() { return Description; }
 
     tReport* GetParent() { return Parent; }
+    bool IsHaveResult() const;
     bool IsCorrectlyFinished() const;
     bool IsFinalStatus() const;
-    bool IsNotFinished()    const;
+    bool IsNotFinished() const;
+    
+    static bool IsHaveResult(tTestStatus status);
+    static bool IsCorrectlyFinished(tTestStatus status);
+    static bool IsFinalStatus(tTestStatus status);
+    static bool IsNotFinished(tTestStatus status);
+
     void LinkSpec(tTestSpec* spec);
 
     tTestSpec* GetSpec() const { return TestSpec; }
