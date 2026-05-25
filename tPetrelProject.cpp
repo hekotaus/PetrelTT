@@ -321,7 +321,7 @@ void tPetrelProject::DecolorizeTestTree(QTreeWidgetItem* curNode) {
 }
 
 void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* report) {
-    repList.clear();
+    
     if (report->GetStatus() == tTestStatus::Pending) { // to avoid adding "Init Auto test, etc.)
         ///if (TP->IsTestFunctionAssigned(report->GetName().toUpper())) { // Skip pure groups
             qDebug() << "Add rep to list" << report->GetName();
@@ -363,7 +363,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
     TP->ClearAllTestsInfo();
         //Cfg.SN.GetSn();
         //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
-    //LinearReports.clear();
+    LinearReports.clear();
     
     ///BuildReportsList(LinearReports, Cfg.ReportCurrent);
     BuildReportsList(LinearReports, manRep);
@@ -408,7 +408,7 @@ void tPetrelProject::StartAutoTests() {
         TP->ClearAllTestsInfo();
         //Cfg.SN.GetSn();
         //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
-        //LinearReports.clear();
+        LinearReports.clear();
         BuildReportsList(LinearReports, Cfg.ReportCurrent);
 
         // Colour test tree
@@ -431,8 +431,10 @@ void tPetrelProject::RunAutoTests() {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
             TP->ResetTest(test->GetName(), "Auto"); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
+            
             ///TestRunner.CurrentTestReport = ;
             if (!TestRunner.InterruptFlag) {
+                qDebug() << "Test runner starts test" << TestRunner.CurrentTestReport->GetName();
                 TestRunner.RunTest();
             }
         }

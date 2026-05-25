@@ -161,26 +161,28 @@ public:
     //static tTestInfo BuildTestInfo_Skipped(const QString& details = "", bool internalRes = false);
     //static tTestInfo BuildUnfinishedTestInfo(const tTestResult& res, const QString& details = "");
 
+    // Here all *TP results are used only for easier returning from the test
     void Test_DelayAndSetProgress(int delayMs);
-    void Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g.the DUT is burnt during flashing firmware, etc
+    tTestProcedure* Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g.the DUT is burnt during flashing firmware, etc
     void Test_SetTimeout(double timeoutSec);
-    void Test_AddDetails(const QString& details);
+    tTestProcedure* Test_AddDetails(const QString& details);
     void Test_SetProgress(double fraction); // 0.0...1.0
-    void Test_Skip(const QString& details = "");
-    void Test_Interrupt(const QString& details = "");
-    void Test_Error(const QString& details = "");
+    tTestProcedure* Test_Skip(const QString& details = "");
+    tTestProcedure* Test_Interrupt(const QString& details = "");
+    tTestProcedure* Test_Error(const QString& details = "");
     void Test_StartManualTest(const QString& testName);
     void Test_ShowMessage(QMessageBox* msgBox);
     bool Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutMs);
 
     template <typename T>
-    void Test_SetResult(T resValue) {
-        if (CurrentTest.Info.Status == tTestStatus::Testing)
+    tTestProcedure* Test_SetResult(T resValue) {
+        if (CurrentTest.Info.Status == tTestStatus::Testing) {
             CurrentTest.Info.Result.SetValue(T(resValue));
-        else {
+        } else {
             CurrentTest.Info.Status = tTestStatus::TestError;
             Test_AddDetails("Attempt to set value not at testing time!");
         }
+        return this;
     }
 
 };

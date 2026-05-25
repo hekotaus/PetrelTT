@@ -34,10 +34,11 @@ void tTestProcedure::DeletePanCfg() {
     PanDptCfg = nullptr;
 }
 
-void tTestProcedure::Test_CancelTesting(QString details) {
+tTestProcedure* tTestProcedure::Test_CancelTesting(QString details) {
     Test_AddDetails("Testing cancelled! No further tests will be run.");
     if (!details.isEmpty()) Test_AddDetails(details);
     CancelTestingFlag = true;
+    return this;
 }
 
 void tTestProcedure::ResetCancelTestingFlag() { // This is called before starting test session
@@ -241,33 +242,34 @@ void tTestProcedure::Test_SetTimeout(double timeoutSec) {
     emit sigSetTestTimeout(timeoutSec);
 }
 
-void tTestProcedure::Test_AddDetails(const QString& details) {
+tTestProcedure* tTestProcedure::Test_AddDetails(const QString& details) {
     emit sigAddTestDetails(details);
+    return this;
 }
 
 void tTestProcedure::Test_SetProgress(double fraction) {
     emit sigSetTestProgress(fraction);
 }
 
-void tTestProcedure::Test_Skip(const QString& details) { 
+tTestProcedure* tTestProcedure::Test_Skip(const QString& details) {
     CurrentTest.Info.Status = tTestStatus::Skipped; 
     if (details != "")
         Test_AddDetails(details);
-        //CurrentTest.Info.Details += "\n" + details;
+    return this;
 }
 
-void tTestProcedure::Test_Interrupt(const QString& details) {
+tTestProcedure* tTestProcedure::Test_Interrupt(const QString& details) {
     CurrentTest.Info.Status = tTestStatus::Interrupted;
     if (details != "")
         Test_AddDetails(details);
-    //CurrentTest.Info.Details += "\n" + details;
+    return this;
 }
 
-void tTestProcedure::Test_Error(const QString& details) {
+tTestProcedure* tTestProcedure::Test_Error(const QString& details) {
     CurrentTest.Info.Status = tTestStatus::TestError;
     if (details != "")
         Test_AddDetails(details);
-    //CurrentTest.Info.Details += "\n" + details;
+    return this;
 }
 
 void tTestProcedure::Test_StartManualTest(const QString& testName) {
