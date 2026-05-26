@@ -248,6 +248,9 @@ bool tPetrelProject::LoadTestProcedure() {
     PopulateAutoTestTree();
     PopulateManualTestTree();
     //TestSpecs.BuildAutoTestReport(ReportTestAuto);
+
+
+
     return res;
 }
 
@@ -468,7 +471,9 @@ bool tPetrelProject::InitManualTest() {
     if (TP == nullptr) return false;
 
     bool res = TP->InitManualTest(Cfg.ReportManualTest);
-    //Cfg.ReportManualTest->Expand(Cfg.ReportManualTest->GetStatus() != tTestStatus::Passed);
+    //tTestStatus status = Cfg.ReportManualTest->GetStatus();
+    //bool expand = (status != tTestStatus::Passed);
+    //Cfg.ReportManualTest->Expand(status != tTestStatus::Passed);
 
     return res;
 }

@@ -182,6 +182,8 @@ void tTestProcedure::ValidateAutoTestFuncAssignment(tReport* rep) {
     if (resAuto) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
     IsValid = IsValid && resAuto;
 #endif
+    rep1->Expand(!IsValid);
+    rep1->SetShowDetails(!IsValid, true);
 }
 
 bool tTestProcedure::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how to call it!

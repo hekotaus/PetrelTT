@@ -76,6 +76,7 @@ void tTestSpecs::LoadAndValidate() {
     else
         Log.LogErrorMessage("Failed to read Specs from file!");
     if (Valid) Validate();
+    Report->Expand(!Valid);
 }
 
 //public 

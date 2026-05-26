@@ -142,7 +142,7 @@ public:
     void slotFinishTest(); // Move TP back to main thread
     void slotMessageResult(int); // From UI
 signals:
-    void sigMessageResult(); // Received from From and re-emitted to waiter
+    void sigMessageResult(); // Received from UI and re-emitted to waiter
     void sigSetTestInfo(tTestInfo* ti);   // Procedure -> Runner <tTestInfo>
     void sigSetTestProgress(double val); // Procedure -> Runner <double>
     void sigSetTestTimeout(double toSec); // Procedure -> Runner <double>

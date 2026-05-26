@@ -432,7 +432,7 @@ void tReport::SetBranchStatus(tTestStatus childStatus) { // Update Group Status 
 void tReport::Expand(bool expand) { // Expands this item
     if (Level == 0) expand = true; // Never collapse Root
     ViewSettings.IsExpanded = expand;
-    //Root.Refresh();
+    Root->Refresh();
 }
 #if 0
 void tReport::ToggleExpandAndDetails(int itemId) {
