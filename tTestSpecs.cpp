@@ -9,7 +9,7 @@ tTestSpecs::tTestSpecs(tLogger& log, tPetrelProjectConfig& cfg)
     : Log(log), Cfg(cfg) {
 }
 
-tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs, tTestForm* manDialog) {
+tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs) {
     if (IsReadonly) return nullptr;
     bool duplicate = false; // Check, if the name already exists
     for(tTestSpec& s : Specs)
@@ -30,14 +30,13 @@ tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs, tTestForm
                 newSpec.Validate(nullptr);
             }
         }
-        newSpec.ManualTestDialog = manDialog;
         Specs.push_back(newSpec);
         return &(*Specs.rbegin());
     } else
         return nullptr;
 }
 
-tTestSpec* tTestSpecs::AddGroup(QString name, tTestForm* manDialog) {
+tTestSpec* tTestSpecs::AddGroup(QString name) {
     if (IsReadonly) return nullptr;
     bool duplicate = false; // Check, if the name already exists
     for(tTestSpec& s : Specs)
@@ -47,7 +46,6 @@ tTestSpec* tTestSpecs::AddGroup(QString name, tTestForm* manDialog) {
     if (!duplicate) {
         //TTestSpec newSpec = new TTestSpec(name, "", "", null, "");
         tTestSpec newSpec = tTestSpec(name, "", "boolean", nullptr, "Manually added group", "manual");
-        newSpec.ManualTestDialog = manDialog;
         Specs.push_back(newSpec);
         return &(*Specs.rbegin());
     } else
@@ -55,11 +53,10 @@ tTestSpec* tTestSpecs::AddGroup(QString name, tTestForm* manDialog) {
 }
 
 //public 
-tTestSpec* tTestSpecs::AddSpec(tTestSpec* spec, tTestForm* manTestDialog) {
+tTestSpec* tTestSpecs::AddSpec(tTestSpec* spec) {
     if (IsReadonly) return nullptr;
     if (spec == nullptr) return nullptr;
     tTestSpec child = tTestSpec(*spec);
-    child.ManualTestDialog = manTestDialog;
     Specs.push_back(child);
     return &(*Specs.rbegin());
 }
@@ -361,21 +358,6 @@ void tTestSpecs::BuildTestReport(tReport* report, QString name, bool allowDuplic
     //report.SetName(name);
     for(tTestSpec& ch : Specs) {
         ch.BuildTestReport(report, allowDuplicates, includeAuto, includeManual);
-    }
-}
-
-//public 
-void tTestSpecs::FindManualDialog(QString name, tTestForm* manDialog) {
-    QString nameUpper = name.toUpper();
-    if (manDialog == nullptr) {
-        for(tTestSpec& ch : Specs) {
-            if (manDialog == nullptr) {
-                if (ch.GetName().toUpper() == nameUpper)
-                    manDialog = ch.ManualTestDialog;
-                else
-                    ch.FindManualDialog(name, manDialog);
-            }
-        }
     }
 }
 

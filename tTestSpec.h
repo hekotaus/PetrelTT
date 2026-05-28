@@ -3,7 +3,7 @@
 #include <qstring.h>
 #include <set>
 #include <list>
-#include "tTestForm.h"
+////#include "tTestForm.h"
 #include "tTestResult.h"
 #include "tTestStatus.h"
 //#include "tReport.h"
@@ -97,7 +97,7 @@ public:
     //public bool HaveChildren = false;
     //private TTestSpec Parent;
     std::list<tTestSpec> Children;
-    tTestForm* ManualTestDialog = nullptr;
+    ////tTestForm* ManualTestDialog = nullptr;
 
 public:
     explicit tTestSpec() {}; // empty
@@ -120,8 +120,8 @@ public:
     tCheckType GetCheckType() const { return Check; }
 
     tTestSpec* AddSpec(QString name, QString units, QString type, QString range, QString desc, QString mode, QString req = "");
-    tTestSpec* AddSpec(tTestSpec* spec, tTestForm* manTestDialog = nullptr);
-    tTestSpec* AddGroup(QString name, tTestForm* manTestDialog = nullptr);
+    tTestSpec* AddSpec(tTestSpec* spec /*, *tTestForm* manTestDialog = nullptr*/);
+    tTestSpec* AddGroup(QString name /*, tTestForm* manTestDialog = nullptr*/);
     tTestStatus TestValue(const tTestResult& testResult);
     void Clear();
     bool ConvertToSuperTest(); // Used to convert pure group to group with buil-in test
@@ -134,6 +134,6 @@ public:
     tReport* BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual);
     tTestSpec* GetSpec(QString name); // Returns testSpec with specified name
     //bool CloneTree(tTestSpec* destParent); // clone all the children of the group
-    void FindManualDialog(QString name, tTestForm* manDialog);
+    ////void FindManualDialog(QString name, tTestForm* manDialog);
     QString CheckTypeToString();
 };

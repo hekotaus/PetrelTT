@@ -26,22 +26,19 @@ tTestSpec* tTestSpec::AddSpec(QString name, QString units, QString type, QString
 }
 
 //public 
-tTestSpec* tTestSpec::AddSpec(tTestSpec* spec, tTestForm* manTestDialog) {
+tTestSpec* tTestSpec::AddSpec(tTestSpec* spec) {
     if (spec == nullptr) return nullptr;
     tTestSpec child = tTestSpec(
         spec->Name, spec->Units, spec->sType, spec->sRange, spec->Desc, spec->Mode, spec->Req);
-    child.ManualTestDialog = manTestDialog;
     Children.push_back(child);
     return &(*Children.rbegin());
 }
 
 //public 
-tTestSpec* tTestSpec::AddGroup(QString name, tTestForm* manTestDialog) {
+tTestSpec* tTestSpec::AddGroup(QString name) {
     //TTestSpec child = new TTestSpec(name, "", "", null, "");
     //TTestSpec child = new TTestSpec(name, "", "boolean", null, "", "auto manual"); // this cause forever PENDING for pure groups
     tTestSpec child = tTestSpec(name, "", "", nullptr, "", "auto manual");
-    //if (manTestDialog != null)
-    child.ManualTestDialog = manTestDialog;
     Children.push_back(child);
     return &(*Children.rbegin());
 }
@@ -489,33 +486,6 @@ tTestSpec* tTestSpec::GetSpec(QString name) { // Returns testSpec with specified
     return res;
 }
 
-//public
-#if 0
-bool tTestSpec::CloneTree(tTestSpec* destParent) { // clone all the children of the group
-    bool res = false;
-    for (tTestSpec& s : Children) {
-        tTestSpec* newCh = destParent->AddSpec(&s);
-        s.CloneTree(newCh);
-        newCh->Validate(nullptr);
-    }
-    res = true;
-    return res;
-}
-#endif
-//public 
-void tTestSpec::FindManualDialog(QString name, tTestForm* manDialog) {
-    if (manDialog == nullptr) {
-        for (tTestSpec& s : Children) {
-            if (manDialog == nullptr) {
-                if (s.Name.toUpper() == name.toUpper())
-                    manDialog = s.ManualTestDialog;
-                else
-                    s.FindManualDialog(name, manDialog);
-            }
-        }
-    }
-}
-
 //public 
 QString tTestSpec::CheckTypeToString() {
     QString res = "";
@@ -528,3 +498,4 @@ QString tTestSpec::CheckTypeToString() {
     }
     return res;
 }
+//532
