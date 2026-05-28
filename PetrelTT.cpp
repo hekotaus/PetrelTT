@@ -168,6 +168,9 @@ void tPetrelTT::SetState(St st) {
             PanTestTree->TreeView.insertTopLevelItem(0, Project.GetManualTestTree());
             Project.GetManualTestTree()->setExpanded(true);
             Project.InitManualTest();
+            // Set TestDialog to null
+            //PanTestDialog->SetTestDialog(nullptr);
+            slotTestGroupChanged("");
         }
         break;
     case St::ManualRunning: break;
@@ -418,20 +421,16 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
 }
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
-    switch (State) {
-    case St::ManualStopped:
-        if (Project.TP != nullptr) {
-            // Hide previous and Show new
-            tTestDialog* pDialog = Project.TP->GetManualTestDialog(groupName);
-            PanTestDialog->SetTestDialog(pDialog);
-            if (pDialog == nullptr)
-                PanTestDialog->SetCaption("Test ");
-            else
-                PanTestDialog->SetCaption("Test " + groupName);
-        }
-        break;
-        
+    tTestDialog* pDialog = nullptr;
+    QString caption = "Test " + groupName;
+    if (Project.TP != nullptr) {
+        if (State == St::ManualStopped) {
+            pDialog = Project.TP->GetManualTestDialog(groupName); // Hide previous and Show new
+         }
     }
+    PanTestDialog->SetTestDialog(pDialog);
+    PanTestDialog->SetCaption(caption);
+    //DockCenter->slotPanelSizeUpdated(PanTestDialog);
     qDebug() << "Petrel: Selected test" << groupName;
 }
 
