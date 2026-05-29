@@ -35,7 +35,7 @@ public:
     bool GetRunningTest() const { return IsRunningTest; }
 public slots:
     // Settings
-    void slotSetTestInfo(tTestInfo* ti);   // Procedure -> Runner <tTestInfo>
+    void slotSetTestInfo(tTestInfo ti);   // Procedure -> Runner <tTestInfo>
     void slotSetTestProgress(double val); // Procedure -> Runner <double>
     void slotSetTestTimeout(double toSec); // Procedure -> Runner <double>
     void slotAddTestDetails(const QString& details); // Procedure -> Runner <QString>

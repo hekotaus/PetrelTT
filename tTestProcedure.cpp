@@ -11,15 +11,11 @@ tTestProcedure::tTestProcedure(
     , DptName(dptName)
     , Log(log)
     , Cfg(cfg)
-    //, ManualTestSpecs(manualTestSpecs)
     , TestSpecs(tTestSpecs(Log, Cfg))
-    //, ServiceTestSpecs(serviceTestSpecs)
 {
 //    WaiterTimer.setSingleShot(true);
 //    connect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
 //    connect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
-
-//    ManualTestSpecs.Clear(); // WTF
 }
 
 tTestProcedure::~tTestProcedure() { 
@@ -44,13 +40,6 @@ tTestProcedure* tTestProcedure::Test_CancelTesting(QString details) {
 void tTestProcedure::ResetCancelTestingFlag() { // This is called before starting test session
     CancelTestingFlag = false;
 }
-
-///tTestForm* tTestProcedure::FindManualDialog(QString name) {
-///    tTestForm* res = nullptr;
-///    ManualTestSpecs->FindManualDialog(name, res);
-    // Scan Specs tree until name found. Return ManualTestDialog
-///    return res;
-///}
 
 void tTestProcedure::SetTestInfo(QString name, tTestInfo info) {
     AllTestInfo[name] = info;
@@ -85,10 +74,8 @@ bool tTestProcedure::AssignTestFunction(const QString& testName, tTestDelegate t
             test.Info.Result.SetValueType(curSpec->GetValueType());
         } else { // This means we try to assign Test Function to inexisting Test/Spec
             if (IsInexistingTestsWarning)
-                //Tools.ErrorMessageBox("Trying to assign Test Function to inexisting Test/Spec\r\n'" + testName + "'");
                 Log.LogErrorMessage("Trying to assign Test Function to inexisting Test/Spec\n'" + testName + "'");
         }
-
         TestDict[testNameUpper] = test;
         res = true;
 
@@ -102,29 +89,7 @@ bool tTestProcedure::IsTestFunctionAssigned(QString testName) {
 
 QString tTestProcedure::TestAssignmentSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)
     QString SpecName = Str2CppId(specName); // C++ -comatible name
-    QString lines = "AssignTestFunction(\"" + specName + "\", TestProc" + group + ".Test_" + SpecName + ");\r\n";
-    //log.AddSystemMessage("=== Add lines to TestProc-" + dut + ".cs ===\r\n" + lines);
-    return lines;
-}
-
-QString tTestProcedure::TestProcedureSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)
-    QString SpecName = Str2CppId(specName); // C++ -comatible name
-    QString lines = "";
-    lines += "        public TTestProcedure.TTestInfo Test_" + SpecName + "()\r\n";
-    lines += "        {\r\n";
-    lines += "            return BuildTestInfo(MailBox." + SpecName + ", MailBox.ResultsValid ? TTestStatus.Tested : TTestStatus.TestError);\r\n";
-    lines += "        }\r\n";
-    //log.AddSystemMessage("=== Add lines to TestProc-" + dut + "-" + group + ".cs ===\r\n" + lines); // We don't know DUTtype here?
-    //log.AddSystemMessage("=== ===\r\n");
-    return lines;
-}
-
-QString tTestProcedure::TestMailBoxSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)
-    QString SpecName = Str2CppId(specName); // C# -comatible name
-    QString lines = "";
-    lines += "            public _TYPE_ " + SpecName + "; // " + specName + "\r\n";
-    //log.AddSystemMessage("=== Add lines to TestProc-" + dut + "-" + group + ".cs ===\r\n" + lines); // We don't know DUTtype here?
-    //log.AddSystemMessage("=== ===\r\n");
+    QString lines = "AssignTestFunction(\"" + specName + "\", Test_" + SpecName + ");\r\n";
     return lines;
 }
 
@@ -138,11 +103,8 @@ void tTestProcedure::ValidateAutoTestFuncAssignment(tReport* rep) {
     for(QString& s : SpecNames) {
         rep1->AddDetails(s);
         if (0 == TestDict.count(s.toUpper())) {
-            //                    if (AutoTestSpecs.GetSpec(s).IsTest())
-            //                    {
             rep1->AddDetails("ERROR! No executable code assigned!");
             resAuto = false;
-            //                    }
         }
     }
 
@@ -157,31 +119,12 @@ void tTestProcedure::ValidateAutoTestFuncAssignment(tReport* rep) {
     sTmp = "";
     for(const QString& s : SpecNames) {
         if (0 == TestDict.count(s.toUpper())) {
-            sTmp = sTmp + TestProcedureSourceCode("DUT", "GROUP", s);
+            sTmp = sTmp + "\n" + s;
         }
     }
-    if (sTmp != "") Log.LogSystemMessage("Missing test functions:\r\n" + sTmp);
-#if 0
-    sTmp = "";
-    sTmp += "        public class MailBox_GROUP : TTestProcMailBox // Tranfer data from Manual TestDialog to test via this mailbox\r\n";
-    sTmp += "        {\r\n";
-    for(QString& s : SpecNames) {
-        if (0 == TestDict.count(s.toUpper())) {
-            sTmp = sTmp + TestMailBoxSourceCode("DUT", "GROUP", s);
-        }
-    }
-    sTmp += "        }\r\n";
-    sTmp += "        public readonly MailBox_GROUP MailBox = new MailBox_GROUP(); \r\n";
-
-    if (sTmp != "") Log.LogSystemMessage("Missing mailbox fields:\r\n" + sTmp);
-#endif
-#if DEBUG1
-    if (resAuto) rep1.SetStatus(TTestStatus.Passed); else rep1.SetStatus(TTestStatus.Skipped);
-    //Valid = Valid && resAuto;
-#else
+    if (sTmp != "") Log.LogSystemMessage("Missing test functions for specs:\r\n" + sTmp);
     if (resAuto) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
     IsValid = IsValid && resAuto;
-#endif
     rep1->Expand(!IsValid);
     rep1->SetShowDetails(!IsValid, true);
 }
@@ -191,7 +134,6 @@ bool tTestProcedure::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how 
     tReport* rep1 = rep->AddReport("Manual Test assignment verification");
     // Scan AutoSpecs and check, all items.isTest()==true have function assigned
     std::list<QString> SpecNames;
-    ///    ManualTestSpecs.BuildNameList(SpecNames);
     for (QString& s : SpecNames) {
         if (0 != TestDict.count(s.toUpper())) {
             rep1->AddDetails(s);
@@ -205,15 +147,6 @@ bool tTestProcedure::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how 
     return resMan;
 }
 
-#if 0
-tTestResult GetTestResult() const {
-    if (CurrentTest.Info.Status == TTestStatus.Tested)
-        return CurrentTest.Info.Result;
-    else
-        return null;
-}
-#endif
-
 ///bool tTestProcedure::GetTestResultInternal() const {
 ///    if (CurrentTest.Info.Status == tTestStatus::Tested)
 ///        return CurrentTest.Info.Result. ResultInternal;
@@ -221,9 +154,9 @@ tTestResult GetTestResult() const {
 ///        return false;
 ///}
 
-        // PENDING -+-> TESTING -+-> TESTED
-        //          +------------+-> TEST ERROR
-        //          +------------+-> SKIPPED
+// PENDING -+-> TESTING -+-> TESTED
+//          +------------+-> TEST ERROR
+//          +------------+-> SKIPPED
 void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
     int delMs = 50;
     
@@ -237,7 +170,6 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
         QThread::msleep(delMs);
         Test_SetProgress(double(i) / n);
     }
-    //QThread::msleep(delayMs / n);
 }
 
 void tTestProcedure::Test_SetTimeout(double timeoutSec) {
@@ -279,7 +211,6 @@ void tTestProcedure::Test_StartManualTest(const QString& testName) {
 }
 
 void tTestProcedure::Test_ShowMessage(QMessageBox* msgBox) {
-    IsMessageBoxResultReceived = false;
     emit sigShowMessage(msgBox);
 }
 
@@ -296,102 +227,75 @@ bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int tim
     disconnect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
     disconnect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
 
-
     messageBoxResult = MessageBoxResult;
     return WaiterTimer.isActive();
 }
 
 void tTestProcedure::SetTestStatus(tTestStatus newStatus) {
     CurrentTest.Info.Status = newStatus;
-///    MainSignalQueue.Emit(Signals.SetTestStatus, CurrentTest.Info);
-    emit sigSetTestInfo(&CurrentTest.Info);
+    emit sigSetTestInfo(CurrentTest.Info);
 }
 
 void tTestProcedure::SetTestInfo() {
-///    MainSignalQueue.Emit(Signals.SetTestStatus, CurrentTest.Info);
-    //emit sigAddTestDetails("sigSetTestInfo");
-    emit sigSetTestInfo(&CurrentTest.Info);
-}
-
-///virtual void BuildCustomSpecTree(QString groupName, QString testName, tTestSpec specUnit) {
-///}
-
-
-//public void SetSerialNumber(tSerialNumberInfo snInfo) {
-//    SnInfo = snInfo;
-//}
-
-//public 
-void tTestProcedure::ResetTest(QString groupName, QString testName) {
-    // Remove specs
- ///   tTestSpec* unit = ManualTestSpecs.GetSpec(groupName);
- ///   if (unit != nullptr) unit->Clear();
-    // Reset test variables
+    emit sigSetTestInfo(CurrentTest.Info);
 }
 
 //public 
 void tTestProcedure::SetupManualTest(const QString& groupName, const QString& testName) {
     TestGroup = groupName;
     TestName = testName;
-    //if (groupName == "") { // ???
-    //    tTestSpec* unit = TestSpecs->GetSpec(testName);
-    //    BuildCustomSpecTree(groupName, testName, unit);
-    //    unit.ValidateSilent();
-    //} else {
-        tTestSpec* unit = TestSpecs.GetSpec(groupName);
-        if (unit != nullptr) {
-///            BuildCustomSpecTree(groupName, testName, unit);
-///            unit->ValidateSilent();
-        }
-    //}
-    //TestMode = tTestMode.Manual;
 }
 
-#if 0
-//public void SetupServiceTest(string groupName, string testName) {
-            TestGroup = groupName;
-            TestName = testName;
-            TTestSpec unit = ServiceTestSpecs.GetSpec(groupName);
-            if (unit != null) {
-                unit.Clear();
-                BuildCustomSpecTree(groupName, testName, unit);
-                unit.ValidateSilent();
-            }
-            //TestMode = tTestMode.Service;
-        }
-#endif
 //public 
 void tTestProcedure::SetupTest(QString testName) {
     TestName = testName;
+    InterruptFlag = false;
 }
-
-#if 0 // TO BE DELETED as they are abstract
-//public virtual bool InitManualTests(out string details) { // Called once before running tests
-            bool res = false;
-            details = "TestProcedure: Init manual tests\r\n";
-            if (!res)
-                details += "ERROR: Something in InitManualTests went wrong!";
+bool tTestProcedure::InitDptAndDut(tReport* rep) {
+    tReport* r1 = rep->AddReportTesting("InitManualTest", true);
+    bool res = true;
+    if (pDPT != nullptr) {
+        pDPT->Init(r1);
+        if (!res) {
+            pDPT->Done(rep);
             return res;
         }
-
-        public virtual void DoneManualTests() { // Called once after running tests
-            // TestMode = tTestMode.None;
-            TestGroup = "";
+    }
+    if (pDUT != nullptr) {
+        res = pDUT->Init(r1);
+        if (!res) {
+            pDUT->Done(rep);
+            if (pDPT != nullptr) pDPT->Done(rep);
         }
-#endif
-//public virtual 
-bool tTestProcedure::InitAutoTests(tReport* rep) { // Called once before running tests
-    bool res = false;
-    //details = "";
-    //if (!res)
-    //    details = "ERROR: Something in InitAutotests went wrong!";
+    }
+    r1->SetStatusPassFail(res);
+    r1->Expand(!res);
     return res;
 }
 
-void tTestProcedure::DoneAutoTests(tReport* rep) { // Called once after running tests
+void tTestProcedure::DoneDutAndDpt(tReport* rep) {
     if (pDPT != nullptr) pDPT->Done(rep);
     if (pDUT != nullptr) pDUT->Done(rep);
-    //TestMode = tTestMode.None;
+}
+
+//public virtual 
+bool tTestProcedure::InitAutoTests(tReport * rep) { // Called once before running tests
+    return InitDptAndDut(rep);
+}
+
+//public virtual 
+bool tTestProcedure::InitManualTests(tReport* rep) { // Called once when entering Manual mode
+    return InitDptAndDut(rep);
+}
+
+//public virtual 
+void tTestProcedure::DoneAutoTests(tReport* rep) { // Called once after running tests
+    DoneDutAndDpt(rep);
+}
+
+//public virtual 
+void tTestProcedure::DoneManualTests(tReport* rep) { // Called once when leaving Manual mode
+    DoneDutAndDpt(rep);
 }
 
 //public 
@@ -441,7 +345,6 @@ void tTestProcedure::slotFinishTest() { // Move TP back to main thread
 
 void tTestProcedure::slotMessageResult(int result) { // From UI
     MessageBoxResult = result;
-    IsMessageBoxResultReceived = true; // not really needed now
     emit sigMessageResult();
 }
 
@@ -699,3 +602,4 @@ void tTestProcedure::PerformOperation(bool result, const QString& operationName,
 void tTestProcedure::slotInterruptTest() { // Runner -> Procedure <void>
     InterruptFlag = true; // soft interrupt
 }
+//700

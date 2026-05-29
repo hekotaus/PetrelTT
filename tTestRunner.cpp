@@ -25,11 +25,11 @@ void tTestRunner::AbortTest(bool byUser) {
 //public 
 void tTestRunner::RunTest() {
     IsRunningTest = true;
-    //InterruptFlag = false;
+    InterruptFlag = false;
     QString testName = CurrentTestReport->GetName(); // Group name for Manual or test name for Auto
     emit sigSetProgressBar(0);
     TestTimeout.Restart(10.0);
-
+    qDebug() << "CurrentTestReport status" << CurrentTestReport->GetStatusMessage();
     //TestProcedure.ResetTest(testName, "Auto"); // Erase old specs, remove old results
     TP->SetupTest(testName); // This gets a new specs structure
     TP->moveToThread(&TestThread);
@@ -101,11 +101,9 @@ void tTestRunner::SetCurTestTree(QTreeWidgetItem* testTree) {
     TestTree = testTree;
 }
 
-void tTestRunner::slotSetTestInfo(tTestInfo* ti) {   // Procedure -> Runner <tTestInfo>
+void tTestRunner::slotSetTestInfo(tTestInfo ti) {   // Procedure -> Runner <tTestInfo>
     Log.LogSystemMessage("SetTestStatus");
-    CurrentTestReport->TestStatusChanged(*ti);
-
-
+    CurrentTestReport->TestStatusChanged(ti);
 
     // Trying:
 // if changing status to Testing, highlight it in the Test Tree
@@ -143,7 +141,3 @@ void tTestRunner::slotAddTestDetails(const QString& details) { // Procedure -> R
     Log.LogSystemMessage("SetTestDetails");
     CurrentTestReport->AddDetails(details);
 }
-
-//void tTestRunner::slotSetTestParams() { // used to transfer params TestForm->TestRunner->TestProcedure <???>
-//}
-

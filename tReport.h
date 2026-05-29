@@ -227,6 +227,7 @@ public:
     int GetLineNumberByItemId(int id) const;
     int FindItemIdByLineNumber(int lineNum) const;
 
+    QString GetStatusMessage() { return StatusList[int(Status)].TestStatusMessage; }
     static QString GetStatusMessage(tTestStatus status) { return StatusList[int(status)].TestStatusMessage; }
     static QColor GetStatusColor(tTestStatus status) { return StatusList[int(status)].TestStatusColor; }
 };

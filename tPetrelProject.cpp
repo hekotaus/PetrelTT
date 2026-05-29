@@ -102,7 +102,7 @@ void tPetrelProject::CloseTestProcedure() {
         QObject::disconnect(&TestRunner, SIGNAL(sigRunTest()), TP, SLOT(slotRunTest()));
         QObject::disconnect(&TestRunner, SIGNAL(sigInterruptTest()), TP, SLOT(slotInterruptTest())); // Runner -> Procedure <void>
         // signals TP to TestRunner
-        QObject::disconnect(TP, SIGNAL(sigSetTestInfo(tTestInfo*)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo*)));   // Procedure -> Runner <tTestInfo>
+        QObject::disconnect(TP, SIGNAL(sigSetTestInfo(tTestInfo)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo)));   // Procedure -> Runner <tTestInfo>
         QObject::disconnect(TP, SIGNAL(sigSetTestProgress(double)), &TestRunner, SLOT(slotSetTestProgress(double))); // Procedure -> Runner <double>
         QObject::disconnect(TP, SIGNAL(sigSetTestTimeout(double)), &TestRunner, SLOT(slotSetTestTimeout(double))); // Procedure -> Runner <double>
         QObject::disconnect(TP, SIGNAL(sigAddTestDetails(const QString&)), &TestRunner, SLOT(slotAddTestDetails(const QString&))); // Procedure -> Runner <QString>
@@ -183,11 +183,11 @@ bool tPetrelProject::LoadTestProcedure() {
 
             // signals TestRunner to TP
             QObject::connect(&TestRunner, SIGNAL(sigRunTest()), TP, SLOT(slotRunTest()));
-            QObject::connect(&TestRunner, SIGNAL(sigInterruptTest()), TP, SLOT(slotInterruptTest())); // Runner -> Procedure <void>
+            QObject::connect(&TestRunner, SIGNAL(sigInterruptTest()), TP, SLOT(slotInterruptTest()), Qt::DirectConnection); // Runner -> Procedure <void>
             QObject::connect(&TestRunner, SIGNAL(sigFinishTest()), TP, SLOT(slotFinishTest()));
 
             // signals TP to TestRunner
-            QObject::connect(TP, SIGNAL(sigSetTestInfo(tTestInfo*)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo*)));   // Procedure -> Runner <tTestInfo>
+            QObject::connect(TP, SIGNAL(sigSetTestInfo(tTestInfo)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo)));   // Procedure -> Runner <tTestInfo>
             QObject::connect(TP, SIGNAL(sigSetTestProgress(double)), &TestRunner, SLOT(slotSetTestProgress(double))); // Procedure -> Runner <double>
             QObject::connect(TP, SIGNAL(sigSetTestTimeout(double)), &TestRunner, SLOT(slotSetTestTimeout(double))); // Procedure -> Runner <double>
             QObject::connect(TP, SIGNAL(sigAddTestDetails(const QString&)), &TestRunner, SLOT(slotAddTestDetails(const QString&))); // Procedure -> Runner <QString>
@@ -347,7 +347,7 @@ void tPetrelProject::StartAutoTests() {
 void tPetrelProject::RunAutoTests() {
     for (tReport* test : LinearReports) {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
-            TP->ResetTest(test->GetName(), "Auto"); // Erase old specs, remove old results
+            ///TP->ResetTest(test->GetName(), "Auto"); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
             if (!TestRunner.InterruptFlag) {
                 qDebug() << "Test runner starts test" << TestRunner.CurrentTestReport->GetName();
@@ -362,7 +362,7 @@ void tPetrelProject::RunAutoTests() {
 void tPetrelProject::RunManualTests() {
     for (tReport* test : LinearReports) {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
-            TP->ResetTest(test->GetName(), test->GetName()); // Erase old specs, remove old results
+            ///TP->ResetTest(test->GetName(), test->GetName()); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
             if (!TestRunner.InterruptFlag) {
                 TestRunner.RunTest();
@@ -380,7 +380,7 @@ void tPetrelProject::StopTests() {
 
 bool tPetrelProject::InitManualTest() {
     if (TP == nullptr) return false;
-    bool res = TP->InitManualTest(Cfg.ReportManualTest);
+    bool res = TP->InitManualTests(Cfg.ReportManualTest);
     tTestStatus status = Cfg.ReportManualTest->GetStatus();
     bool expand = (status != tTestStatus::Passed);
     Cfg.ReportManualTest->Expand(status != tTestStatus::Passed);
@@ -389,7 +389,7 @@ bool tPetrelProject::InitManualTest() {
 
 void tPetrelProject::DoneManualTest() {
     if (TP == nullptr) return;
-    TP->DoneManualTest(Cfg.ReportManualTest);
+    TP->DoneManualTests(Cfg.ReportManualTest);
 }
 void tPetrelProject::DoneAutoTest() {
     if (TP == nullptr) return;
