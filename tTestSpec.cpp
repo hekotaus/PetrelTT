@@ -36,11 +36,9 @@ tTestSpec* tTestSpec::AddSpec(tTestSpec* spec) {
 
 //public 
 tTestSpec* tTestSpec::AddGroup(QString name) {
-    //TTestSpec child = new TTestSpec(name, "", "", null, "");
-    //TTestSpec child = new TTestSpec(name, "", "boolean", null, "", "auto manual"); // this cause forever PENDING for pure groups
     tTestSpec child = tTestSpec(name, "", "", nullptr, "", "auto manual");
     Children.push_back(child);
-    return &(*Children.rbegin());
+    return &Children.back();
 }
 
 //public 
@@ -65,7 +63,7 @@ tTestStatus tTestSpec::TestValue(const tTestResult& testResult) {
     }
 
     switch (ValueType) {
-        //case TTestResult.TValueType.None: bRes = false; break; // Should never hit
+
     case tTestResult::tValueType::None: cRes = true;  bRes = true; break; // Auto test groups have no type
 
     case tTestResult::tValueType::Boolean: { // Match
@@ -77,6 +75,7 @@ tTestStatus tTestSpec::TestValue(const tTestResult& testResult) {
         }
         break;
     }
+
     case tTestResult::tValueType::Integer: { // Exact or set
         int64_t value = 0;
         cRes = testResult.GetValue(value);
@@ -202,8 +201,6 @@ bool tTestSpec::CheckRangeMask() {
     case tTestResult::tValueType::Integer:
         res = CheckBinMask(sRange, MaskPositive, MaskNegative);
         IsBin = true;
-        //MaskPositive
-        //MaskNegative
         break;
     }
     if (res) Check = tCheckType::Mask;
@@ -229,10 +226,6 @@ bool tTestSpec::CheckRangeExact() {
             IsBin = true; 
             Digits = sRange.size() - 1; 
         }
-        //if (res && sRange.StartsWith("b")) { Binary is always treated as a mask
-        //    IsBin = true;
-        //    Digits = sRange.Length - 1;
-        //}
         break;
     case tTestResult::tValueType::Float:
         ExactValueFloat = sRange.toDouble(&res);
@@ -313,13 +306,7 @@ bool tTestSpec::CheckRangeValid() {
 bool tTestSpec::GetTypeMatchesRange() const {
     bool res = true;
     switch (ValueType) {
-        // Internal check disabled
-        //case TTestResult.TValueType.Integer: res = (Check != TCheckType.Internal); break; // No internal for Integer
-        //case TTestResult.TValueType.Float:   res = (Check == TCheckType.Range); break; // Only ranges for Float
-        //case TTestResult.TValueType.String:  res = ((Check != TCheckType.Range)/* && (Check != TCheckType.Internal)*/); break; // No Ranges or Internal for String
-        //case TTestResult.TValueType.Boolean: res = (Check == TCheckType.Exact);  break; // Exact match only
-
-        // Internal checks enabled
+    // Internal checks enabled
     case tTestResult::tValueType::Integer: res = true; break; // All checks for Integer
     case tTestResult::tValueType::Float: res = ((Check == tCheckType::Range) || (Check == tCheckType::Internal)); break; // Only ranges for Float
     case tTestResult::tValueType::String: res = ((Check != tCheckType::Range)); break; // No Ranges or Internal for String
@@ -333,15 +320,9 @@ bool tTestSpec::Validate(tReport* rep) {
     tReport* rep1 = nullptr;
     
     qDebug() << "Validating spec" << GetName();
-    //tick(QString("Validating spec" + GetName()).toStdString());
-
-    //tick(QString("Set rep status1 " + Name).toStdString());
     if (rep != nullptr) {
         rep1 = rep->AddReport(Name);
-        // The following line is incorrect. As we don't have specs, Testing causes infinite Testing state
-        //if (rep1->GetStatus() != tTestStatus::TestError) rep1->SetStatus(tTestStatus::Testing); 
     }
-    //tock_s();
 
     bool Valid = true;
     // Name is already valid
@@ -391,14 +372,11 @@ bool tTestSpec::Validate(tReport* rep) {
         }
 
     if (rep1 != nullptr) {
-        //tick(QString("Set rep status2 " + Name).toStdString());
         if (rep1->GetStatus() != tTestStatus::TestError) {
             qDebug() << "Set " << rep1->GetName() << " status to " << (Valid ? "Passed" : "Failed");
             rep1->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);
         }
-        //tock_s();
     }
-    //tock_s();
     return Valid;
 }
 
@@ -421,7 +399,6 @@ void tTestSpec::BuildNameList(QStringList& specNames) {
 }
 
 //public 
-#if 1
 void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual) {
     if ((includeAuto && IsAutoTest) || (includeManual && IsManualTest)) {
         QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
@@ -434,31 +411,7 @@ void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool
         //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
     }
 }
-#endif
-//public 
-//void tTestSpec::BuildAutoTree(tTreeNode* treeNode) {
-//    tTreeNode* newNode = treeNode->Nodes.Add(Name);
-//    for (tTestSpec& s : Children) {
-//        s.BuildAutoTree(newNode);
-//    }
-//    treeNode->Expand();
-//}
-#if 0
-//public 
-void tTestSpec::BuildManualTree(tTreeNode* treeNode) {
-    //treeNode->NodeFont = new System.Drawing.Font("Lucida", 10);
-    tTreeNode* newNode = treeNode->Nodes.Add(Name);
 
-    if ((ManualTestDialog == nullptr) /*&& (AutoTest == null)*/)
-        newNode->NodeFont = newNode->FontStyleRegular;
-    else
-        newNode->NodeFont = newNode->FontStyleHasDialog;
-    for (tTestSpec& s : Children) {
-        s.BuildManualTree(newNode);
-    }
-    treeNode->Expand();
-}
-#endif
 //public 
 tReport* tTestSpec::BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual) {
     if ((includeAuto && IsAutoTest) || (includeManual && IsManualTest)) {
@@ -498,4 +451,3 @@ QString tTestSpec::CheckTypeToString() {
     }
     return res;
 }
-//532

@@ -81,9 +81,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tStateMachine.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="tTestForm.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -112,6 +109,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="tTestDialog.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tTimeOut.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

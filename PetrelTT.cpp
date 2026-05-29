@@ -4,18 +4,8 @@
 #include "widgets/tParamWidget_QComboBox.h"
 #include <algorithm>
 
-using namespace std;
-
-struct tProjectSignaler : QObject {
-public slots:
-    
-};
-
-extern tProjectSignaler g_ProjectSignaler;
-
 tPetrelTT::tPetrelTT(QWidget *parent)
     : QMainWindow(parent) {
-    //ui.setupUi(this);
     Logger.SetLogToQdebug(true);
     Logger.SetDefaultSource("Tester");
     Logger.SetShowSource(false);
@@ -29,7 +19,6 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     AppConfig.SetScheme(0);
 
     Project.ParGrpProject->LoadFromConfig();
-    //Project.GeneralParamsSuperGroup.LoadFromConfig();
     PanDebug = AddSidePanel(new tPanDebug(this, ePanDebugId));
 
     PanLog = AddSidePanel(new tPanLog(this, ePanLogId));
@@ -45,7 +34,7 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     PanTestTree = AddSidePanel(new tPanTestTree(this, ePanTestTreeId/*, &Logger, Project.Cfg*/));
 
-    const int dockWidth = 400 + 20 + 5;// Constant::SidePanelWidth + tDock::ScrollBarVWidth + tDock::SpacingH;
+    const int dockWidth = SidePanelWidth + tDock::ScrollBarVWidth + tDock::SpacingH;
     DockLeft = new tDock(this, eDockOrientation::Vertical, dockWidth, "Left");
     DockRight = new tDock(this, eDockOrientation::Vertical, dockWidth, "Right");
     DockCenter = new tDock(this, eDockOrientation::Vertical, -1, "Center");
@@ -127,24 +116,6 @@ void tPetrelTT::testReport() {
     r12->AddDetails("details and fabric112");
     r12->SetStatus(tTestStatus::Passed);
 
-    //r1->SetStatus(tTestStatus::Tested);
-
-    //root->SetStatus(tTestStatus::Tested);
-    //root->SetGroupStatus();
-
-#if 0
-    auto r2 = root->AddReportPending("Test2");
-    r2->AddDetails("pending details2");
-
-    auto r21 = r2->AddReportSkipped("Test3");
-    r21->AddDetails("skipped details3");
-    r21->SetStatus(tTestStatus::Skipped);
-
-    auto r4 = root->AddReportTesting("Test4");
-    r4->AddDetails("testing details4");
-#endif
-    //tReport* rep = ReportCurrentRoot->AddReport("Test");
-    //PanReport->ReportView.setCurrentCharFormat();
     Project.Cfg.ReportCurrent->ExpandSubtree(true);
 }
 
@@ -152,7 +123,6 @@ tPetrelTT::~tPetrelTT() {
     PanTestDialog->SetTestDialog(nullptr); // Unuse it before destructing
     Project.CloseTestProcedure();
 }
-
 
 void tPetrelTT::SetState(St st) { 
     auto oldState = State;
@@ -168,18 +138,17 @@ void tPetrelTT::SetState(St st) {
             PanTestTree->TreeView.insertTopLevelItem(0, Project.GetManualTestTree());
             Project.GetManualTestTree()->setExpanded(true);
             Project.InitManualTest();
-            // Set TestDialog to null
-            //PanTestDialog->SetTestDialog(nullptr);
-            slotTestGroupChanged("");
+            slotTestGroupChanged(""); // Set TestDialog to null
         }
         break;
     case St::ManualRunning: break;
     case St::AutoStopped: 
         PanReport->SetCurrentReport(tReportType::AutoTest); 
-        if (oldState != St::AutoRunning)
+        if (oldState != St::AutoRunning) {
             PanTestTree->TreeView.takeTopLevelItem(0);
             PanTestTree->TreeView.insertTopLevelItem(0, Project.GetAutoTestTree());
             Project.ExpandTestTree(Project.GetAutoTestTree(), true); // TODO: expand all auto tree
+        }
         break;
     case St::AutoRunning: break;
     case St::TestProc: PanReport->SetCurrentReport(tReportType::TestProc); break;
@@ -239,15 +208,12 @@ void tPetrelTT::LoadPanelConfig() {
         qDebug() << pan->GetCaption();
         QStringList panCfg = Settings.value(pan->GetCaption(), ",1").toString().split(',');
         int id = pan->GetId();
-        //if (id > eLeftPanelStart && id < eLeftPanelEnd) DockLeft->Add(pan);
-        //else if (id > eRightPanelStart && id < eRightPanelEnd) DockRight->Add(pan);
         pan->SetLayout(panCfg[1].toInt());
     }
     Settings.endGroup();
 }
 
 void tPetrelTT::LoadProjectConfig() {
-    //Project.ProcessParamsSuperGroup.LoadFromConfig();
     Project.GeneralParamsSuperGroup.LoadFromConfig();
     auto par = Project.ParGrpProject->GetParamByStorage(&Project.Cfg.OperatorName);
     QString opName = par->GetCurValueAsQString();
@@ -256,7 +222,6 @@ void tPetrelTT::LoadProjectConfig() {
         PanControl->cbOperatorName->addItem(s);
     }
     par->TrySetCurValueFromQString(opName, tParamSrc::Config, false);
-    //par->UpdateWidget(true);// > AssignWidget(new tParamWidget_QComboBox_QString(PanControl->cbOperatorName));
 }
 
 void tPetrelTT::SaveConfig() {
@@ -293,6 +258,7 @@ void tPetrelTT::SaveConfig() {
 
 void tPetrelTT::closeEvent(QCloseEvent* event) {
     SaveConfig();
+    QMainWindow::closeEvent(event);
 }
 
 void tPetrelTT::ArrangeDocks() {
@@ -345,7 +311,6 @@ void tPetrelTT::resizeEvent(QResizeEvent* event) {
 void tPetrelTT::LoadTestProcedure() {
     // Connect to dll
     SetState(St::Init);
-    //Project.CloseTestProcedure();
     Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
 
@@ -365,14 +330,13 @@ void tPetrelTT::LoadTestProcedure() {
 }
 
 void tPetrelTT::CloseTestProcedure() {
+    if (Project.TP == nullptr) return;
     // Connect to dll
     SetState(St::Init);
     Project.CloseTestProcedure();
-    //Project.CreateTestProcedure();
-    if (Project.TP == nullptr) return;
     disconnect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
     disconnect(Project.TP, SIGNAL(sigShowMessage(QMessageBox*)), this, SLOT(slotShowMessage(QMessageBox*)));
-    disconnect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult));
+    disconnect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult(int)));
     DockLeft->Remove(PanDutConfig);
     DockLeft->Remove(PanDptConfig);
 }
@@ -401,9 +365,7 @@ void tPetrelTT::PopulateTestProcedures() {
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
 
-
 void tPetrelTT::slotPopulateTestSpecVersions() {
-    //PanControl->TrySetDutName(Project.Cfg.DutName);
     Project.Cfg.DutName = PanControl->cbDutName->currentText();
     Project.BuildDirNames();
     Project.DiscoverSpecVersions();
@@ -413,11 +375,8 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
     PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
-    //Project.CloseTestProcedure();
-    //LoadTestProcedure();
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     Project.Cfg.ReportCurrent->Refresh();
-    //SetState(tPetrelTT::St::TestProc);
 }
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
@@ -430,7 +389,6 @@ void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     }
     PanTestDialog->SetTestDialog(pDialog);
     PanTestDialog->SetCaption(caption);
-    //DockCenter->slotPanelSizeUpdated(PanTestDialog);
     qDebug() << "Petrel: Selected test" << groupName;
 }
 
@@ -451,4 +409,18 @@ void tPetrelTT::slotTestFinished() {
 void tPetrelTT::slotShowMessage(QMessageBox* msgBox) { // From TP
     int result = msgBox->exec();
     emit sigMessageResult(result);
+}
+
+void tPetrelTT::slotStartTest() { // Start button pressed
+    switch (State) {
+    case St::AutoStopped:
+        SetState(St::AutoRunning);
+        Project.StartAutoTests();
+        break;
+    case St::ManualStopped: // Run default test for the current group
+        SetState(St::ManualRunning);
+        ///Project.StartManualTest(Project.Project->SetManualGroup()); // TODO: get the froup name from test tree
+        break;
+    default: qDebug() << "Should never hit slotStartTest()::default";
+    }
 }

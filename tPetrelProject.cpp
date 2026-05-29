@@ -10,14 +10,7 @@ tPetrelProject::tPetrelProject(tLogger &log)
 {
     // Adding general params groups to general supergroup
     ParGrpProject = GeneralParamsSuperGroup.Add("Project");
-    //ParGrpLayerView = GeneralParamsSuperGroup.Add("Layer view");
-    //ParGrpSim = GeneralParamsSuperGroup.Add("Sim");
-    //ParGrpCli = GeneralParamsSuperGroup.Add("Cli");
-
     InitParGrpProjectConfig();
-//    InitParGrpTrackView();
-//    InitParGrpTrackStat();
-
 }
 
 void tPetrelProject::InitParGrpProjectConfig() {
@@ -32,7 +25,7 @@ void tPetrelProject::FindTestProcedures() { // return list of DUTs TestProcList
     TestProcList.clear();
     QDir dir(Cfg.TestProcDir);
     TestProcList = dir.entryList(QStringList() << "*.TestProcedure", QDir::Dirs);
-    int nlast = QString(".TestProcedure").length();
+    constexpr int nlast = sizeof(".TestProcedure") - 1;
     for (QString& s : TestProcList) {
         s.chop(nlast);
         Log.LogSystemMessage("Found: " + s);
@@ -59,7 +52,7 @@ void tPetrelProject::FindPlugins() {
         if (func != nullptr) {
             QString dutName = func();
             Log.LogSystemMessage("Found: " + dutName + " in " + fname);
-            PluginList[dutName] = fname; // if duplicates, picking the last fond file
+            PluginList[dutName] = fname; // if duplicates, picking the last found file
         }
         lib.unload();
     }
@@ -81,7 +74,6 @@ void tPetrelProject::DiscoverTestProcedures() {
 }
 
 void tPetrelProject::DiscoverSpecVersions() {
-    //Cfg.CurDutDir = Cfg.TestProcDir + "/" + Cfg.DutName + ".TestProcedure";
     Log.LogSystemMessage("Searching spec versions in " + Cfg.CurDutDir + " ...");
     SpecVerList.clear();
 
@@ -92,7 +84,6 @@ void tPetrelProject::DiscoverSpecVersions() {
         s.chop(nlast);
         Log.LogSystemMessage("Found: " + s);
     }
-    //Cfg.CurTestProcDir =
 }
 
 bool tPetrelProject::OpenPlugin() {
@@ -107,14 +98,15 @@ bool tPetrelProject::OpenPlugin() {
 
 void tPetrelProject::CloseTestProcedure() {
     // signals TestRunner to TP
-    QObject::disconnect(&TestRunner, SIGNAL(sigRunTest()), TP, SLOT(slotRunTest()));
-    QObject::disconnect(&TestRunner, SIGNAL(sigInterruptTest()), TP, SLOT(slotInterruptTest())); // Runner -> Procedure <void>
-    // signals TP to TestRunner
-    QObject::disconnect(TP, SIGNAL(sigSetTestInfo(tTestInfo*)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo*)));   // Procedure -> Runner <tTestInfo>
-    QObject::disconnect(TP, SIGNAL(sigSetTestProgress(double)), &TestRunner, SLOT(slotSetTestProgress(double))); // Procedure -> Runner <double>
-    QObject::disconnect(TP, SIGNAL(sigSetTestTimeout(double)), &TestRunner, SLOT(slotSetTestTimeout(double))); // Procedure -> Runner <double>
-    QObject::disconnect(TP, SIGNAL(sigAddTestDetails(const QString&)), &TestRunner, SLOT(slotAddTestDetails(const QString&))); // Procedure -> Runner <QString>
-
+    if (TP != nullptr) {
+        QObject::disconnect(&TestRunner, SIGNAL(sigRunTest()), TP, SLOT(slotRunTest()));
+        QObject::disconnect(&TestRunner, SIGNAL(sigInterruptTest()), TP, SLOT(slotInterruptTest())); // Runner -> Procedure <void>
+        // signals TP to TestRunner
+        QObject::disconnect(TP, SIGNAL(sigSetTestInfo(tTestInfo*)), &TestRunner, SLOT(slotSetTestInfo(tTestInfo*)));   // Procedure -> Runner <tTestInfo>
+        QObject::disconnect(TP, SIGNAL(sigSetTestProgress(double)), &TestRunner, SLOT(slotSetTestProgress(double))); // Procedure -> Runner <double>
+        QObject::disconnect(TP, SIGNAL(sigSetTestTimeout(double)), &TestRunner, SLOT(slotSetTestTimeout(double))); // Procedure -> Runner <double>
+        QObject::disconnect(TP, SIGNAL(sigAddTestDetails(const QString&)), &TestRunner, SLOT(slotAddTestDetails(const QString&))); // Procedure -> Runner <QString>
+    }
     TPInfo.Clear();
     ClosePlugin();
 }
@@ -140,15 +132,6 @@ void tPetrelProject::CreateTestProcedure() {
     LoadTestProcedure();
 }
 
-#if 0
-void* tPetrelProject::GetPluginObject(const QString &objName) {
-    typedef char* (*tDutNameFunc)();
-    tDutNameFunc func = (tDutNameFunc)PluginLib.resolve(objName);
-    if (func != nullptr) {
-        QString dutName = func();
-    }
-}
-#endif
 void tPetrelProject::ClosePlugin() {
     if (!IsPlugged) return;
     TestRunner.SetTP(nullptr);
@@ -163,7 +146,7 @@ void tPetrelProject::BuildDirNames() {
     Cfg.CurDutDir = "";
     Cfg.CurTestProcDir = "";
     if ((Cfg.TestProcDir != "") && (Cfg.DutName != "")) {
-        Cfg.CurDutDir = Cfg.TestProcDir + "/" + Cfg.DutName + ".testProcedure/";
+        Cfg.CurDutDir = Cfg.TestProcDir + "/" + Cfg.DutName + ".TestProcedure/";
         if (Cfg.TestSpecsVer != "")
             Cfg.TestProcRevDir = Cfg.CurDutDir + Cfg.TestSpecsVer + ".Version/";
     }
@@ -191,21 +174,11 @@ bool tPetrelProject::LoadTestProcedure() {
     if (TPInfo.IsValid() && TestSpecs->IsValid()) {
         Cfg.TestProcedureVer = TPInfo.GetVersion();
         Cfg.TestSpecsVer = TestSpecs->sVersion;
-        ///////////////////////////////////
-        // Add new Test Procedures here  //
-        ///////////////////////////////////
         TP->SetValid(true);
         TP->AssignTestFunctions();
         TP->ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
-#if 0
-        ManualTestSpecs.ValidateManual(); // Check if current TestProcedure is good
-#endif
 
-        ///if (TP->GetValid() && ManualTestSpecs.IsValid()) {
         if (TP->GetValid()) {
-            ///TestRunner = new TTestRunner(Log, TestProgress, TestProcedure);
-            
-
             TestRunner.SetTP(TP);
 
             // signals TestRunner to TP
@@ -219,45 +192,20 @@ bool tPetrelProject::LoadTestProcedure() {
             QObject::connect(TP, SIGNAL(sigSetTestTimeout(double)), &TestRunner, SLOT(slotSetTestTimeout(double))); // Procedure -> Runner <double>
             QObject::connect(TP, SIGNAL(sigAddTestDetails(const QString&)), &TestRunner, SLOT(slotAddTestDetails(const QString&))); // Procedure -> Runner <QString>
 
-
-                ///TestProcedure.SetMainSignalQueue(TestRunner.SignalQueue);
-                //SwitchTestTab(TestTabs.SelectedIndex); // All good, switch to the current Tab state
-                ///SetState(TAppState.TestProcedureValid);
-                ///Cfg.TestProcedureValid = true;
             Cfg.ReportAutoTest->SetName("Auto test : " + Cfg.DutName);
             Cfg.ReportManualTest->SetName("Manual test : " + Cfg.DutName);
-
-                // Scan SN files
-#if 0
-                TestProcedure.SN = new SerialNumbers(Cfg.SnDir, Cfg.SnDbFileName);
-                TestProcedure.SN.SetDeviceType(Cfg.DeviceType, Cfg.DeviceRevision);
-                PopulateSnList();
-#endif
-                ////TestProcedure.TestProcInfo.TestProcDir = Cfg.TestProcDir;
-                ////TestProcedure.TestProcInfo.WorkingDir = Cfg.WorkingDir;
-                ////TestProcedure.TestProcInfo.TempDir = Cfg.TmpDir;
-                // It's a question, if we really need this...
-            }
-//#endif
+        }
     }
 
-    ///ImportConfigDialog();
-    ///BuildCaption();
-
-    // Populate Auto tab: Auto TestTree
     PopulateAutoTestTree();
     PopulateManualTestTree();
-    //TestSpecs.BuildAutoTestReport(ReportTestAuto);
 
-
-
-    return res;
+    res = (TP != 0) && (TP->GetValid());
+    return (res);
 }
 
 //private 
 void tPetrelProject::PopulateAutoTestTree() {
-    //AutoTestTree.Clear();
-    //AutoTestTree.Nodes.Add("Auto test: " + Cfg.DeviceType);
     AutoTestTree.setText(0, "Auto test text");// .Nodes.Add(ReportTestAuto.GetName());
     TP->GetTestSpecs()->BuildAutoTestTree(&AutoTestTree);
 }
@@ -266,13 +214,6 @@ void tPetrelProject::PopulateAutoTestTree() {
 void tPetrelProject::PopulateManualTestTree() {
     ManualTestTree.setText(0, "Manual test text");// .Nodes.Add(ReportTestAuto.GetName());
     TP->GetTestSpecs()->BuildManualTestTree(&ManualTestTree);
-
-    //    ManualTestTree.BeginUpdate();
-//    ManualTestTree.Nodes.Clear();
-//    //ManualTestTree.Nodes.Add("Manual test: " + Cfg.DeviceType);
-//    ManualTestTree.Nodes.Add(ReportTestManual.GetName());
-//    ManualTestSpecs.BuildManualTree(ManualTestTree.Nodes[0]);
-//    ManualTestTree.EndUpdate();
 }
 
 void tPetrelProject::ReportsClear() {
@@ -291,18 +232,16 @@ void tPetrelProject::ExpandTestTree(QTreeWidgetItem* treeNode, bool expand) {
 
 QTreeWidgetItem* tPetrelProject::SearchNode(const QString& searchText, QTreeWidgetItem* startNode) { // shamefully copypasted from StackOverflow
     QTreeWidgetItem* node = nullptr;
-    //while (startNode != nullptr) {
-        if (startNode->text(0).toLower() == searchText) {
-            node = startNode;
+    if (startNode->text(0).toLower() == searchText) {
+        node = startNode;
+        return node;
+    }
+    for (int i = 0; i < startNode->childCount(); i++) {
+        node = SearchNode(searchText, startNode->child(i));//Recursive Search
+        if (node != nullptr) {
             return node;
         }
-        for (int i = 0; i < startNode->childCount(); i++) {
-            node = SearchNode(searchText, startNode->child(i));//Recursive Search
-            if (node != nullptr) {
-                return node;
-            }
-        }
-    //}
+    }
     return node;
 }
 
@@ -334,7 +273,7 @@ void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* rep
     for (tReport& ch : report->Children) {
         BuildReportsList(repList, &ch);
     }
-    qDebug() << "Linear report size is" << repList.size();
+    //qDebug() << "Linear report size is" << repList.size();
 }
 
 bool tPetrelProject::StartManualTest(const QString & testName) {
@@ -343,47 +282,27 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
     TestRunner.SetCurTestTree(&ManualTestTree);
 
     ResetDeviceInfo();
-    ///LinearReports.clear();
-    ///Cfg.ReportCurrent->Clear();
     Cfg.ReportCurrent->AutoScroll = true;
     QString manTestInitDetails;
-    //DecolorizeTestTree(&ManualTestTree); // Uncolor Auto test tree
 
-    // TODO: move Manual init report to ManualInit
-    ///tReport* repInitManual = Cfg.ReportCurrent->AddReport("Init Manual Tests");
-    ///if (TP->InitAutoTests(autoTestInitDetails)) {
-    ///    repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
-    //SetupManualTest(); // Builds the test specs tree from common tree
     tTestSpec* spec = TestSpecs->GetSpec(testName);
     if (spec == nullptr) {
         Log.LogErrorMessage("Specs for test " + testName + " not found!");
         return false;
     }
     tReport* manRep = spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
-    ///    Cfg.ReportCurrent->Refresh();
 
     TP->ResetCancelTestingFlag();
     TP->ClearAllTestsInfo();
-        //Cfg.SN.GetSn();
-        //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
     LinearReports.clear();
     
-    ///BuildReportsList(LinearReports, Cfg.ReportCurrent);
     BuildReportsList(LinearReports, manRep);
 
-        // Colour test tree
-    ///    ColorizeTestTree(&AutoTestTree);
-
-        //Application.DoEvents();
-        QApplication::processEvents();
-        if (TestRunner.InterruptFlag)
-            StopTests();
-        else
-            RunManualTests();
-    ///} else {
-    ///    repInitAuto->SetStatus(tTestStatus::TestError, autoTestInitDetails);
-    ///    StopTests();
-    ///}
+    QApplication::processEvents();
+    if (TestRunner.InterruptFlag)
+        StopTests();
+    else
+        RunManualTests();
     return true;
 }
 
@@ -392,7 +311,6 @@ void tPetrelProject::StartAutoTests() {
     if (TP == nullptr) return;
     TestRunner.InterruptFlag = false;
     TestRunner.SetCurTestTree(&AutoTestTree);
-    //SetState(TAppState.AutoStart);
     ResetDeviceInfo();
     LinearReports.clear();
     Cfg.ReportCurrent->Clear();
@@ -401,7 +319,6 @@ void tPetrelProject::StartAutoTests() {
     DecolorizeTestTree(&AutoTestTree); // Uncolor Auto test tree
 
     tReport* repInitAuto = Cfg.ReportCurrent->AddReport("Init Auto Tests");
-    //if (TP->InitAutoTests(autoTestInitDetails)) {
     if (TP->InitAutoTests(Cfg.ReportAutoTest)) {
         repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
         TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false, true, false);
@@ -409,8 +326,6 @@ void tPetrelProject::StartAutoTests() {
 
         TP->ResetCancelTestingFlag();
         TP->ClearAllTestsInfo();
-        //Cfg.SN.GetSn();
-        //TestProcedure.SetSerialNumber(Cfg.SN.GetSnInfo());
         LinearReports.clear();
         BuildReportsList(LinearReports, Cfg.ReportCurrent);
 
@@ -434,30 +349,26 @@ void tPetrelProject::RunAutoTests() {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
             TP->ResetTest(test->GetName(), "Auto"); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
-            
-            ///TestRunner.CurrentTestReport = ;
             if (!TestRunner.InterruptFlag) {
                 qDebug() << "Test runner starts test" << TestRunner.CurrentTestReport->GetName();
                 TestRunner.RunTest();
             }
         }
-    } // while
-    ///StopTests();
+    }
     Cfg.ReportCurrent->Refresh();
 }
-// So far (22/05/2026), it's the same as RunAutoTests, so mey not be needed
+
+// So far (22/05/2026), it's the same as RunAutoTests, so may not be needed
 void tPetrelProject::RunManualTests() {
     for (tReport* test : LinearReports) {
         if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
             TP->ResetTest(test->GetName(), test->GetName()); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
-            ///TestRunner.CurrentTestReport = ;
             if (!TestRunner.InterruptFlag) {
                 TestRunner.RunTest();
             }
         }
-    } // while
-    ///StopTests();
+    }
     Cfg.ReportCurrent->Refresh();
 }
 
@@ -469,19 +380,12 @@ void tPetrelProject::StopTests() {
 
 bool tPetrelProject::InitManualTest() {
     if (TP == nullptr) return false;
-
     bool res = TP->InitManualTest(Cfg.ReportManualTest);
-    //tTestStatus status = Cfg.ReportManualTest->GetStatus();
-    //bool expand = (status != tTestStatus::Passed);
-    //Cfg.ReportManualTest->Expand(status != tTestStatus::Passed);
-
+    tTestStatus status = Cfg.ReportManualTest->GetStatus();
+    bool expand = (status != tTestStatus::Passed);
+    Cfg.ReportManualTest->Expand(status != tTestStatus::Passed);
     return res;
 }
-
-//bool tPetrelProject::InitAutoTest() {
-//    if (TP == nullptr) return false;
-//    return TP->InitAutoTests();
-//}
 
 void tPetrelProject::DoneManualTest() {
     if (TP == nullptr) return;
@@ -491,4 +395,3 @@ void tPetrelProject::DoneAutoTest() {
     if (TP == nullptr) return;
     TP->DoneAutoTests(Cfg.ReportAutoTest);
 }
-

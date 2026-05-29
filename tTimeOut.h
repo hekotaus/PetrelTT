@@ -34,7 +34,7 @@ public:
     }
     bool IsExpired() {
         if (Running) {
-            int dt_ms = (QDateTime::currentDateTime() - Start).count();
+            int dt_ms = Start.msecsTo(QDateTime::currentDateTime());
             Expired = (dt_ms * 0.001 > TimeoutSec);
         }
         return Expired;
@@ -44,7 +44,7 @@ public:
     }
     double PercentagePassed() {
         if (TimeoutSec < 0.001) return 0;
-        int dt_ms = (QDateTime::currentDateTime() - Start).count();
+        int dt_ms = Start.msecsTo(QDateTime::currentDateTime());
         return 100.0 * dt_ms * 0.001 / TimeoutSec;
     }
 

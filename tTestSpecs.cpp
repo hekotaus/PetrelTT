@@ -19,7 +19,6 @@ tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs) {
     if (!duplicate) {
         tTestSpec newSpec;
         if (sourceSpecs == nullptr) {// Create "empty" spec
-            //TTestSpec newSpec = new TTestSpec(name, "", "", null, "");
             tTestSpec newSpec = tTestSpec(name, "", "boolean", nullptr, "Manually added group", "manual");
         } else { // Copy from existing spec
             tTestSpec* srcSpec = sourceSpecs->GetSpec(name);
@@ -44,7 +43,6 @@ tTestSpec* tTestSpecs::AddGroup(QString name) {
             duplicate = duplicate || s.FindByName(name);
 
     if (!duplicate) {
-        //TTestSpec newSpec = new TTestSpec(name, "", "", null, "");
         tTestSpec newSpec = tTestSpec(name, "", "boolean", nullptr, "Manually added group", "manual");
         Specs.push_back(newSpec);
         return &(*Specs.rbegin());
@@ -86,8 +84,6 @@ void tTestSpecs::Clear() {
 bool tTestSpecs::LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement* elParent, tReport* rep) {
     using namespace tinyxml2;
     bool res = true;
-    //Log.LogSystemMessage("Reading Spec");
-    //Log.IncIndent();
     // Have empty list of specs
     // For each node:
     //   add node to the list
@@ -136,7 +132,6 @@ bool tTestSpecs::LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement*
         if (res) {
             tTestSpec newSpec = tTestSpec(name, units, type, range, desc, mode, req);
             specs.push_back(newSpec);
-            //XmlNodeList childNodes = node.SelectNodes("Test");
             if (nullptr != el->FirstChildElement("Test")) {
                 if (!LoadSpecTree(specs.rbegin()->Children, el, rep)) {
                     res = false;
@@ -148,7 +143,6 @@ bool tTestSpecs::LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement*
         Valid = Valid && res;
         el = el->NextSiblingElement();
     } // foreach
-    //Log.DecIndent();
     return res;
 }
 
@@ -252,9 +246,7 @@ bool tTestSpecs::ReadXml() {
     ch1 = root->FirstChildElement("Specs");
     if (ch1 != nullptr) {
         // Recursive test load
-        //XMLElement* ch2 = ch1->FirstChildElement("Test");
         res = res && LoadSpecTree(Specs, ch1, rep1);
-        //res = res && XmlTools.GetXmlInnertext(ChildNode, out Description);
     }
 
     if (!res) {
@@ -272,7 +264,6 @@ bool tTestSpecs::ReadXml() {
 void tTestSpecs::Validate() {
     tReport* rep1 = Report->AddReport("Test Specs Validation");
     Log.LogSystemMessage("Test Specs validation");
-    //rep1->AddDetails(QString("Test Specs version: %1").arg(Version, 5, 'f', 3) + IsValid((Version > 0), Valid));
     rep1->AddDetails("Test Specs version: " + sVersion + IsValid((sVersion == Cfg.TestSpecsVer), Valid));
     rep1->AddDetails("DUT type: " + DutName + IsValid((DutName == Cfg.DutName), Valid));
     if (!Cfg.DutRevision.isEmpty())
@@ -294,26 +285,6 @@ void tTestSpecs::Validate() {
     root->ExpandNotPassed();
 }
 
- //public 
-#if 0
-void tTestSpecs::ValidateManual() {
-    tReport* ReportRoot = (tReport*)Cfg.ReportCurrent;
-    Report = ReportRoot->AddReport("Manual Test Specs validation");
-    Valid = true;
-    Log.LogSystemMessage("Manual Test Specs validation");
-    Log.IncIndent();
-    Log.LogSystemMessage("Validating Specs...");
-    Log.IncIndent();
-    for(tTestSpec& s : Specs) {
-        Valid = Valid && s.Validate(Report);
-    }
-    Log.DecIndent();
-    Log.DecIndent();
-    Log.LogSystemMessage("Test Specs " + IsValid(Valid, Valid));
-    Report->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);
-    if (!Valid) Report->AddDetails("Failed to validate Test Specs. See log file for details.");
-}
-#endif
  //public
 void tTestSpecs::BuildNameList(QStringList& specNames) {
     specNames.clear();
@@ -321,16 +292,6 @@ void tTestSpecs::BuildNameList(QStringList& specNames) {
         ch.BuildNameList(specNames);
     }
 }
-#if 0
-//public 
-void tTestSpecs::BuildTestTree(QTreeWidgetItem* treeNode) {
-    treeNode->setText(0, "Auto test");
-    for (tTestSpec& s : Specs) {
-        s.BuildTestTree(treeNode);
-    }
-    treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
-}
-#endif
 
 //public
 void tTestSpecs::BuildAutoTestTree(QTreeWidgetItem* treeNode) {
@@ -355,7 +316,6 @@ void tTestSpecs::BuildManualTestTree(QTreeWidgetItem* treeNode) {
 
 //public 
 void tTestSpecs::BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual) { // start building test re[ort from "name"
-    //report.SetName(name);
     for(tTestSpec& ch : Specs) {
         ch.BuildTestReport(report, allowDuplicates, includeAuto, includeManual);
     }
@@ -375,23 +335,3 @@ tTestSpec* tTestSpecs::GetSpec(QString name) { // Returns testSpec with specifie
     }
     return res;
 }
-
-//public
-#if 0
-bool tTestSpecs::CloneGroup(QString sourceName, tTestSpec* destParent) { // clone all the children of the group
-    bool res = false;
-    tTestSpec* src = GetSpec(sourceName);
-    //destParent.ValidateSilent();
-    if (src != nullptr) {
-        // Clone top element
-        //destParent.CloneFrom(src.Name, src.Units, src.sType, src.sRange, src.Desc);
-
-        // Added on 20250903 TODO: need to verify!!!
-        tTestSpec* newPar = destParent->AddSpec(src);
-        src->CloneTree(newPar);
-        newPar->Validate(nullptr);
-        res = true;
-    }
-    return res;
-}
-#endif

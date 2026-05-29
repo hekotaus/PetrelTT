@@ -3,10 +3,8 @@
 #include <qstring.h>
 #include <set>
 #include <list>
-////#include "tTestForm.h"
 #include "tTestResult.h"
 #include "tTestStatus.h"
-//#include "tReport.h"
 #include "param/tParamValue.h"
 #include <QStandardItem>
 #include <QTreeWidgetItem>
@@ -92,12 +90,7 @@ public:
     bool CheckRangeRange();
     bool CheckRangeValid();
 
-    // Tree management
-    //static private TTestSpecs Root;
-    //public bool HaveChildren = false;
-    //private TTestSpec Parent;
     std::list<tTestSpec> Children;
-    ////tTestForm* ManualTestDialog = nullptr;
 
 public:
     explicit tTestSpec() {}; // empty
@@ -129,11 +122,7 @@ public:
     bool FindByName(const QString& name);
     void BuildNameList(QStringList& specNames);
     void BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual); // test == non-groups
-    //void BuildAutoTree(tTreeNode* treeNode);
-    //void BuildManualTree(tTreeNode* treeNode);
     tReport* BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual);
     tTestSpec* GetSpec(QString name); // Returns testSpec with specified name
-    //bool CloneTree(tTestSpec* destParent); // clone all the children of the group
-    ////void FindManualDialog(QString name, tTestForm* manDialog);
     QString CheckTypeToString();
 };

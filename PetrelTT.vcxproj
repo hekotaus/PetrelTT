@@ -132,6 +132,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="tTimeOut.h" />
     <QtMoc Include="tPanReport.h" />
     <QtMoc Include="tPanTestTree.h" />
     <QtMoc Include="tReport.h" />
@@ -151,7 +152,6 @@
     <QtMoc Include="tPanDebug.h" />
     <QtMoc Include="tPanLog.h" />
     <ClInclude Include="tPetrelProject.h" />
-    <ClInclude Include="tStateMachine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
