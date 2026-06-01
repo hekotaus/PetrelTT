@@ -13,12 +13,13 @@ tTestProcedure::tTestProcedure(
     , Cfg(cfg)
     , TestSpecs(tTestSpecs(Log, Cfg))
 {
-//    WaiterTimer.setSingleShot(true);
-//    connect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
-//    connect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+    connect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    connect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
 }
 
 tTestProcedure::~tTestProcedure() { 
+    disconnect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
     //delete TestProcInfo; 
 }
 
@@ -169,6 +170,7 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
     for (int i = 0; i < n; i++) {
         QThread::msleep(delMs);
         Test_SetProgress(double(i) / n);
+        if (InterruptFlag) return;
     }
 }
 
@@ -215,20 +217,13 @@ void tTestProcedure::Test_ShowMessage(QMessageBox* msgBox) {
 }
 
 bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutSec) {
-    QEventLoop WaiterLoop; // used for waiting and getting info from main
-    QTimer WaiterTimer;
-    WaiterTimer.setSingleShot(true);
-    connect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
-    connect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+    MessageBoxWaiterTimer.setSingleShot(true);
 
-    WaiterTimer.start(timeoutSec * 1000);
-    WaiterLoop.exec();
-
-    disconnect(this, &tTestProcedure::sigMessageResult, &WaiterLoop, &QEventLoop::quit);
-    disconnect(&WaiterTimer, &QTimer::timeout, &WaiterLoop, &QEventLoop::quit);
+    MessageBoxWaiterTimer.start(timeoutSec * 1000);
+    MessageBoxWaiterLoop.exec();
 
     messageBoxResult = MessageBoxResult;
-    return WaiterTimer.isActive();
+    return MessageBoxWaiterTimer.isActive();
 }
 
 void tTestProcedure::SetTestStatus(tTestStatus newStatus) {
@@ -320,6 +315,8 @@ void tTestProcedure::slotRunTest() {
             CurrentTest.Proc(CurrentTest.Info); // Run test // TODO: check cancel flag!
         } catch (std::exception& ex) {
             Test_AddDetails("Exception occured during running test: " + QString(ex.what()));
+        } catch (...) {
+            Test_AddDetails("Unknown exception occured during running test"); 
         }
 
         if ((CurrentTest.Info.Status == tTestStatus::Testing) && (CurrentTest.Info.Result.IsValueSet()))
@@ -348,6 +345,11 @@ void tTestProcedure::slotMessageResult(int result) { // From UI
     emit sigMessageResult();
 }
 
+tTestDialog* tTestProcedure::FindManualDialog(QString name) {
+    tTestDialog* res = nullptr;
+    //TestSpecs.FindManualDialog(name, res);
+    return res;
+}
 #if 0
         public List<TFileInfo> GetFilesByTarget(string target) {
             return TestProcInfo.GetFilesByTarget(target);

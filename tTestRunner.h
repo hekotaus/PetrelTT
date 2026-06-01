@@ -27,12 +27,14 @@ private:
 public:
     tReport* CurrentTestReport = nullptr;
     bool InterruptFlag = false;
+    bool CancelTestsFlag = false;
     tTestRunner(tLogger& log);
     void SetCurTestTree(QTreeWidgetItem* testTree);
     //void FlushSignals();
     void RunTest();
     void SetTP(tTestProcedure* tp) { TP = tp; }
     bool GetRunningTest() const { return IsRunningTest; }
+    void CancelTests();
 public slots:
     // Settings
     void slotSetTestInfo(tTestInfo ti);   // Procedure -> Runner <tTestInfo>
@@ -41,12 +43,9 @@ public slots:
     void slotAddTestDetails(const QString& details); // Procedure -> Runner <QString>
  signals:
     void sigRunTest();
-    void sigFinishTest(); // Move TP back to main thread
+    void sigFinishTest(); // Runner -> Procedure Move TP back to main thread
     void sigInterruptTest(); // Runner -> Procedure <void>
-    void sigSetProgressBar(int); // -> App->ProgressBar
+
+    void sigSetProgressBar(int); // Runner->App->ProgressBar
     void sigTestFinished(); // Runner->App
-    //UseSerialNumber, // Procedure -> Runner
-    //
-    //void signalSetTestParams(); // used to transfer params TestForm->TestRunner->TestProcedure <???>
-    // Test commands
 };

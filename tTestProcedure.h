@@ -55,7 +55,10 @@ protected:
     std::map<QString, tTestInfo> AllTestInfo;
     tTestSpecs TestSpecs;
     
+    QEventLoop MessageBoxWaiterLoop; // used for waiting and getting info from main
+    QTimer MessageBoxWaiterTimer;
     int MessageBoxResult = 0;
+
     bool IsInexistingTestsWarning = true;
     std::atomic<bool> InterruptFlag = false;
     std::atomic<bool> CancelTestingFlag = false;
@@ -114,6 +117,8 @@ public:
     bool IsTestFunctionAssigned(QString testName);
     void ValidateAutoTestFuncAssignment(tReport* rep);
 
+    tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
+
  public slots:
     void slotRunTest();
     void slotInterruptTest(); // Runner -> Procedure <void>
@@ -142,7 +147,7 @@ public:
     tTestProcedure* Test_Error(const QString& details = "");
     void Test_StartManualTest(const QString& testName);
     void Test_ShowMessage(QMessageBox* msgBox);
-    bool Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutMs);
+    bool Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutSec);
 
     template <typename T>
     tTestProcedure* Test_SetResult(T resValue) {
