@@ -381,6 +381,8 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     tTestDialog* pDialog = nullptr;
+    if (State == St::ManualStopped)
+        Project.SetCurrentGroupName(groupName);
     QString caption = "Test " + groupName;
     if (Project.TP != nullptr) {
         if (State == St::ManualStopped) {
@@ -419,7 +421,7 @@ void tPetrelTT::slotStartTest() { // Start button pressed
         break;
     case St::ManualStopped: // Run default test for the current group
         SetState(St::ManualRunning);
-        ///Project.StartManualTest(Project.Project->SetManualGroup()); // TODO: get the froup name from test tree
+        Project.StartManualTest(Project.GetCurrentGroupName()); // TODO: get the group name from test tree
         break;
     default: qDebug() << "Should never hit slotStartTest()::default";
     }

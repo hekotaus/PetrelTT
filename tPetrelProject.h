@@ -27,7 +27,7 @@ class tPetrelProject /*: public QObject*/ {
     //tTestSpecs ServiceTestSpecs;
     QTreeWidgetItem AutoTestTree;
     QTreeWidgetItem ManualTestTree;
-
+    QString CurrentGroupName = "";
     
     std::list<tReport*> LinearReports; // Used for linearisation of the test tree
 
@@ -91,6 +91,9 @@ public:
     //bool InitAutoTest();
     void DoneManualTest();
     void DoneAutoTest();
+
+    void SetCurrentGroupName(const QString& groupName);
+    QString GetCurrentGroupName() const;
 
     template <class T>
     T CallPluginFunction(T typ, const QString& funcName) {

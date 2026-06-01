@@ -403,3 +403,12 @@ void tPetrelProject::DoneAutoTest() {
     if (TP == nullptr) return;
     TP->DoneAutoTests(Cfg.ReportAutoTest);
 }
+
+
+void tPetrelProject::SetCurrentGroupName(const QString& groupName) {
+    CurrentGroupName = groupName;
+}
+
+QString tPetrelProject::GetCurrentGroupName() const {
+    return CurrentGroupName;
+}

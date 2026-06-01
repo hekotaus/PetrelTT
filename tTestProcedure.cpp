@@ -13,13 +13,13 @@ tTestProcedure::tTestProcedure(
     , Cfg(cfg)
     , TestSpecs(tTestSpecs(Log, Cfg))
 {
-    connect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
-    connect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    //connect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    //connect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
 }
 
 tTestProcedure::~tTestProcedure() { 
-    disconnect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
-    disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    //disconnect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
+    //disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
     //delete TestProcInfo; 
 }
 
@@ -230,7 +230,7 @@ bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int tim
     MessageBoxWaiterTimer.setSingleShot(true);
 
     MessageBoxWaiterTimer.start(timeoutSec * 1000);
-    MessageBoxWaiterLoop.exec();
+    MessageBoxWaiterLoop->exec();
 
     messageBoxResult = MessageBoxResult;
     return MessageBoxWaiterTimer.isActive();
@@ -246,16 +246,17 @@ void tTestProcedure::SetTestInfo() {
 }
 
 //public 
-void tTestProcedure::SetupManualTest(const QString& groupName, const QString& testName) {
-    TestGroup = groupName;
-    TestName = testName;
-}
+//void tTestProcedure::SetupManualTest(const QString& groupName, const QString& testName) {
+//    //TestGroup = groupName;
+//    TestName = testName;
+//}
 
 //public 
-void tTestProcedure::SetupTest(QString testName) {
+void tTestProcedure::SetupTest(const QString& testName) {
     TestName = testName;
     InterruptFlag = false;
 }
+
 bool tTestProcedure::InitDptAndDut(tReport* rep) {
     tReport* r1 = rep->AddReportTesting("InitManualTest", true);
     bool res = true;
@@ -321,6 +322,11 @@ void tTestProcedure::slotRunTest() {
 
     if (!InterruptFlag && !CancelTestingFlag) {
         SetTestStatus(tTestStatus::Testing);
+        MessageBoxWaiterLoop = new QEventLoop();
+        connect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
+        connect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
+
+
         try {
             CurrentTest.Proc(CurrentTest.Info); // Run test // TODO: check cancel flag!
         } catch (std::exception& ex) {
@@ -343,6 +349,9 @@ void tTestProcedure::slotRunTest() {
     }
     SetTestInfo(); // emit signal once to avoid unwanted switching. Do we really need it in the very end? Yes. To signal end of work
     TestName = "";
+    disconnect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
+    disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
+    delete MessageBoxWaiterLoop;
     moveToThread(QApplication::instance()->thread());
 }
 

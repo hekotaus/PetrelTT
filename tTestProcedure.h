@@ -50,12 +50,12 @@ protected:
 
     bool IsValid = true;
     tTestStruct CurrentTest;
-    QString TestGroup = "";
+    //QString TestGroup = "";
     std::map<QString, tTestStruct> TestDict; // Call Test by Name
     std::map<QString, tTestInfo> AllTestInfo;
     tTestSpecs TestSpecs;
     
-    QEventLoop MessageBoxWaiterLoop; // used for waiting and getting info from main
+    QEventLoop* MessageBoxWaiterLoop = nullptr; // used for waiting and getting info from main
     QTimer MessageBoxWaiterTimer;
     int MessageBoxResult = 0;
 
@@ -103,8 +103,8 @@ public:
     bool IsInterrupted() const { return InterruptFlag; }
 
     void ResetCancelTestingFlag(); // This is called before starting test session
-    void SetupTest(QString testName);
-    void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
+    void SetupTest(const QString& testName);
+    //void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
     void SetTestInfo(QString name, tTestInfo info);
 
     tTestInfo& GetCurrentTestInfo() { return CurrentTest.Info; }
