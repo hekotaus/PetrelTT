@@ -298,7 +298,7 @@ void tTestSpecs::BuildAutoTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Auto test");
     for (tTestSpec& s : Specs) {
         if (s.GetIsAutoTest()) {
-            s.BuildTestTree(treeNode, true, true, false);
+            s.BuildTestTreeAuto(treeNode);
         }
     }
     //treeNode->setExpanded(true); // Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
@@ -309,7 +309,7 @@ void tTestSpecs::BuildManualTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Manual test");
     for (tTestSpec& s : Specs) {
         if (s.GetIsManualTest() && (s.Children.size() != 0))
-            s.BuildTestTree(treeNode, false, false, true);
+            s.BuildTestTreeManual(treeNode);
     }
     //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
 }
@@ -334,4 +334,17 @@ tTestSpec* tTestSpecs::GetSpec(QString name) { // Returns testSpec with specifie
                 res = ch.GetSpec(name);
     }
     return res;
+}
+
+tTestDialog* tTestSpecs::GetManualDialog(QString name) {
+    tTestSpec* spec = GetSpec(name);
+    if (spec == nullptr) return nullptr;
+    return spec->GetManualDialog();
+}
+
+bool tTestSpecs::AssignManualDialog(QString name, tTestDialog* manDialog) {
+    tTestSpec* spec = GetSpec(name);
+    if (spec == nullptr) return false;
+    spec->AssignManualDialog(manDialog);
+    return true;
 }

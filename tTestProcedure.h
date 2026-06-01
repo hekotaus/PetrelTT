@@ -64,7 +64,6 @@ protected:
     std::atomic<bool> CancelTestingFlag = false;
     QString TestName = "";
 
-    bool AssignTestFunction(const QString &testName, tTestDelegate testProc);
     QString TestAssignmentSourceCode(QString dut, QString group, QString specName); // Just a little help for test procedure programmer :)
     bool ValidateManualTestFuncAssignment(tReport* rep); // X3 how to call it!
     void SetTestStatus(tTestStatus newStatus);
@@ -85,7 +84,7 @@ public:
     void DeletePanCfg();
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
-    virtual tTestDialog* GetManualTestDialog(const QString& groupName) = 0;
+    virtual tTestDialog* GetManualTestDialog(const QString& groupName) { return TestSpecs.GetManualDialog(groupName);  };
     
     bool InitDptAndDut(tReport* rep);
     void DoneDutAndDpt(tReport* rep);
@@ -117,8 +116,6 @@ public:
     bool IsTestFunctionAssigned(QString testName);
     void ValidateAutoTestFuncAssignment(tReport* rep);
 
-    tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
-
  public slots:
     void slotRunTest();
     void slotInterruptTest(); // Runner -> Procedure <void>
@@ -135,6 +132,9 @@ signals:
 
     // TEST API
 public:
+    bool AssignTestFunction(const QString& testName, tTestDelegate testProc);
+    tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
+    bool AssignManualDialog(QString name, tTestDialog* pDialog); //Scan Specs tree until name found.Return ManualTestDialog
 
     // Here all *TP results are used only for easier returning from the test
     void Test_DelayAndSetProgress(int delayMs);

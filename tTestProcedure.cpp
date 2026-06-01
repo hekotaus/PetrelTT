@@ -174,6 +174,16 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
     }
 }
 
+bool tTestProcedure::AssignManualDialog(QString name, tTestDialog* pDialog) { //Scan Specs tree until name found.Return ManualTestDialog
+    return TestSpecs.AssignManualDialog(name, pDialog);
+}
+
+tTestDialog* tTestProcedure::FindManualDialog(QString name) {
+    tTestDialog* res = nullptr;
+    //TestSpecs.FindManualDialog(name, res);
+    return res;
+}
+
 void tTestProcedure::Test_SetTimeout(double timeoutSec) {
     emit sigSetTestTimeout(timeoutSec);
 }
@@ -345,11 +355,6 @@ void tTestProcedure::slotMessageResult(int result) { // From UI
     emit sigMessageResult();
 }
 
-tTestDialog* tTestProcedure::FindManualDialog(QString name) {
-    tTestDialog* res = nullptr;
-    //TestSpecs.FindManualDialog(name, res);
-    return res;
-}
 #if 0
         public List<TFileInfo> GetFilesByTarget(string target) {
             return TestProcInfo.GetFilesByTarget(target);

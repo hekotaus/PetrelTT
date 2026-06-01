@@ -5,6 +5,7 @@
 #include <list>
 #include "tTestResult.h"
 #include "tTestStatus.h"
+#include "tTestDialog.h"
 #include "param/tParamValue.h"
 #include <QStandardItem>
 #include <QTreeWidgetItem>
@@ -23,6 +24,7 @@ public:
     };
 
 protected:
+    tTestDialog* ManualDialog = nullptr;
     // Test Specs
     QString Name = "";
     QString Desc = ""; // Informal description
@@ -113,16 +115,20 @@ public:
     tCheckType GetCheckType() const { return Check; }
 
     tTestSpec* AddSpec(QString name, QString units, QString type, QString range, QString desc, QString mode, QString req = "");
-    tTestSpec* AddSpec(tTestSpec* spec /*, *tTestForm* manTestDialog = nullptr*/);
-    tTestSpec* AddGroup(QString name /*, tTestForm* manTestDialog = nullptr*/);
+    tTestSpec* AddSpec(tTestSpec* spec/*, tTestDialog* manTestDialog = nullptr*/);
+    tTestSpec* AddGroup(QString name/*, tTestDialog* manTestDialog = nullptr*/);
     tTestStatus TestValue(const tTestResult& testResult);
     void Clear();
     bool ConvertToSuperTest(); // Used to convert pure group to group with buil-in test
     bool Validate(tReport* rep);
     bool FindByName(const QString& name);
     void BuildNameList(QStringList& specNames);
-    void BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual); // test == non-groups
+    //void BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual); // test == non-groups
+    void BuildTestTreeManual(QTreeWidgetItem* treeNode);
+    void BuildTestTreeAuto(QTreeWidgetItem* treeNode);
     tReport* BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual);
     tTestSpec* GetSpec(QString name); // Returns testSpec with specified name
     QString CheckTypeToString();
+    void AssignManualDialog(tTestDialog* manDialog);
+    tTestDialog* GetManualDialog();
 };

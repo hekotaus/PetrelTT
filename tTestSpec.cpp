@@ -26,7 +26,7 @@ tTestSpec* tTestSpec::AddSpec(QString name, QString units, QString type, QString
 }
 
 //public 
-tTestSpec* tTestSpec::AddSpec(tTestSpec* spec) {
+tTestSpec* tTestSpec::AddSpec(tTestSpec* spec/*, tTestDialog* manTestDialog*/) {
     if (spec == nullptr) return nullptr;
     tTestSpec child = tTestSpec(
         spec->Name, spec->Units, spec->sType, spec->sRange, spec->Desc, spec->Mode, spec->Req);
@@ -35,7 +35,7 @@ tTestSpec* tTestSpec::AddSpec(tTestSpec* spec) {
 }
 
 //public 
-tTestSpec* tTestSpec::AddGroup(QString name) {
+tTestSpec* tTestSpec::AddGroup(QString name/*, tTestDialog* manTestDialog*/) {
     tTestSpec child = tTestSpec(name, "", "", nullptr, "", "auto manual");
     Children.push_back(child);
     return &Children.back();
@@ -399,6 +399,7 @@ void tTestSpec::BuildNameList(QStringList& specNames) {
 }
 
 //public 
+#if 0
 void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool includeAuto, bool includeManual) {
     if ((includeAuto && IsAutoTest) || (includeManual && IsManualTest)) {
         QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
@@ -411,6 +412,27 @@ void tTestSpec::BuildTestTree(QTreeWidgetItem* treeNode, bool includeTests, bool
         //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
     }
 }
+#else
+void tTestSpec::BuildTestTreeManual(QTreeWidgetItem* treeNode) {
+    if (!IsManualTest) return;
+    QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
+    newNode->setText(0, Name);
+    if (GetManualDialog() != nullptr) return; // stop searching further
+    for (tTestSpec& s : Children) {
+        s.BuildTestTreeManual(newNode);
+    }
+        //treeNode->setExpanded(true); Warning: The QTreeWidgetItem must be added to the QTreeWidget before calling this function.
+}
+void tTestSpec::BuildTestTreeAuto(QTreeWidgetItem* treeNode) {
+    if (!IsAutoTest) return;
+    QTreeWidgetItem* newNode = new QTreeWidgetItem(treeNode);
+    newNode->setText(0, Name);
+    //treeNode->addChild(newNode);
+    for (tTestSpec& s : Children) {
+        s.BuildTestTreeAuto(newNode);
+    }
+}
+#endif
 
 //public 
 tReport* tTestSpec::BuildTestReport(tReport* report, bool allowDuplicates, bool includeAuto, bool includeManual) {
@@ -450,4 +472,12 @@ QString tTestSpec::CheckTypeToString() {
     case tTestSpec::tCheckType::Internal: res += " (internal check)"; break;
     }
     return res;
+}
+
+void tTestSpec::AssignManualDialog(tTestDialog* manDialog) {
+    ManualDialog = manDialog;
+}
+
+tTestDialog* tTestSpec::GetManualDialog() {
+    return ManualDialog;
 }

@@ -46,4 +46,7 @@ public:
     void BuildManualTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
     void BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual); // start building test re[ort from "name"
     tTestSpec* GetSpec(QString name);
+    tTestDialog* GetManualDialog(QString name);
+    bool AssignManualDialog(QString name, tTestDialog* manDialog);
+
 };
