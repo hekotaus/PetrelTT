@@ -138,7 +138,8 @@ public:
 
     // Here all *TP results are used only for easier returning from the test
     void Test_DelayAndSetProgress(int delayMs);
-    tTestProcedure* Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g.the DUT is burnt during flashing firmware, etc
+    tTestProcedure* Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g. the DUT is burnt during flashing firmware, etc
+    tTestProcedure* Test_CancelSubtests(QString details = ""); // Call this function, if there is no sense to perform subtests, e.g. Measurement did not happen, cancel chacking all params
     void Test_SetTimeout(double timeoutSec);
     tTestProcedure* Test_AddDetails(const QString& details);
     void Test_SetProgress(double fraction); // 0.0...1.0

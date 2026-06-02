@@ -35,6 +35,15 @@ tTestProcedure* tTestProcedure::Test_CancelTesting(QString details) {
     Test_AddDetails("Testing cancelled! No further tests will be run.");
     if (!details.isEmpty()) Test_AddDetails(details);
     CancelTestingFlag = true;
+    //TODO: implement signaling to TestRunner!
+    return this;
+}
+
+tTestProcedure* tTestProcedure::Test_CancelSubtests(QString details) {
+    Test_AddDetails("Testing cancelled! No further tests will be run.");
+    if (!details.isEmpty()) Test_AddDetails(details);
+    //CancelTestingFlag = true;
+    //TODO: implement signaling to TestRunner!
     return this;
 }
 
@@ -326,7 +335,6 @@ void tTestProcedure::slotRunTest() {
         connect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
         connect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
 
-
         try {
             CurrentTest.Proc(CurrentTest.Info); // Run test // TODO: check cancel flag!
         } catch (std::exception& ex) {
@@ -352,10 +360,12 @@ void tTestProcedure::slotRunTest() {
     disconnect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
     disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
     delete MessageBoxWaiterLoop;
+    qDebug() << "tTestProcedure::slotRunTest()::moveToThread(main)";
     moveToThread(QApplication::instance()->thread());
 }
 
 void tTestProcedure::slotFinishTest() { // Move TP back to main thread
+    qDebug() << "tTestProcedure::slotFinishTest()::moveToThread(main)";
     moveToThread(QApplication::instance()->thread()); // Fix Current thread is not the object's thread. Cannot move to target thread
 }
 

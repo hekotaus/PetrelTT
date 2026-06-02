@@ -64,7 +64,7 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     connect(PanTestTree, SIGNAL(sigChangeGroupName(const QString&)), this, SLOT(slotTestGroupChanged(const QString&)));
 
-    connect(&Project.TestRunner, SIGNAL(sigTestFinished()), this, SLOT(slotTestFinished()));
+    connect(&Project.TestRunner, SIGNAL(sigTestFinished(tTestStatus)), this, SLOT(slotTestFinished(tTestStatus)));
 
     auto& cfg = Project.Cfg;
     auto pParGrpProj = Project.ParGrpProject;
@@ -401,7 +401,7 @@ void tPetrelTT::slotStartManualTest(const QString& testName) { // From TP
         SetState(St::ManualStopped);
 }
 
-void tPetrelTT::slotTestFinished() {
+void tPetrelTT::slotTestFinished(tTestStatus status) {
     switch (State) {
     case St::AutoRunning: SetState(St::AutoStopped); break;
     case St::ManualRunning: SetState(St::ManualStopped); break;

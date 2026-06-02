@@ -287,6 +287,7 @@ void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* rep
 bool tPetrelProject::StartManualTest(const QString & testName) {
     if (TP == nullptr) return false;
     TestRunner.InterruptFlag = false;
+    TestRunner.CancelTestsFlag = false;
     TestRunner.SetCurTestTree(&ManualTestTree);
 
     ResetDeviceInfo();
@@ -318,6 +319,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
 void tPetrelProject::StartAutoTests() {
     if (TP == nullptr) return;
     TestRunner.InterruptFlag = false;
+    TestRunner.CancelTestsFlag = false;
     TestRunner.SetCurTestTree(&AutoTestTree);
     ResetDeviceInfo();
     LinearReports.clear();

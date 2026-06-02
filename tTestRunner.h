@@ -11,9 +11,17 @@ class tProgressBar; // TEMPORARY
 class tTestRunner : public QObject { // interacts with TestProcedure
     Q_OBJECT
 private:
-    tTimeout TestTimeout = tTimeout(0, false);
+    //tTimeout TestTimeout = tTimeout(0, false); // TODO: remove
+    QTimer WorkerWaiterTimer;
+    QEventLoop WorkerWaiterLoop;
+    
+    tTestInfo LastTestInfo; // updated in the slot
+
     //private double TestTimeout;
-    double SoftInterruptTimeout;
+    int TimeoutNormalSec = 10; // How many seconds wait for standard test
+    int TimeoutSoftInterruptSec = 5; // How much to wait for graceful thread shutdown by Interrupt test flag
+    int TimeoutHardInterruptSec = 1; // How much to wait for hard thread shutdown by terminate()
+    int TimeoutWaitSec = 1;
     //QProgressBar* TestProgress = nullptr;
     tTestProcedure* TP = nullptr;
     tLogger& Log;
@@ -22,13 +30,14 @@ private:
     QTreeWidgetItem* TestTree = nullptr;
     bool IsRunningTest = false;
     //void ProcessSignals();
-    void AbortTest(bool byUser);
+    void AbortTest();
 
 public:
     tReport* CurrentTestReport = nullptr;
     bool InterruptFlag = false;
     bool CancelTestsFlag = false;
     tTestRunner(tLogger& log);
+    ~tTestRunner();
     void SetCurTestTree(QTreeWidgetItem* testTree);
     //void FlushSignals();
     void RunTest();
@@ -47,5 +56,5 @@ public slots:
     void sigInterruptTest(); // Runner -> Procedure <void>
 
     void sigSetProgressBar(int); // Runner->App->ProgressBar
-    void sigTestFinished(); // Runner->App
+    void sigTestFinished(tTestStatus status); // Test finished. Can be emitted a few times. Runner->App Runner->Runner waiting loop
 };

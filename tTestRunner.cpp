@@ -5,17 +5,23 @@ tTestRunner::tTestRunner(tLogger& log)
     : Log(log) {
     //TestProgress->setValue(0);
     //emit sigSetProgressBar(0); // not conneced yet, makes no sense
+
+    //connect(this, &tTestRunner::sigMessageResult, &WorkerWaiterLoop, &QEventLoop::quit);
+    connect(&WorkerWaiterTimer, &QTimer::timeout, &WorkerWaiterLoop, &QEventLoop::quit);
+    connect(this, &tTestRunner::sigTestFinished, &WorkerWaiterLoop, &QEventLoop::quit);
+}
+
+tTestRunner::~tTestRunner() {
+    disconnect(&WorkerWaiterTimer, &QTimer::timeout, &WorkerWaiterLoop, &QEventLoop::quit);
+    disconnect(this, &tTestRunner::sigTestFinished, &WorkerWaiterLoop, &QEventLoop::quit);
 }
 
 //private 
-void tTestRunner::AbortTest(bool byUser) {
+void tTestRunner::AbortTest() {
     // hard interrupt. May cause problems, as it does not release any resourses
     TestThread.terminate();
-    if (TestThread.wait(QDeadlineTimer(500))) {
-        if (byUser)
-            CurrentTestReport->SetStatus(tTestStatus::Interrupted, "Hard interrupt by user");
-        else
-            CurrentTestReport->SetStatus(tTestStatus::TestError, "Hard interrupt auto");
+    if (TestThread.wait(QDeadlineTimer(TimeoutHardInterruptSec))) {
+        CurrentTestReport->SetStatus(tTestStatus::TestError, "Hard interrupted");
     } else {
         CurrentTestReport->SetStatus(tTestStatus::TestError, "ERROR: Failed to hard interrupt!");
         Log.LogErrorMessage("Failed to abort timed out test thread");
@@ -25,27 +31,25 @@ void tTestRunner::AbortTest(bool byUser) {
 void tTestRunner::CancelTests() {
     InterruptFlag = true;
     CancelTestsFlag = true;
-    emit sigInterruptTest();
-    // Wait a bit
-    tTimeout softInterruptTimeout = tTimeout(SoftInterruptTimeout, true);
-    while ((!softInterruptTimeout.IsExpired()) && CurrentTestReport->IsNotFinished()) {
-        QApplication::processEvents();
-        QThread::msleep(100);
-    }
-    AbortTest(false);
+    emit sigInterruptTest(); // To TP
+    CurrentTestReport->AddDetails("User interrupt");
 }
 
 //public 
 void tTestRunner::RunTest() {
     IsRunningTest = true;
     InterruptFlag = false;
-    CancelTestsFlag = false;
     QString testName = CurrentTestReport->GetName(); // Group name for Manual or test name for Auto
     emit sigSetProgressBar(0);
-    TestTimeout.Restart(10.0);
+    ///TestTimeout.Restart(10.0);
     qDebug() << "CurrentTestReport status" << CurrentTestReport->GetStatusMessage();
     //TestProcedure.ResetTest(testName, "Auto"); // Erase old specs, remove old results
     TP->SetupTest(testName); // This gets a new specs structure
+    LastTestInfo.Status = tTestStatus::Pending;
+    LastTestInfo.Details = "";
+    LastTestInfo.Result.Clear();
+    // New test cycle
+    // 1. Run test thread
     TP->moveToThread(&TestThread);
     qDebug() << "Test Runner is starting the test thread...";
     TestThread.start(); // Need to do it every time, as we can interrupt the test with exit()/terminate()
@@ -53,69 +57,63 @@ void tTestRunner::RunTest() {
     emit sigRunTest();
     qDebug() << "Test Runner is entering waiting loop...";
     // Wait untils test TESTED or SKIPPED or TEST ERROR or timeout
-
-    // New test cycle
-    // 1. Run test thread
+    
     // 2. Wait in the loop
-    // 3. If timeout occured, issua Soft interrupt
-    // 4. If Soft interrupt occured, run 2nd loop with Soft exit waiting
-    // 5. If Not finished Abort else Finish normally
+    // Connect Stop button activated sigInterruptTest
+    connect(this, &tTestRunner::sigInterruptTest, &WorkerWaiterLoop, &QEventLoop::quit);
+    WorkerWaiterTimer.setSingleShot(true);
+    WorkerWaiterTimer.start(TimeoutNormalSec * 1000);
+    WorkerWaiterLoop.exec(); // Interrupts by timer or test status
+    // Disconnect Stop button activated sigInterruptTest
+    disconnect(this, &tTestRunner::sigInterruptTest, &WorkerWaiterLoop, &QEventLoop::quit);
+    qDebug() << "exit test waiting loop 1";
 
-    do {
-        QApplication::processEvents();
-        QThread::msleep(100);
-        //qDebug() << "Test Runner is running test...";
-    } while (!CancelTestsFlag && !InterruptFlag && !TestTimeout.IsExpired() && CurrentTestReport->IsNotFinished());
-    QApplication::processEvents();
+    bool timeout = !WorkerWaiterTimer.isActive();
+    WorkerWaiterTimer.stop();
+    qDebug() << "timeout 1 = " << timeout;
 
-    // When reached this point, test changed it's state or interrupt happened
-    if (TestTimeout.IsExpired()) { // Hard interrupt
-        CurrentTestReport->AddDetails("Test timeout");
-        AbortTest(false);
-    } else if (InterruptFlag) { // Soft interrupt
-        CurrentTestReport->AddDetails("Interrupted by user");
-        CurrentTestReport->AddDetails("Soft interrupt");
-        SoftInterruptTimeout = 3.0;
-        bool isSoftInterruptTimeout = false;
+    // 3. If timeout occured, issue Soft interrupt
+    if (timeout || InterruptFlag) { // TODO: add || IsInterrupt (set by StopButton)
+        CurrentTestReport->AddDetails("Test timed out. Soft interrupt");
         emit sigInterruptTest();
-        tTimeout softInterruptTimeout = tTimeout(SoftInterruptTimeout, true);
-        while ((!softInterruptTimeout.IsExpired()) && CurrentTestReport->IsNotFinished()) {
-            QApplication::processEvents();
-            QThread::msleep(100);
-        }
-        QApplication::processEvents();
-        if (isSoftInterruptTimeout && CurrentTestReport->IsNotFinished())
-            AbortTest(true); // Hard interrupt
-        if (CurrentTestReport->IsNotFinished())
-            CurrentTestReport->SetStatus(tTestStatus::Interrupted, "Interrupted by User");
-    } else { // Normal finish, just wait for thread peacefully
-        TestThread.exit();
-        TestThread.wait();
+        WorkerWaiterTimer.start(TimeoutSoftInterruptSec * 1000);
+        // 4. Run 2nd loop with Soft exit waiting
+        WorkerWaiterLoop.exec(); // Interrupts by timer or test status
+        qDebug() << "exit test waiting loop 2";
+        timeout = !WorkerWaiterTimer.isActive();
+        qDebug() << "timeout 2 = " << timeout;
     }
 
-    // TODO: remove thiese two lines
-    //TP->moveToThread(QApplication::instance()->thread()); // TODO: Current thread is not the object's thread. Cannot move to target thread
-    //emit sigFinishTest(); // Fix for Current thread is not the object's thread. Cannot move to target thread
-    
+    // 5. If Not finished HardInterrupt else Finish normally
+    if (timeout) { // Everything is bad. Terminate thread!
+        CurrentTestReport->AddDetails("Soft interrupt failed. Hard interrupt");
+        AbortTest(); // Hard interrupt
+        LastTestInfo.Status = CurrentTestReport->GetStatus();
+        // Move to thread ???
+        // ATM, this is very bad. Must be avoided!
+        qDebug() << "tTestRunner::RunTest()::TP->moveToThread(main)";
+        //emit sigFinishTest();
+        //TP->moveToThread(QApplication::instance()->thread());
+    } else { // Just softly wait end of thread
+        TestThread.exit();
+        TestThread.wait(TimeoutWaitSec * 1000);
+    }
+
     emit sigSetProgressBar(0);
 
-    tTestInfo& info = TP->GetCurrentTestInfo();
-    
-    if (info.Status == tTestStatus::Testing) { // Check value range
-        info.Details += "Test not finished (result has not been set)";
-        info.Status = tTestStatus::TestError; // Result is not set
-    }
-
-    if (info.Status == tTestStatus::Tested) { // Check value range
+    if (LastTestInfo.Status == tTestStatus::Testing) { // Check value range
+        CurrentTestReport->SetStatus(tTestStatus::TestError, "Test not finished (result has not been set)");
+    } else if (LastTestInfo.Status == tTestStatus::Tested) { // Check value range
         tTestSpec* spec = TP->GetTestSpecs()->GetSpec(testName);
         if ((spec != nullptr) && (spec->GetIsTest())) {
-            info.Status = spec->TestValue(info.Result);
+            LastTestInfo.Status = spec->TestValue(LastTestInfo.Result);
         }
     }
-    if (CurrentTestReport->GetStatus() != info.Status)
-        CurrentTestReport->SetStatus(info.Status);
+
+    if (CurrentTestReport->GetStatus() != LastTestInfo.Status)
+        CurrentTestReport->SetStatus(LastTestInfo.Status);
     IsRunningTest = false;
-    emit sigTestFinished();
+    emit sigTestFinished(LastTestInfo.Status); // for App
 }
 
 //public 
@@ -125,7 +123,12 @@ void tTestRunner::SetCurTestTree(QTreeWidgetItem* testTree) {
 
 void tTestRunner::slotSetTestInfo(tTestInfo ti) {   // Procedure -> Runner <tTestInfo>
     Log.LogSystemMessage("SetTestStatus");
+    LastTestInfo = ti;
     CurrentTestReport->TestStatusChanged(ti);
+
+    if (!tReport::IsNotFinished(ti.Status)) {
+        emit sigTestFinished(ti.Status);
+    }
 
     // Trying:
 // if changing status to Testing, highlight it in the Test Tree
@@ -150,6 +153,7 @@ void tTestRunner::slotSetTestInfo(tTestInfo ti) {   // Procedure -> Runner <tTes
         } while (curTestReport != nullptr);
     }
 }
+
 void tTestRunner::slotSetTestProgress(double val) { // Procedure -> Runner <double>
     //Log.LogSystemMessage("SetTestProgress");
     int value = std::min(100.0, std::max(0.0, 100.0*val));
@@ -158,7 +162,8 @@ void tTestRunner::slotSetTestProgress(double val) { // Procedure -> Runner <doub
 
 void tTestRunner::slotSetTestTimeout(double toSec) { // Procedure -> Runner <double>
     Log.LogSystemMessage("SetTestTimeout");
-    TestTimeout.Restart(toSec);
+    //TestTimeout.Restart(toSec);
+    WorkerWaiterTimer.start(toSec * 1000);
 }
 
 void tTestRunner::slotAddTestDetails(const QString& details) { // Procedure -> Runner <QString>
