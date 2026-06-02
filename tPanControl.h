@@ -47,6 +47,7 @@ public:
     QPushButton* btnReports = nullptr;
 
     tPanControl(QWidget* parent, int id);
+    ~tPanControl();
     void PopulateDutList(const QStringList& duts);
     void PopulateSpecVerList(const QStringList& vers);
     void TrySetDutName(QString& dutName); // Return current DUTName

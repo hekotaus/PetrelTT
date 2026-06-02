@@ -4,7 +4,6 @@ tPanTestTree::tPanTestTree(QWidget* parent, int id/*, tLogger* log, tPetrelProje
     : tPanPetrel(parent, id, "Test tree") {
 
     AddWidget(&TreeView);
-
     int loIdx = AddLayout(0, 0, tPanelStyle(eBorderStyle::None, true), StdH);
     Layouts[0]->SetHeight(0);
     //Layouts[0]->SetPaddings({ 0, 0, 0, 0 });
@@ -28,12 +27,11 @@ tPanTestTree::tPanTestTree(QWidget* parent, int id/*, tLogger* log, tPetrelProje
     TreeView.setHeaderHidden(true);
     TreeView.setIndentation(10);
     SetLayout(1);
-
-    connect(&TreeView, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(slotCurrentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+    connect(&TreeView, &QTreeWidget::currentItemChanged, this, &tPanTestTree::slotCurrentItemChanged);
 }
 
 tPanTestTree::~tPanTestTree() {
-    disconnect(&TreeView, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(slotCurrentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
+    disconnect(&TreeView, &QTreeWidget::currentItemChanged, this, &tPanTestTree::slotCurrentItemChanged);
 }
 
 void tPanTestTree::resizeEvent(QResizeEvent* event) {

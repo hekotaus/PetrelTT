@@ -192,7 +192,7 @@ public:
     void ToggleExpandDescription(bool refresh);
     void ToggleExpandSubtree();
 
-    void Expand(bool expand);
+    void Expand(bool expand, bool refresh);
     void ExpandSubtree(bool expand);
     void ExpandNotPassed();
 

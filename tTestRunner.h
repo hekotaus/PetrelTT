@@ -52,7 +52,7 @@ public slots:
     void slotAddTestDetails(const QString& details); // Procedure -> Runner <QString>
  signals:
     void sigRunTest();
-    void sigFinishTest(); // Runner -> Procedure Move TP back to main thread
+    //void sigFinishTest(); // Runner -> Procedure Move TP back to main thread
     void sigInterruptTest(); // Runner -> Procedure <void>
 
     void sigSetProgressBar(int); // Runner->App->ProgressBar

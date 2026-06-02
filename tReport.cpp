@@ -429,10 +429,10 @@ void tReport::SetBranchStatus(tTestStatus childStatus) { // Update Group Status 
 }
 
 
-void tReport::Expand(bool expand) { // Expands this item
-    if (Level == 0) expand = true; // Never collapse Root
+void tReport::Expand(bool expand, bool refresh) { // Expands this item
+    if (Level < 2) expand = true; // Never collapse Root
     ViewSettings.IsExpanded = expand;
-    Root->Refresh();
+    if (refresh) Root->Refresh();
 }
 #if 0
 void tReport::ToggleExpandAndDetails(int itemId) {
@@ -455,8 +455,10 @@ void tReport::ToggleExpandAndDetails(int itemId) {
 void tReport::ExpandNotPassed() {
 //    if (Level == 0) Root->NewChildExpanded = expand;
 
-    if (GetStatus() != tTestStatus::Passed) {
-        Expand(true);
+    if (GetStatus() == tTestStatus::Passed) {
+        Expand(false, false);
+    } else {
+        Expand(true, false);
         SetShowDetails(true, false);
         for (tReport& child : Children) {
             //child.ExpandSubtree(child.GetStatus() != tTestStatus::Passed);
@@ -490,8 +492,10 @@ void tReport::ExpandSubtree(bool expand) {
     ChildrenViewSettings.IsExpanded = expand;
     for(tReport& child : Children)
         child.ExpandSubtree(expand);
-    if (Level > 0) Expand(expand);
-    else Root->Refresh();
+    if (Level > 1) 
+        Expand(expand, false);
+    else if (Level == 0) 
+        Root->Refresh();
 }
 
 void tReport::InvalidateLineNumbers() {

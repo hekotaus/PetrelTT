@@ -71,7 +71,7 @@ void tTestSpecs::LoadAndValidate() {
     else
         Log.LogErrorMessage("Failed to read Specs from file!");
     if (Valid) Validate();
-    Report->Expand(!Valid);
+    Report->Expand(!Valid, true);
 }
 
 //public 
@@ -282,7 +282,7 @@ void tTestSpecs::Validate() {
     Log.LogSystemMessage("Test Specs " + IsValid(Valid, Valid));
     if (!Valid) rep1->AddDetails("Failed to validate Test Specs. See log file for details.");
     rep1->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);
-    root->ExpandNotPassed();
+    rep1->ExpandNotPassed();
 }
 
  //public

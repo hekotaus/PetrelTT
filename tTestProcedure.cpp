@@ -135,8 +135,9 @@ void tTestProcedure::ValidateAutoTestFuncAssignment(tReport* rep) {
     if (sTmp != "") Log.LogSystemMessage("Missing test functions for specs:\r\n" + sTmp);
     if (resAuto) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
     IsValid = IsValid && resAuto;
-    rep1->Expand(!IsValid);
+    rep1->Expand(!IsValid, true);
     rep1->SetShowDetails(!IsValid, true);
+    //rep->GetRoot()->Refresh();
 }
 
 bool tTestProcedure::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how to call it!
@@ -284,7 +285,7 @@ bool tTestProcedure::InitDptAndDut(tReport* rep) {
         }
     }
     r1->SetStatusPassFail(res);
-    r1->Expand(!res);
+    r1->Expand(!res, true);
     return res;
 }
 
@@ -364,10 +365,10 @@ void tTestProcedure::slotRunTest() {
     moveToThread(QApplication::instance()->thread());
 }
 
-void tTestProcedure::slotFinishTest() { // Move TP back to main thread
-    qDebug() << "tTestProcedure::slotFinishTest()::moveToThread(main)";
-    moveToThread(QApplication::instance()->thread()); // Fix Current thread is not the object's thread. Cannot move to target thread
-}
+//void tTestProcedure::slotFinishTest() { // Move TP back to main thread
+//    qDebug() << "tTestProcedure::slotFinishTest()::moveToThread(main)";
+//    moveToThread(QApplication::instance()->thread()); // Fix Current thread is not the object's thread. Cannot move to target thread
+//}
 
 void tTestProcedure::slotMessageResult(int result) { // From UI
     MessageBoxResult = result;

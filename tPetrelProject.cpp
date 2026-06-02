@@ -102,7 +102,7 @@ void tPetrelProject::CloseTestProcedure() {
         // signals TestRunner to TP
         QObject::disconnect(&TestRunner, &tTestRunner::sigRunTest, TP, &tTestProcedure::slotRunTest);
         QObject::disconnect(&TestRunner, &tTestRunner::sigInterruptTest, TP, &tTestProcedure::slotInterruptTest); // Runner -> Procedure <void>
-        QObject::disconnect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest);
+        //QObject::disconnect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest);
 
         // signals TP to TestRunner
         QObject::disconnect(TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo);   // Procedure -> Runner <tTestInfo>
@@ -192,7 +192,7 @@ bool tPetrelProject::LoadTestProcedure() {
             // signals TestRunner to TP
             QObject::connect(&TestRunner, &tTestRunner::sigRunTest, TP, &tTestProcedure::slotRunTest, Qt::QueuedConnection);
             QObject::connect(&TestRunner, &tTestRunner::sigInterruptTest, TP, &tTestProcedure::slotInterruptTest, Qt::DirectConnection); // Runner -> Procedure <void>
-            QObject::connect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest, Qt::QueuedConnection);
+            //QObject::connect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest, Qt::QueuedConnection);
 
             // signals TP to TestRunner
             QObject::connect(TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo, Qt::QueuedConnection);   // Procedure -> Runner <tTestInfo>
@@ -393,7 +393,7 @@ bool tPetrelProject::InitManualTest() {
     bool res = TP->InitManualTests(Cfg.ReportManualTest);
     tTestStatus status = Cfg.ReportManualTest->GetStatus();
     bool expand = (status != tTestStatus::Passed);
-    Cfg.ReportManualTest->Expand(status != tTestStatus::Passed);
+    Cfg.ReportManualTest->Expand(status != tTestStatus::Passed, true);
     return res;
 }
 

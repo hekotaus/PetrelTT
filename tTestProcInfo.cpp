@@ -71,7 +71,7 @@ bool tTestProcInfo::LoadAndValidate(tReport* repRoot) {
     bool res = ReadXml(rep);
     if (res)
         res = Validate(rep);
-    rep->Expand(!res);
+    rep->Expand(!res, true);
     return res;
 }
 

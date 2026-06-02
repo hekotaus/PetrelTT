@@ -40,9 +40,12 @@ public:
     QCheckBox cbShowDescription = QCheckBox("Description");
     QPushButton btnExpandAll = QPushButton("Expand all");
     QPushButton btnCollapseAll = QPushButton("Collapse all");
+    QPushButton btnClear = QPushButton("Clear");
+    //QPushButton btnShowLog = QPushButton("Toggle Log");
     int RepY = 0;
     tReportTextEdit ReportView;
     tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConfig& cfg);
+    ~tPanReport();
     void SetCurrentReport(tReportType typ);
     void SetHeight(int h); // Refer to tPanTestTree
     void resizeEvent(QResizeEvent* event);
@@ -52,5 +55,6 @@ public slots:
     void slotExpandAll();
     void slotCollapseAll();
     void slotReportDoubleClicked(int);
+    void slotClear();
     //checkStateChanged(Qt::CheckState state)
 };

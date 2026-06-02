@@ -17,6 +17,7 @@ tPanReport::tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConf
     AddWidget(&cbShowDetails);
     AddWidget(&btnExpandAll);
     AddWidget(&btnCollapseAll);
+    AddWidget(&btnClear);
 
     int loIdx = AddLayout(0, 0, tPanelStyle(eBorderStyle::None, true), StdH);
     auto Lo1 = GetLayoutPtr(1);
@@ -31,27 +32,32 @@ tPanReport::tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConf
     Lo1->AddWidget(&cbShowDetails, X_2_4, y, W_1_4, CbH);
     Lo1->AddWidget(&btnExpandAll, X_3_4, y, W_1_4, CbH);
     Lo1->AddWidget(&btnCollapseAll, X_4_4, y, W_1_4, CbH);
+    const int X_5_4 = PaddingX + (W_1_4 + SpacingX) * 4;
+    Lo1->AddWidget(&btnClear, X_5_4, y, W_1_4, CbH);
     y += dy;
     RepY = y;
     Lo1->AddWidget(&ReportView, PaddingX, y, 100, 100);
 
     SetLayout(1);
 
-    connect(&cbShowDescription, SIGNAL(checkStateChanged(Qt::CheckState)), this, SLOT(slotToggleDescription(Qt::CheckState)));
-    connect(&cbShowDetails, SIGNAL(checkStateChanged(Qt::CheckState)), this, SLOT(slotToggleDetails(Qt::CheckState)));
-    connect(&btnExpandAll, SIGNAL(clicked()), this, SLOT(slotExpandAll()));
-    connect(&btnCollapseAll, SIGNAL(clicked()), this, SLOT(slotCollapseAll()));
-    //ReportView.append("panReport ctor");
+    connect(&cbShowDescription, &QCheckBox::checkStateChanged, this, &tPanReport::slotToggleDescription);
+    connect(&cbShowDetails, &QCheckBox::checkStateChanged, this, &tPanReport::slotToggleDetails);
+    connect(&btnExpandAll, &QPushButton::clicked, this, &tPanReport::slotExpandAll);
+    connect(&btnCollapseAll, &QPushButton::clicked, this, &tPanReport::slotCollapseAll);
+    connect(&btnClear, &QPushButton::clicked, this, &tPanReport::slotClear);
+    connect(&ReportView, &tReportTextEdit::sigReportDoubleClicked, this, &tPanReport::slotReportDoubleClicked);
+}
 
-    connect(&ReportView, SIGNAL(sigReportDoubleClicked(int)), this, SLOT(slotReportDoubleClicked(int)));
+tPanReport::~tPanReport() {
+    disconnect(&cbShowDescription, &QCheckBox::checkStateChanged, this, &tPanReport::slotToggleDescription);
+    disconnect(&cbShowDetails, &QCheckBox::checkStateChanged, this, &tPanReport::slotToggleDetails);
+    disconnect(&btnExpandAll, &QPushButton::clicked, this, &tPanReport::slotExpandAll);
+    disconnect(&btnCollapseAll, &QPushButton::clicked, this, &tPanReport::slotCollapseAll);
+    disconnect(&btnClear, &QPushButton::clicked, this, &tPanReport::slotClear);
+    disconnect(&ReportView, &tReportTextEdit::sigReportDoubleClicked, this, &tPanReport::slotReportDoubleClicked);
 }
 
 void tPanReport::SetCurrentReport(tReportType typ) {
-    //ReportCurrent->SetDocument(ReportView.document());
-
-    //if (Cfg.ReportCurrent != nullptr)
-    //    ;// disconnect(&ReportView, SIGNAL(sigReportDoubleClicked(int)), Cfg.ReportCurrent, SLOT(slotDoubleClicked(int)));
-
     switch (typ) {
     case tReportType::AutoTest: Cfg.ReportCurrent = Cfg.ReportAutoTest; break;
     case tReportType::ManualTest: Cfg.ReportCurrent = Cfg.ReportManualTest; break;
@@ -62,15 +68,8 @@ void tPanReport::SetCurrentReport(tReportType typ) {
     }
     if (Cfg.ReportCurrent == nullptr) return;
 
-    //connect(&ReportView, SIGNAL(sigReportDoubleClicked(int)), Cfg.ReportCurrent, SLOT(slotReportDoubleClicked(int)));
-
-    //connect(&ReportView, SIGNAL(sigReportDoubleClicked(int)), 
-    //    Cfg.ReportCurrent, SLOT(slotDoubleClicked(int)));
-
-
     cbShowDetails.setChecked(Cfg.ReportCurrent->GetShowDetails());
     cbShowDescription.setChecked(Cfg.ReportCurrent->GetShowDescription());
-
 
     SetCaption("Report: " + Cfg.ReportCurrent->GetName());
     update();
@@ -117,6 +116,10 @@ void tPanReport::slotExpandAll() {
 
 void tPanReport::slotCollapseAll() {
     Cfg.ReportCurrent->ExpandSubtree(false);
+}
+
+void tPanReport::slotClear() {
+    Cfg.ReportCurrent->Clear();
 }
 
 //checkStateChanged(Qt::CheckState state)

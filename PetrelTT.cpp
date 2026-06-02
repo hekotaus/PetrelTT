@@ -22,12 +22,12 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     PanDebug = AddSidePanel(new tPanDebug(this, ePanDebugId));
 
     PanLog = AddSidePanel(new tPanLog(this, ePanLogId));
-    connect(&Logger, SIGNAL(sigLogString(QString)), PanLog, SLOT(slotAddLog(QString)));
+    connect(&Logger, &tLogger::sigLogString, PanLog, &tPanLog::slotAddLog);
     
     PanTestDialog = AddSidePanel(new tPanTestDialog(this, ePanTestDialogId));
 
     PanReport = AddSidePanel(new tPanReport(this, ePanReportId, &Logger, Project.Cfg));
-    connect(&g_ReportSignaler, SIGNAL(sigStatusUpdated()), this, SLOT(slotColorizeTree()));
+    connect(&g_ReportSignaler, &tReportSignaler::sigStatusUpdated, this, &tPetrelTT::slotColorizeTree);
 
     Logger.LogSystemMessage(CurrentDateTime());
     Logger.LogSystemMessage("Init Test shell...");
@@ -48,23 +48,24 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     DockRight->SetDockScrollSide(eDockScrollSide::None);
     
     PanControl = AddSidePanel(new tPanControl(this, ePanControlId)); //new tPanControl(DockTopLeft, ePanControlId);
-    connect(PanControl->btnAutoTest, SIGNAL(clicked()), this, SLOT(slotSetModeAutoTest()));
-    connect(PanControl->btnManualTest, SIGNAL(clicked()), this, SLOT(slotSetModeManualTest()));
-    connect(PanControl->btnConfig, SIGNAL(clicked()), this, SLOT(slotSetModeConfig()));
-    connect(PanControl->btnTestProc, SIGNAL(clicked()), this, SLOT(slotSetModeTestProc()));
-    connect(PanControl->btnReports, SIGNAL(clicked()), this, SLOT(slotSetModeReports()));
-    
-    connect(PanControl->cbDutName, SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotPopulateTestSpecVersions()));
-    connect(PanControl->cbSpecVersion, SIGNAL(currentTextChanged(const QString&)), this, SLOT(slotSelectSpec()));
-    connect(PanControl->btnStart, SIGNAL(clicked()), this, SLOT(slotStartTest()));
-    connect(PanControl->btnStop, SIGNAL(clicked()), this, SLOT(slotStopTest()));
-    connect(&Project.TestRunner, SIGNAL(sigSetProgressBar(int)), PanControl->progTestProgress, SLOT(setValue(int)));
+    connect(PanControl->btnAutoTest, &QPushButton::clicked, this, &tPetrelTT::slotSetModeAutoTest);
+    connect(PanControl->btnManualTest, &QPushButton::clicked, this, &tPetrelTT::slotSetModeManualTest);
+    connect(PanControl->btnConfig, &QPushButton::clicked, this, &tPetrelTT::slotSetModeConfig);
+    connect(PanControl->btnTestProc, &QPushButton::clicked, this, &tPetrelTT::slotSetModeTestProc);
+    connect(PanControl->btnReports, &QPushButton::clicked, this, &tPetrelTT::slotSetModeReports);
 
-    connect(&PanDebug->btnReloadTP, SIGNAL(clicked()), this, SLOT(slotSelectSpec()));
+    connect(PanControl->cbDutName, &QComboBox::currentTextChanged, this, &tPetrelTT::slotPopulateTestSpecVersions);
+    connect(PanControl->cbSpecVersion, &QComboBox::currentTextChanged, this, &tPetrelTT::slotSelectSpec);
 
-    connect(PanTestTree, SIGNAL(sigChangeGroupName(const QString&)), this, SLOT(slotTestGroupChanged(const QString&)));
+    connect(PanControl->btnStart, &QPushButton::clicked, this, &tPetrelTT::slotStartTest);
+    connect(PanControl->btnStop, &QPushButton::clicked, this, &tPetrelTT::slotStopTest);
+    connect(&Project.TestRunner, &tTestRunner::sigSetProgressBar, PanControl->progTestProgress, &QProgressBar::setValue);
 
-    connect(&Project.TestRunner, SIGNAL(sigTestFinished(tTestStatus)), this, SLOT(slotTestFinished(tTestStatus)));
+    connect(&PanDebug->btnReloadTP, &QPushButton::clicked, this, &tPetrelTT::slotSelectSpec);
+
+    connect(PanTestTree, &tPanTestTree::sigChangeGroupName, this, &tPetrelTT::slotTestGroupChanged);
+
+    connect(&Project.TestRunner, &tTestRunner::sigTestFinished, this, &tPetrelTT::slotTestFinished);
 
     auto& cfg = Project.Cfg;
     auto pParGrpProj = Project.ParGrpProject;
@@ -324,9 +325,9 @@ void tPetrelTT::LoadTestProcedure() {
 
     if (Project.TP->GetValid()) SetState(St::TestProc);
 
-    connect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
-    connect(Project.TP, SIGNAL(sigShowMessage(QMessageBox*)), this, SLOT(slotShowMessage(QMessageBox*)));
-    connect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult(int)));
+    connect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
+    connect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
+    connect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
 }
 
 void tPetrelTT::CloseTestProcedure() {
@@ -334,9 +335,9 @@ void tPetrelTT::CloseTestProcedure() {
     // Connect to dll
     SetState(St::Init);
     Project.CloseTestProcedure();
-    disconnect(Project.TP, SIGNAL(sigStartManualTest(const QString&)), this, SLOT(slotStartManualTest(const QString&)));
-    disconnect(Project.TP, SIGNAL(sigShowMessage(QMessageBox*)), this, SLOT(slotShowMessage(QMessageBox*)));
-    disconnect(this, SIGNAL(sigMessageResult(int)), Project.TP, SLOT(slotMessageResult(int)));
+    disconnect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
+    disconnect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
+    disconnect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
     DockLeft->Remove(PanDutConfig);
     DockLeft->Remove(PanDptConfig);
 }

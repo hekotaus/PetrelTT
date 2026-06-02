@@ -49,12 +49,20 @@ tPanControl::tPanControl(QWidget* parent, int id)
     //setStyleSheet("QPushButton:pressed { background-color: rgb(224, 0, 0); border-style: inset; }");
     //setStyleSheet(ss);
 
+    connect(btnAutoTest, &QPushButton::clicked, this, &tPanControl::slotAutoTest);
+    connect(btnManualTest, &QPushButton::clicked, this, &tPanControl::slotManualTest);
+    connect(btnConfig, &QPushButton::clicked, this, &tPanControl::slotConfig);
+    connect(btnTestProc, &QPushButton::clicked, this, &tPanControl::slotTestProc);
+    connect(btnReports, &QPushButton::clicked, this, &tPanControl::slotReports);
 
-    connect(btnAutoTest, SIGNAL(clicked()), this, SLOT(slotAutoTest()));
-    connect(btnManualTest, SIGNAL(clicked()), this, SLOT(slotManualTest()));
-    connect(btnConfig, SIGNAL(clicked()), this, SLOT(slotConfig()));
-    connect(btnTestProc, SIGNAL(clicked()), this, SLOT(slotTestProc()));
-    connect(btnReports, SIGNAL(clicked()), this, SLOT(slotReports()));
+}
+
+tPanControl::~tPanControl() {
+    disconnect(btnAutoTest, &QPushButton::clicked, this, &tPanControl::slotAutoTest);
+    disconnect(btnManualTest, &QPushButton::clicked, this, &tPanControl::slotManualTest);
+    disconnect(btnConfig, &QPushButton::clicked, this, &tPanControl::slotConfig);
+    disconnect(btnTestProc, &QPushButton::clicked, this, &tPanControl::slotTestProc);
+    disconnect(btnReports, &QPushButton::clicked, this, &tPanControl::slotReports);
 }
 
 void tPanControl::AddControls(tPanelLayout* layout) {

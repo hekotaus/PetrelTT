@@ -119,7 +119,7 @@ public:
  public slots:
     void slotRunTest();
     void slotInterruptTest(); // Runner -> Procedure <void>
-    void slotFinishTest(); // Move TP back to main thread
+    //void slotFinishTest(); // Move TP back to main thread
     void slotMessageResult(int); // From UI
 signals:
     void sigMessageResult(); // Received from UI and re-emitted to waiter
