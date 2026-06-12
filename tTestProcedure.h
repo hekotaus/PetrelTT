@@ -153,7 +153,10 @@ public:
     template <typename T>
     tTestProcedure* Test_SetResult(T resValue) {
         if (CurrentTest.Info.Status == tTestStatus::Testing) {
-            CurrentTest.Info.Result.SetValue(T(resValue));
+            if (!CurrentTest.Info.Result.SetValue(T(resValue))) {
+                Test_AddDetails(CurrentTest.Info.Result.GetResultComment());
+
+            }
         } else {
             CurrentTest.Info.Status = tTestStatus::TestError;
             Test_AddDetails("Attempt to set value not at testing time!");

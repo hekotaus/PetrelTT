@@ -116,8 +116,9 @@ public slots:
 
     void slotSelectSpec();
 
-    void slotColorizeTree() { 
-        Project.ColorizeAutoTestTree(); 
+    void slotColorizeTree() {
+        if (Project.Cfg.ReportCurrent == Project.Cfg.ReportAutoTest)
+            Project.ColorizeAutoTestTree(); 
     }
     void slotPopulateTestSpecVersions();
     void slotTestGroupChanged(const QString& groupName);

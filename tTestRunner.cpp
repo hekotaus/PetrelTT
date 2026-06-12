@@ -100,7 +100,7 @@ void tTestRunner::RunTest() {
     }
 
     emit sigSetProgressBar(0);
-
+    LastTestInfo.Status = CurrentTestReport->GetStatus();
     if (LastTestInfo.Status == tTestStatus::Testing) { // Check value range
         CurrentTestReport->SetStatus(tTestStatus::TestError, "Test not finished (result has not been set)");
     } else if (LastTestInfo.Status == tTestStatus::Tested) { // Check value range

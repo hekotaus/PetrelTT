@@ -13,8 +13,9 @@ public:
         Integer,
         String,
         InternalBoolean,
+        Last
     };
-
+    QString ValueTypeStr[tValueType::Last] = { "None", "Boolean", "Float", "Integer", "String", "Internal" };
 private:
     // Values
     tValueType ValueType;
@@ -28,12 +29,17 @@ private:
     int FloatPrecision = 3;
 protected:
     bool ValueSet = false;
-    //QString ResultComment = "";
+    QString ResultComment = "";
+
+    void ErrorSetValue(tValueType tActual, tValueType tNeed) {
+        ResultComment = "Error in SetValue: " + ValueTypeStr[tActual] + " instead of " + ValueTypeStr[tNeed];
+    }
 
 public:
+    QString GetResultComment() const { return ResultComment; }
     void Clear() { 
         ValueSet = false; 
-        //ResultComment = "";
+        ResultComment = "";
         //ValueType = tValueType::None; ?
     }
     bool IsValueSet() const { return ValueSet; }
@@ -57,6 +63,7 @@ public:
             //ResultComment = comment;
             return true;
         } else {
+            ErrorSetValue(tValueType::Boolean, ValueType);
             return false; // Can set value only once
         }
     }
@@ -69,6 +76,7 @@ public:
             //ResultComment = comment;
             return true;
         } else {
+            ErrorSetValue(tValueType::Integer, ValueType);
             return false; // Can set value only once
         }
     }
@@ -81,6 +89,7 @@ public:
             //ResultComment = comment;
             return true;
         } else {
+            ErrorSetValue(tValueType::Float, ValueType);
             return false; // Can set value only once
         }
     }
@@ -93,6 +102,7 @@ public:
             //ResultComment = comment;
             return true;
         } else {
+            ErrorSetValue(tValueType::String, ValueType);
             return false; // Can set value only once
         }
     }
