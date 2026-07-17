@@ -35,7 +35,11 @@ struct tReportFormat {
     bool IsItalic = false;
     int FontWeight = QFont::Normal;
     Qt::Alignment Alignment = Qt::AlignLeft;
+#ifdef CHANGE_WIDGET_COLORS
     QColor TextColor = Qt::black;
+#else
+    QColor TextColor = Qt::green;
+#endif
     qreal FontPtSizeDiff = 0; // Change to base font size defined by report level
 };
 

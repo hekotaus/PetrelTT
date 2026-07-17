@@ -67,6 +67,11 @@ tReportRoot::tReportRoot(tReportType reportType, QTextEdit* reportView, tLogger*
         ReportFormat[eRepDescription].FontPtSizeDiff = -2;
     }
 
+    QPalette pal = ReportView->palette();
+    for (int i = eRepName; i < eRep_NUM; i++) {
+        ReportFormat[i].TextColor = pal.text().color();
+    }
+
     //TextBoxVisible = textBox;
     ///TextBox = new RichTextBox(); // This is an invisible buffer
     ///ReportText.setVisible(false);

@@ -16,7 +16,7 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     Project.Cfg.AppName = AppConfig.GetName();
     Project.Cfg.AppVer = AppConfig.GetVersion();
     AppConfig.SetWindowTitle();
-    AppConfig.SetScheme(0);
+    //AppConfig.SetScheme(0);
 
     Project.ParGrpProject->LoadFromConfig();
     PanDebug = AddSidePanel(new tPanDebug(this, ePanDebugId));
