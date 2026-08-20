@@ -1,0 +1,279 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="./hekotmain.css">
+  <link rel="stylesheet" href="./hekottodo.css">
+  <title>Petrel 2026</title>
+</head>
+
+<body  class="article">
+  <div class="path aus" id=countItems>uncounted</div>
+  <div class="rus" id=output></div>
+  <header class="transpane mainheader">Petrel 2026</header>
+
+
+
+
+  <div class="menumain rus">
+
+    <table border=1>
+        <tr><td></td><td>Critical</td><td>Non-critical</td></tr>
+        <tr>
+            <td>Urgent</td>
+            <td class=u-undone>Critical
+            </td>
+            <td class=undone>Non-critical
+            </td>
+        </tr>
+        <tr>
+            <td>Non-urgent</td>
+            <td class=undone>Critical
+            </td>
+            <td class=dependant>Non-critical
+                <ol class="categories">
+                <li>OnePort cfg dlg (autodetect)</li>
+                </ol>
+            </td>
+        </tr>
+    </table>
+
+    <h3>Bugs</h3>
+    <ol class="categories">
+        <li class=done>Test spec version not in report</li>
+        <li class=done>Test proc version = -1</li>
+        <li class=u-undone>Wrong size calculation<br>leads to unwanted scroll bar<br>after minimise-maximise panels</li>
+        <li class=u-undone>Sort out LoadTestProcedure<br>on selection DUT and Test spec</li>
+        <li class=u-undone>Test dialog caption<br>won't change by SetCaption()</li>
+        <li class=u-undone>Manual-performTests-Auto <br>colorise tree</li>
+        <li class=done>Exception after interrupted tests</li>
+    </ol>
+
+
+    <h3>Shell</h3>
+    <ol class="categories">
+        <li class=group>Application</li>
+        <ol>
+            <li class=undone>Try to implement MessageBox based on QWidget</li>
+            <li class=undone>Review unused code</li>
+            <li class=undone>Sort out Logging from TP</li>
+            <li class=undone>Replace qDebug with Log</li>
+            <li class=undone>Read file from TPconfig</li>
+            <li class=undone>Read params from TPconfig</li>
+            <li class=done>Replace connect from string to pointer</li>
+            <li class=done>Connect TestDialog to Spec</li>
+            <li class=done>Use find Dialog()</li>
+
+            <li class=dependant>Review TestRunner::CancelTests()<br>test on Plugin.unload</li>
+            <li class=done>Remove tTestForm</li>
+            <li class=done>Create application based on VedroLib</li>
+            <li class=done>State machine</li>
+            <li class=done>Operator selector</li>
+            <li class=done>DUT reader</li>
+            <li class=done>Ver reader</li>
+            <li class=done>DuT and Version selector</li>
+            <li class=done>Initial state</li>
+            <li class=dependant>Show/hide log</li>
+            <li class=dependant>UI: controls appearance</li>
+            <li class=dependant>UI: colour branding</li>
+            <li class=dependant>Report: Scroll to end/hold<br>position on add report</li>
+        </ol>
+
+        <li class=group>Panels</li>
+        <ol>
+            <li class=done>Mode control<br>Auto/Manual/Config/Report</li>
+            <li class=done>Debug</li>
+            <li class=done>Log</li>
+            <li class=done>DPT cfg</li>
+            <li class=done>DUT cfg</li>
+            <li class=done>Dock for report panel</li>
+            <li class=done>Report</li>
+            <li class=done>Test dialog</li>
+        </ol>
+
+        <li class=group>Test tree</li>
+        <ol>
+            <li class=undone>Feedback to report</li>
+            <li class=done>in Build Manual tree, stop by ManDialog</li>
+            <li class=done>Build test tree for manual</li>
+            <li class=done>Build test tree for auto</li>
+            <li class=done>Populate</li>
+            <li class=done>Colorise</li>
+        </ol>
+
+        <li class=group>Cosmetics</li>
+        <ol>
+            <li class=done>Log/debug panel restore config</li>
+            <li class=done>Remove outer margins<br>for Left and Right docks</li>
+            <li class=done>Left dock resize</li>
+            <li class=done>Right dock resize</li>
+            <li class=done>Main window resize limit</li>
+        </ol>
+    </div>
+
+    <div class="menumain rus">
+        <h3>Components</h3>
+
+        <ol class="categories">
+        <li class=group>Report</li>
+            <ol>
+            <li class=u-undone>Fix ExpandSubTree()</li>
+            <li class=undone>Build live report for Init</li>
+            <li class=undone>Export report (external function)</li>
+            <li class=done>Add "Clear report" button</li>
+            <li class=done>Build test report for Auto tests</li>
+            <li class=done>Build test report for Manual tests</li>
+            <li class=done>Build report for Manual Test Init and Done</li>
+            <li class=done>Indent</li>
+            <li class=done>Add report name</li>
+            <li class=done>Add report details</li>
+            <li class=done>Add report status</li>
+            <li class=done>Change parent result</li>
+            <li class=done>Add report result</li>
+            <li class=done>Add report description</li>
+Controls
+            <li class=done>Expand/collapse all report</li>
+            <li class=done>Expand/collapse all <br>details and description</li>
+Interaction  
+            <li class=done>Report item interaction</li>
+            </ol>
+
+        <li class=group>Test runner</li>
+            <ol>
+            <li class=done>Improve running procedure<br>Replace TestRunner tTimeout with singleShotTimer<br>same as in TestProcedure</li>
+            <li class=u-undone>Run Manual test by Auto button<br>tPetrelTT::slotStartTest</li>
+            <li class=done>slotTestStart</li>
+            <li class=done>slotSetTestStatus</li>
+            <li class=done>slotSetTestProgress</li>
+            <li class=done>slotSetTestTimeout</li>
+            <li class=done>slotAddTestDetails</li>
+            <li class=done>slotInterruptTest</li>
+            <li class=done>SetTestParams</li>
+            <li class=done>Run Manual test</li>
+            <li class=done>Run TP thread</li>
+            <li class=done>Set test result</li>
+// Test run
+            <li class=op-done>Update report on Auto test start</li>
+            <li class=op-done>Set report TESTING state</li>
+            <li class=op-done>Test timeout</li>
+            <li class=op-done>Failed</li>
+            <li class=op-done>Passed</li>
+            <li class=op-done>Set State Skipped</li>
+            <li class=op-done>Set State Interrupted</li>
+            <li class=op-done>Update report on the run</li>
+            <li class=op-done>Update tree colours on the run</li>
+            </ol>
+        </ol>
+    </div>
+
+  <div class="menumain rus">
+    <h3>Test procedure</h3>
+    <ol class="categories">
+    <li class=group>Test procedure</li>
+        <ol>
+        <li class=u-undone>Test_CancelTesting<br>remove TP::CancelTestingFlag</li>
+        <li class=u-undone>Test_CancelSubtests</li>
+        <li class=done>Read Test procedure</li>
+        <li class=done>TP validator</li>
+        <li class=done>Read specs</li>
+        <li class=done>Specs validator</li>
+        <li class=done>Populate Auto and <br>Manual test trees</li>
+        <li class=done>Test code <br>assignment verificator</li>
+        <li class=done>tTestUnit</li>
+        <li class=done>Group functions in TP</li>
+        <li class=done>Test skip</li>
+        <li class=done>Test error</li>
+        <li class=done>Test interrupt</li>
+        <li class=done>Change Test func prototype<br> to void()</li>
+        </ol>
+    </ol>
+  </div>
+
+
+  <div class="menumain rus">
+    <h3>Plugin mechanics</h3>
+    <ol class="categories">
+        <li class=undone>Separate plugin from shell fully<br>hopefully, this will resolve<br>all problems with terminating test</li>
+        <li class=u-undone>Move DLL to TestProc directory</li>
+        <li class=done>Searching specialised dlls</li>
+        <li class=done>Import</li>
+        <ol class="categories">
+           <li class=undone>Import DUT cfg dialogue<br>same as Test dialog</li>
+           <li class=undone>Import DPT cfg dialogue<br>same as Test dialog</li>
+
+           <li class=done>Import DUT cfg dialogue</li>
+           <li class=done>Import DPT cfg dialogue</li>
+           <li class=done>Import Test dialogues</li>
+        </ol>
+
+        <li class=group>Export</li>
+        <ol class="categories">
+            <li class=done>Export tReport</li>
+            <li class=done>Export tLogger</li>
+            <li class=done>Export tTestRunner</li>
+        </ol>
+    </ol>
+
+    <h3>Plugin common</h3>
+    <ol class="categories">
+        <li class=done>tTestDevice</li>
+        <li class=done>TestGroups</li>
+        <li class=done>TestDialog</li>
+        <li class=done>Assign Tests</li>
+Implementation
+        <li class=dependant>OnePort cfg dlg (autodetect)</li>
+
+    </ol>
+  </div>
+
+  <script>
+    function countUpTodo() {
+      var undone = document.getElementsByClassName("undone");
+      var undoneCnt = undone.length;
+      var uundone = document.getElementsByClassName("u-undone");
+      var uundoneCnt = uundone.length;
+      var dependant = document.getElementsByClassName("dependant");
+      var dependantCnt = dependant.length;
+      var ordered = document.getElementsByClassName("ordered");
+      var orderedCnt = ordered.length;
+      var done = document.getElementsByClassName("done");
+      var doneCnt = done.length;
+      var skipped = document.getElementsByClassName("skipped");
+      var skippedCnt = skipped.length;
+      var todoCnt = uundoneCnt + undoneCnt + dependantCnt + orderedCnt;
+      document.getElementById("countItems").innerHTML = todoCnt + " todo = " + uundoneCnt + " urgent + " + undoneCnt + " undone + " + dependantCnt + " low priority." + " Done: " + doneCnt + " (" + Math.round(doneCnt / (todoCnt + doneCnt)*100) +"%), skipped: " + skippedCnt + " ";
+      document.title = "Petrel todo: " + todoCnt + "=" + uundoneCnt + "+" + undoneCnt + "+" + dependantCnt + "+" + orderedCnt;
+    }
+
+    function scrollState() {
+
+      countUpTodo();
+    }
+
+    function assignOnClick() {
+      document.getElementById("output").innerHTML = "AssigningOnClick";
+      var items = document.getElementsByClassName("skipped");// +
+        //document.getElementsByClassName("done");// + 
+        //document.getElementsByClassName("done-p") +
+        //document.getElementsByClassName("dependant") + 
+        //document.getElementsByClassName("undone") + 
+        //document.getElementsByClassName("u-undone");
+      var iItem; // index of item in the current list
+      document.getElementById("output").innerHTML = items.length + " items found";
+      for (iItem = 0; iItem < items.length; iItem++) {
+        //items[iItem].className = "none";
+        //items[iItem].onclick = function() {scrollState()};
+        items[iItem].innerHTML = "me!";
+        //document.getElementById("output").innerHTML = items[iItem].innerHTML;
+      };
+      //document.getElementById("output").innerHTML = "Assigned";
+
+    };
+    countUpTodo();
+    //assignOnClick();
+
+
+  </script> 
+</body>
+
+</html>
