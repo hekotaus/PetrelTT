@@ -61,7 +61,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);../../Mephisto/Vedrolink/Vedrolib</IncludePath>
-    <LibraryPath>D:\dev\Vedrolink\x64\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>c:\dev\Mephisto\Vedrolink\x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);../../Mephisto/Vedrolink/Vedrolib</IncludePath>
