@@ -19,7 +19,7 @@ void tPetrelProject::InitParGrpProjectConfig() {
     ParGrpProject->AddParam(new tParam_QString("DutName", Cfg.DutName));
     ParGrpProject->AddParam(new tParam_QString("TestSpecVer", Cfg.TestSpecsVer));
 }
-
+#if 0
 void tPetrelProject::FindTestProcedures() { // return list of DUTs TestProcList
     Log.LogSystemMessage("Searching test procedures in " + Cfg.TestProcDir + " ...");
     TestProcList.clear();
@@ -28,7 +28,7 @@ void tPetrelProject::FindTestProcedures() { // return list of DUTs TestProcList
     constexpr int nlast = sizeof(".TestProcedure") - 1;
     for (QString& s : TestProcList) {
         s.chop(nlast);
-        Log.LogSystemMessage("Found: " + s);
+        Log.LogSystemMessage("Found Test Procedure directory: " + s);
     }
 }
 
@@ -57,8 +57,11 @@ void tPetrelProject::FindPlugins() {
         lib.unload();
     }
 }
-
+#endif
 void tPetrelProject::DiscoverTestProcedures() {
+#if 0
+    // OLD
+
     FindPlugins();
     FindTestProcedures();
     // Match TestProcs and Plugins
@@ -71,6 +74,43 @@ void tPetrelProject::DiscoverTestProcedures() {
             Log.LogSystemMessage("Plugin not found for DUT: " + sTP + " TestProcName mismatch");
         }
     }
+#else
+    // NEW
+    QStringList testProcList;
+    PluginList.clear(); // <DutName, FileName>
+    ///TestProcList.clear();
+    // Find TP dirs, containing plugin dlls
+    Log.LogSystemMessage("Searching test procedures in " + Cfg.TestProcDir + " ...");
+    
+    QDir dirPetrel(Cfg.TestProcDir);
+    testProcList = dirPetrel.entryList(QStringList() << "*.TestProcedure", QDir::Dirs);
+    constexpr int nlast = sizeof(".TestProcedure") - 1;
+    for (QString& tpName : testProcList) {
+        tpName.chop(nlast);
+        Log.LogSystemMessage("Found Test Procedure directory: " + tpName);
+        // Check, if same name .dll exists and it has TP functions exported
+        
+        QString fullDllName = Cfg.PluginDir + "/" + tpName + "/" + tpName + ".dll";
+        Log.LogSystemMessage("Checking file " + fullDllName);
+        QLibrary lib(fullDllName);
+        lib.load();
+        if (!lib.isLoaded()) {
+            Log.LogSystemMessage("Failed to load dll");
+            continue;
+        }
+
+        typedef char* (*tDutNameFunc)();
+        tDutNameFunc func = (tDutNameFunc) lib.resolve("GetTestProcName");
+        if (func != nullptr) {
+            QString dutName = func();
+            Log.LogSystemMessage("Found: " + dutName + " in " + fullDllName);
+            PluginList[dutName] = fullDllName;
+        }
+        lib.unload();
+
+    }
+
+#endif
 }
 
 void tPetrelProject::DiscoverSpecVersions() {
@@ -90,7 +130,8 @@ bool tPetrelProject::OpenPlugin() {
     if (IsPlugged) ClosePlugin();
     if (0 == PluginList.count(Cfg.DutName)) return IsPlugged;
     QString fname = PluginList.at(Cfg.DutName);
-    PluginLib.setFileName(Cfg.PluginDir + "/" + fname);
+    ///PluginLib.setFileName(Cfg.PluginDir + "/" + fname);
+    PluginLib.setFileName(fname);
     PluginLib.load();
     IsPlugged = PluginLib.isLoaded();
     return IsPlugged;

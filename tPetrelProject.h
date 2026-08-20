@@ -35,8 +35,9 @@ class tPetrelProject /*: public QObject*/ {
 
     tTestSpecs* TestSpecs = nullptr;
     void InitParGrpProjectConfig();
-    void FindPlugins();// return PluginList map<DUTname, filename>
-    void FindTestProcedures(); // return list of DUTs TestProcList
+    
+    ///void FindPlugins();// return PluginList map<DUTname, filename>
+    ///void FindTestProcedures(); // return list of DUTs TestProcList
     void PopulateAutoTestTree();
     void PopulateManualTestTree();
     bool OpenPlugin();
@@ -48,8 +49,8 @@ class tPetrelProject /*: public QObject*/ {
     void BuildReportsList(std::list<tReport*>& repList, tReport* report);
 
 public:
-    std::map<QString, QString> PluginList; // <DUTname, filename>
-    QStringList TestProcList;
+    std::map<QString, QString> PluginList; // <DUTname, fullDllFilename>
+    //QStringList TestProcList;
     QStringList DutNameList;
     QStringList SpecVerList;
 
