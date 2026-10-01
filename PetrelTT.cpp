@@ -12,7 +12,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     Logger.SetShowSource(false);
     AppConfig.FixHighScale();
     AppConfig.RestoreMainWindow(this);
-    AppConfig.SetMainWindowMinSize(QSize(1600, 600));
+    //AppConfig.SetMainWindowMinSize(QSize(1600, 600));
+    AppConfig.SetMainWindowMinSize(QSize(1000, 600));
     AppConfig.SetVersion("PetrelTT", 2026, 1, 0);
     Project.Cfg.AppName = AppConfig.GetName();
     Project.Cfg.AppVer = AppConfig.GetVersion();
@@ -80,6 +81,8 @@ tPetrelTT::tPetrelTT(QWidget *parent)
 
     DockRight->Add(PanDebug);    
     DockRight->Add(PanLog);
+
+    DockRight->setMaximumWidth(0);// SetVisible(false);
 
     DockCenter->Add(PanTestDialog);
     DockCenter->Add(PanReport);
@@ -362,6 +365,8 @@ void tPetrelTT::PopulateTestProcedures() {
     Project.DiscoverSpecVersions();
     IsLoadTp = false;
     PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
+    qDebug() << "Versions in the list:" << Project.SpecVerList.size();
+    //qDebug() << "Versions in the wlist:" << PanControl->cbSpecVersion-> size();
     qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
     PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     IsLoadTp = true;

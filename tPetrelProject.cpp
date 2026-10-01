@@ -90,7 +90,7 @@ void tPetrelProject::DiscoverTestProcedures() {
         Log.LogSystemMessage("Found Test Procedure directory: " + tpName);
         // Check, if same name .dll exists and it has TP functions exported
         
-        QString fullDllName = Cfg.PluginDir + "/" + tpName + "/" + tpName + ".dll";
+        QString fullDllName = Cfg.PluginDir + "/" + tpName + ".TestProcedure/" + tpName + ".dll";
         Log.LogSystemMessage("Checking file " + fullDllName);
         QLibrary lib(fullDllName);
         lib.load();
@@ -105,6 +105,7 @@ void tPetrelProject::DiscoverTestProcedures() {
             QString dutName = func();
             Log.LogSystemMessage("Found: " + dutName + " in " + fullDllName);
             PluginList[dutName] = fullDllName;
+            DutNameList.append(tpName);
         }
         lib.unload();
 
