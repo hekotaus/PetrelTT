@@ -3,6 +3,7 @@
 #include "common/tTickTock.h"
 #include "widgets/tParamWidget_QComboBox.h"
 #include <algorithm>
+#include "tSerialNumberDialog.h"
 
 tPetrelTT::tPetrelTT(QWidget *parent)
     : QMainWindow(parent) {
@@ -283,6 +284,8 @@ void tPetrelTT::ArrangeDocks() {
     int dockH = h - dockY - DockLeft->GetMarginBottom();
     int marginX = DockLeft->GetMarginRight() / 2;
 
+
+    // When resize to small, AllPanelsSize is greater than Dock height => shows scrollbar
     DockLeft->SetMaxDockHeight(dockH);
     DockCenter->SetMaxDockHeight(dockH);
     DockRight->SetMaxDockHeight(dockH);
@@ -327,6 +330,7 @@ void tPetrelTT::LoadTestProcedure() {
 
     connect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
     connect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
+    connect(Project.TP, &tTestProcedure::sigRequestSn, this, &tPetrelTT::slotRequestSn);
     connect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
 }
 
@@ -412,6 +416,17 @@ void tPetrelTT::slotTestFinished(tTestStatus status) {
 void tPetrelTT::slotShowMessage(QMessageBox* msgBox) { // From TP
     int result = msgBox->exec();
     emit sigMessageResult(result);
+}
+
+void tPetrelTT::slotRequestSn(QString sn) { // From TP
+    int result = 0;
+    if (sn.isEmpty()) {
+        //int result = msgBox->exec();
+        tSerialNumberDialog snDlg;
+        result = snDlg.GetSerialNumber(this, sn);
+    }
+    Project.SetSerialNumber(sn);
+    emit sigMessageResult(result); // In case setting SN is a test
 }
 
 void tPetrelTT::slotStartTest() { // Start button pressed

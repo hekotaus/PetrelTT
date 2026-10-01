@@ -96,6 +96,8 @@ public:
     void SetCurrentGroupName(const QString& groupName);
     QString GetCurrentGroupName() const;
 
+    void SetSerialNumber(QString sn);
+
     template <class T>
     T CallPluginFunction(T typ, const QString& funcName) {
         T res = T();

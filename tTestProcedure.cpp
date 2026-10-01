@@ -246,6 +246,20 @@ bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int tim
     return MessageBoxWaiterTimer.isActive();
 }
 
+void tTestProcedure::Test_SetSerialNumber(const QString& sn) { // Set SN. If empty, make Shell request SN from user
+    emit sigRequestSn(sn);
+}
+
+bool tTestProcedure::Test_WaitForSetSerialNumber(int& messageBoxResult, int timeoutSec) {
+    MessageBoxWaiterTimer.setSingleShot(true);
+
+    MessageBoxWaiterTimer.start(timeoutSec * 1000);
+    MessageBoxWaiterLoop->exec();
+
+    messageBoxResult = MessageBoxResult;
+    return MessageBoxWaiterTimer.isActive();
+}
+
 void tTestProcedure::SetTestStatus(tTestStatus newStatus) {
     CurrentTest.Info.Status = newStatus;
     emit sigSetTestInfo(CurrentTest.Info);

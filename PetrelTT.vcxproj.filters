@@ -79,6 +79,9 @@
     <ClCompile Include="tTestRunner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tSerialNumberDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tTestForm.h">
@@ -141,6 +144,9 @@
       <Filter>Source Files</Filter>
     </QtMoc>
     <QtMoc Include="tPanTestTree.h">
+      <Filter>Source Files</Filter>
+    </QtMoc>
+    <QtMoc Include="tSerialNumberDialog.h">
       <Filter>Source Files</Filter>
     </QtMoc>
   </ItemGroup>

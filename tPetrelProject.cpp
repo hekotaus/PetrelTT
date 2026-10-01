@@ -447,11 +447,14 @@ void tPetrelProject::DoneAutoTest() {
     TP->DoneAutoTests(Cfg.ReportAutoTest);
 }
 
-
 void tPetrelProject::SetCurrentGroupName(const QString& groupName) {
     CurrentGroupName = groupName;
 }
 
 QString tPetrelProject::GetCurrentGroupName() const {
     return CurrentGroupName;
+}
+
+void tPetrelProject::SetSerialNumber(QString sn) {
+    Cfg.DutSerialNumber = sn;
 }

@@ -126,6 +126,7 @@ public slots:
     void slotStartManualTest(const QString&); // From TP
     void slotTestFinished(tTestStatus status); // From test runner. Informs on test status changes
     void slotShowMessage(QMessageBox*); // From TP
+    void slotRequestSn(QString); // From TP
 signals:
     void sigMessageResult(int);
 };

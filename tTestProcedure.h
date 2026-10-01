@@ -129,6 +129,7 @@ signals:
     void sigAddTestDetails(const QString& details); // Procedure -> Runner <QString>
     void sigStartManualTest(const QString& testName); // Procedure->App
     void sigShowMessage(QMessageBox* msgBox);
+    void sigRequestSn(const QString&); // Procedure->App
 
     // TEST API
 public:
@@ -149,6 +150,9 @@ public:
     void Test_StartManualTest(const QString& testName);
     void Test_ShowMessage(QMessageBox* msgBox);
     bool Test_WaitForMessageBoxResult(int& messageBoxResult, int timeoutSec);
+    //bool Test_SetSerialNumber(); // 
+    void Test_SetSerialNumber(const QString&); // Set SN. If empty, make Shell request SN from user
+    bool Test_WaitForSetSerialNumber(int& messageBoxResult, int timeoutSec);
 
     template <typename T>
     tTestProcedure* Test_SetResult(T resValue) {

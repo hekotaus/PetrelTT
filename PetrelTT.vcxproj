@@ -125,6 +125,7 @@
     <ClCompile Include="tPetrelProject.cpp" />
     <ClCompile Include="tReport.cpp" />
     <ClCompile Include="tReportRoot.cpp" />
+    <ClCompile Include="tSerialNumberDialog.cpp" />
     <ClCompile Include="tTestDevice.cpp" />
     <ClCompile Include="tTestProcedure.cpp" />
     <ClCompile Include="tTestProcInfo.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="tSerialNumberDialog.h" />
     <ClInclude Include="tTimeOut.h" />
     <QtMoc Include="tPanReport.h" />
     <QtMoc Include="tPanTestTree.h" />

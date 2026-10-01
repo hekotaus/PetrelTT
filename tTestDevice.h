@@ -9,7 +9,7 @@ protected:
     tTestProcedure* TP = nullptr;
     void SetTestProgress(double fraction);
     bool IsInited = false;
-
+    QString SerialNumber = "";
 public:
     //tTestDevice();
     tTestDevice(tTestProcedure* tp);
@@ -45,6 +45,10 @@ public:
 
     void Done(tReport* rep) override {
         // TODO: add closing port code
+    }
+
+    void SetSerialNumber(QString sn) {
+        SerialNumber = sn;
     }
 
 };
