@@ -356,6 +356,18 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
         RunManualTests();
     return true;
 }
+#include "tSerialNumberDialog.h"
+void tPetrelProject::RequestSn(QString sn) { // From TP
+    int result = 0;
+    if (sn.isEmpty()) {
+        //int result = msgBox->exec();
+        tSerialNumberDialog snDlg;
+        result = snDlg.GetSerialNumber(nullptr, sn);
+    }
+    SetSerialNumber(sn);
+    //emit sigMessageResult(result); // In case setting SN is a test
+}
+
 
 // Test controls
 void tPetrelProject::StartAutoTests() {
@@ -388,8 +400,10 @@ void tPetrelProject::StartAutoTests() {
         QApplication::processEvents();
         if (TestRunner.InterruptFlag)
             StopTests();
-        else
+        else {
+            RequestSn("");
             RunAutoTests();
+        }
     } else {
         repInitAuto->SetStatus(tTestStatus::TestError, autoTestInitDetails);
         StopTests();

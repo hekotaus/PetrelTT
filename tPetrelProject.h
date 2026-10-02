@@ -68,6 +68,8 @@ public:
 
     tPetrelProject(tLogger& log);
     
+    void RequestSn(QString sn);
+
     void DiscoverTestProcedures();
     void DiscoverSpecVersions();
     void BuildDirNames();
@@ -96,7 +98,7 @@ public:
     void SetCurrentGroupName(const QString& groupName);
     QString GetCurrentGroupName() const;
 
-    void SetSerialNumber(QString sn);
+    void SetSerialNumber(QString sn = "");
 
     template <class T>
     T CallPluginFunction(T typ, const QString& funcName) {

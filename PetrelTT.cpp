@@ -316,15 +316,18 @@ void tPetrelTT::resizeEvent(QResizeEvent* event) {
 }
 
 void tPetrelTT::LoadTestProcedure() {
+    CloseTestProcedure();
     // Connect to dll
     SetState(St::Init);
     Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
-
+    
+//    DockLeft->Remove(PanDutConfig);
     PanDutConfig = Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
     DockLeft->Add(PanDutConfig);
     PanDutConfig->SetLayout(0);
 
+//    DockLeft->Remove(PanDptConfig);
     PanDptConfig = Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
     DockLeft->Add(PanDptConfig);
     PanDptConfig->SetLayout(0);
@@ -346,7 +349,9 @@ void tPetrelTT::CloseTestProcedure() {
     disconnect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
     disconnect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
     DockLeft->Remove(PanDutConfig);
+    PanDutConfig = nullptr;
     DockLeft->Remove(PanDptConfig);
+    PanDptConfig = nullptr;
 }
 
 void tPetrelTT::slotSelectSpec() {
