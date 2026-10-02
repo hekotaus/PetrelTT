@@ -56,8 +56,8 @@ class tPetrelTT : public QMainWindow {
     tPanControl* PanControl = nullptr;
     tPanTestDialog* PanTestDialog = nullptr;
     tPanTestTree* PanTestTree = nullptr;
-    tPanDevCfg* PanDutConfig = nullptr;
-    tPanDevCfg* PanDptConfig = nullptr;
+    ///tPanDevCfg* PanDutConfig = nullptr;
+    ///tPanDevCfg* PanDptConfig = nullptr;
 
     tPanLog* PanLog = nullptr;
     tPanReport* PanReport = nullptr;

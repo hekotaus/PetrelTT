@@ -323,14 +323,18 @@ void tPetrelTT::LoadTestProcedure() {
     if (Project.TP == nullptr) return;
     
 //    DockLeft->Remove(PanDutConfig);
-    PanDutConfig = Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
-    DockLeft->Add(PanDutConfig);
-    PanDutConfig->SetLayout(0);
+    ///PanDutConfig = 
+    Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
+    ///DockLeft->Add(PanDutConfig);
+    DockLeft->Add(Project.TP->GetPanDutCfg());
+    //PanDutConfig->SetLayout(0);
+    Project.TP->GetPanDutCfg()->SetLayout(0);
 
 //    DockLeft->Remove(PanDptConfig);
-    PanDptConfig = Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
-    DockLeft->Add(PanDptConfig);
-    PanDptConfig->SetLayout(0);
+    ///PanDptConfig = 
+    Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
+    DockLeft->Add(Project.TP->GetPanDptCfg());
+    Project.TP->GetPanDptCfg()->SetLayout(0);
 
     if (Project.TP->GetValid()) SetState(St::TestProc);
 
@@ -344,14 +348,16 @@ void tPetrelTT::CloseTestProcedure() {
     if (Project.TP == nullptr) return;
     // Connect to dll
     SetState(St::Init);
+    DockLeft->Remove(Project.TP->GetPanDutCfg());
+    DockLeft->Remove(Project.TP->GetPanDptCfg());
     Project.CloseTestProcedure();
     disconnect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
     disconnect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
     disconnect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
-    DockLeft->Remove(PanDutConfig);
-    PanDutConfig = nullptr;
-    DockLeft->Remove(PanDptConfig);
-    PanDptConfig = nullptr;
+    ///DockLeft->Remove(PanDutConfig);
+    ///PanDutConfig = nullptr;
+    ///DockLeft->Remove(PanDptConfig);
+    ///PanDptConfig = nullptr;
 }
 
 void tPetrelTT::slotSelectSpec() {
