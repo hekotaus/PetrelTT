@@ -272,13 +272,13 @@ void tTestSpecs::Validate() {
         rep1->AddDetails("DUT P/N: " + DutPn + IsValid((DutPn == Cfg.DutPartNumber), Valid));
     rep1->AddDetails(Description);
     Log.LogSystemMessage("Validating Specs...");
-    tick("Validating Auto specs");
+    //tick("Validating Auto specs");
     tReportRoot* root = Report->GetRoot();
     for(tTestSpec& s : Specs) {
         qDebug() << "Validating spec " << s.GetName();
         Valid = Valid && s.Validate(rep1);
     }
-    tock_s();
+    //tock_s();
     Log.LogSystemMessage("Test Specs " + IsValid(Valid, Valid));
     if (!Valid) rep1->AddDetails("Failed to validate Test Specs. See log file for details.");
     rep1->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);

@@ -341,7 +341,7 @@ bool tTestSpec::Validate(tReport* rep) {
     if (rep1 != nullptr) rep1->AddDetails(sTestInfo);
 
     if (IsTest) {
-        tick("Add test details");
+        //tick("Add test details");
         if (!IsUnitsValid()) {
             Valid = false;
             if (rep1 != nullptr) rep1->AddDetails("'Units' field is invalid");
@@ -363,7 +363,7 @@ bool tTestSpec::Validate(tReport* rep) {
                     rep1->AddDetails("Type '" + sType + "' does not support range '" + sRange + "'");
             }
         }
-        tock_s();
+        //tock_s();
     }
     if (IsGroup)
         for(tTestSpec& s: Children) {

@@ -271,13 +271,13 @@ void tPetrelTT::ArrangeDocks() {
     //DockCenter->setAutoFillBackground(true);
     //DockRight->setAutoFillBackground(true);
 
-    DockLeft->slotScrollV(0); // Why the hell is it needed?
-    DockCenter->slotScrollV(0);
-    DockRight->slotScrollV(0);
-
     if (DockLeft == nullptr) return;
     if (DockRight == nullptr) return;
     if (DockCenter == nullptr) return;
+
+    DockLeft->slotScrollV(0); // Why the hell is it needed?
+    DockCenter->slotScrollV(0);
+    DockRight->slotScrollV(0);
 
     int borderX = 2;
     int borderY = 2;
