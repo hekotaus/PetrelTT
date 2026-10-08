@@ -424,7 +424,9 @@ void tPetrelTT::slotStartManualTest(const QString& testName) { // From TP
 
 void tPetrelTT::slotTestFinished(tTestStatus status) {
     switch (State) {
-    case St::AutoRunning: SetState(St::AutoStopped); break;
+    case St::AutoRunning: 
+        if (!Project.TestRunner.GetRunningTest()) SetState(St::AutoStopped);
+        break;
     case St::ManualRunning: SetState(St::ManualStopped); break;
     }
 }

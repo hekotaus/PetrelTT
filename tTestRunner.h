@@ -50,6 +50,8 @@ public slots:
     void slotSetTestProgress(double val); // Procedure -> Runner <double>
     void slotSetTestTimeout(double toSec); // Procedure -> Runner <double>
     void slotAddTestDetails(const QString& details); // Procedure -> Runner <QString>
+    void slotCancelTesting(); // Procedure -> Runner
+    void slotCancelSubtests(); // Procedure -> Runner
  signals:
     void sigRunTest();
     //void sigFinishTest(); // Runner -> Procedure Move TP back to main thread

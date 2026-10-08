@@ -242,6 +242,9 @@ bool tPetrelProject::LoadTestProcedure() {
             QObject::connect(TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout, Qt::QueuedConnection); // Procedure -> Runner <double>
             QObject::connect(TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails, Qt::QueuedConnection); // Procedure -> Runner <QString>
 
+            QObject::connect(TP, &tTestProcedure::sigCancelTesting, &TestRunner, &tTestRunner::slotCancelTesting, Qt::QueuedConnection); // Procedure -> Runner <QString>
+            QObject::connect(TP, &tTestProcedure::sigCancelSubtests, &TestRunner, &tTestRunner::slotCancelSubtests, Qt::QueuedConnection); // Procedure -> Runner <QString>
+
             Cfg.ReportAutoTest->SetName("Auto test : " + Cfg.DutName);
             Cfg.ReportManualTest->SetName("Manual test : " + Cfg.DutName);
         }
@@ -343,7 +346,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
     }
     tReport* manRep = spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
 
-    TP->ResetCancelTestingFlag();
+    ///TP->ResetCancelTestingFlag();
     TP->ClearAllTestsInfo();
     LinearReports.clear();
     
@@ -388,7 +391,7 @@ void tPetrelProject::StartAutoTests() {
         TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false, true, false);
         Cfg.ReportCurrent->Refresh();
 
-        TP->ResetCancelTestingFlag();
+        ///TP->ResetCancelTestingFlag();
         TP->ClearAllTestsInfo();
         LinearReports.clear();
         BuildReportsList(LinearReports, Cfg.ReportCurrent);
@@ -439,9 +442,10 @@ void tPetrelProject::RunManualTests() {
 }
 
 void tPetrelProject::StopTests() {
-    if (TP != nullptr) {
-        TP->slotInterruptTest();
-    }
+    TestRunner.CancelTests();
+    ///if (TP != nullptr) {
+        ///TP->slotInterruptTest();
+    ///}
 }
 
 bool tPetrelProject::InitManualTest() {

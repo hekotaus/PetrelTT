@@ -61,7 +61,7 @@ protected:
 
     bool IsInexistingTestsWarning = true;
     std::atomic<bool> InterruptFlag = false;
-    std::atomic<bool> CancelTestingFlag = false;
+    ///std::atomic<bool> CancelTestingFlag = false;
     QString TestName = "";
 
     QString TestAssignmentSourceCode(QString dut, QString group, QString specName); // Just a little help for test procedure programmer :)
@@ -102,7 +102,7 @@ public:
     tTestDevice* pDPT = nullptr; // Generic pointer to Device Performing Test
     bool IsInterrupted() const { return InterruptFlag; }
 
-    void ResetCancelTestingFlag(); // This is called before starting test session
+    ///void ResetCancelTestingFlag(); // This is called before starting test session
     void SetupTest(const QString& testName);
     //void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
     void SetTestInfo(QString name, tTestInfo info);
@@ -130,6 +130,8 @@ signals:
     void sigStartManualTest(const QString& testName); // Procedure->App
     void sigShowMessage(QMessageBox* msgBox);
     void sigRequestSn(const QString&); // Procedure->App
+    void sigCancelTesting(); // Procedure -> Runner
+    void sigCancelSubtests(); // Procedure -> Runner
 
     // TEST API
 public:
@@ -139,7 +141,7 @@ public:
 
     // Here all *TP results are used only for easier returning from the test
     void Test_DelayAndSetProgress(int delayMs);
-    tTestProcedure* Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g. the DUT is burnt during flashing firmware, etc
+    tTestProcedure* Test_CancelTesting(QString details = ""); // Call this function, if there is no sense to continue testing, e.g. the DUT is burnt during flashing firmware, etc.
     tTestProcedure* Test_CancelSubtests(QString details = ""); // Call this function, if there is no sense to perform subtests, e.g. Measurement did not happen, cancel chacking all params
     void Test_SetTimeout(double timeoutSec);
     tTestProcedure* Test_AddDetails(const QString& details);

@@ -34,8 +34,9 @@ void tTestProcedure::DeletePanCfg() {
 tTestProcedure* tTestProcedure::Test_CancelTesting(QString details) {
     Test_AddDetails("Testing cancelled! No further tests will be run.");
     if (!details.isEmpty()) Test_AddDetails(details);
-    CancelTestingFlag = true;
+    ///CancelTestingFlag = true;
     //TODO: implement signaling to TestRunner!
+    emit sigCancelTesting();
     return this;
 }
 
@@ -44,12 +45,13 @@ tTestProcedure* tTestProcedure::Test_CancelSubtests(QString details) {
     if (!details.isEmpty()) Test_AddDetails(details);
     //CancelTestingFlag = true;
     //TODO: implement signaling to TestRunner!
+    emit sigCancelSubtests();
     return this;
 }
 
-void tTestProcedure::ResetCancelTestingFlag() { // This is called before starting test session
-    CancelTestingFlag = false;
-}
+///void tTestProcedure::ResetCancelTestingFlag() { // This is called before starting test session
+///    CancelTestingFlag = false;
+///}
 
 void tTestProcedure::SetTestInfo(QString name, tTestInfo info) {
     AllTestInfo[name] = info;
@@ -344,7 +346,8 @@ void tTestProcedure::slotRunTest() {
     CurrentTest = TestDict[TestName.toUpper()];
     if (CurrentTest.Info.Status != tTestStatus::Pending) return;
 
-    if (!InterruptFlag && !CancelTestingFlag) {
+    ///if (!InterruptFlag && !CancelTestingFlag) {
+    if (!InterruptFlag) {
         SetTestStatus(tTestStatus::Testing);
         MessageBoxWaiterLoop = new QEventLoop();
         connect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
@@ -367,7 +370,8 @@ void tTestProcedure::slotRunTest() {
             CurrentTest.Info.Status = tTestStatus::TestError;
     }
 
-    if (InterruptFlag || CancelTestingFlag) {
+    ///if (InterruptFlag || CancelTestingFlag) {
+    if (InterruptFlag) {
         CurrentTest.Info.Status = tTestStatus::Interrupted;
     }
     SetTestInfo(); // emit signal once to avoid unwanted switching. Do we really need it in the very end? Yes. To signal end of work

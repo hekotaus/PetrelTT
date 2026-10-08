@@ -170,3 +170,12 @@ void tTestRunner::slotAddTestDetails(const QString& details) { // Procedure -> R
     Log.LogSystemMessage("SetTestDetails");
     CurrentTestReport->AddDetails(details);
 }
+
+void tTestRunner::slotCancelTesting() { // Procedure -> Runner
+    Log.LogSystemMessage("CancelTesting");
+    CancelTests();
+}
+
+void tTestRunner::slotCancelSubtests() { // Procedure -> Runner
+    Log.LogSystemMessage("CancelSubtests");
+}
