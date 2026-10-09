@@ -361,6 +361,8 @@ void tPetrelTT::CloseTestProcedure() {
 }
 
 void tPetrelTT::slotSelectSpec() {
+    //Project.Cfg.TestProcedureVer = ;
+    PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     if (IsLoadTp)
         LoadTestProcedure();
 }

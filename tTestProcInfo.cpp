@@ -80,7 +80,7 @@ bool tTestProcInfo::ReadXml(tReport* rep) {
     //using xel = tinyxml2::XMLElement;
     tinyxml2::XMLDocument Xml;
     QString fname = Cfg.TestProcRevDir + "TestProcedure.xml";
-
+    Log.LogSystemMessage("Test procedure " + Cfg.TestProcRevDir);
     Files.clear();
     Parameters.clear();
     tReport* rep1 = rep->AddReport("Read TestProcedure XML");
