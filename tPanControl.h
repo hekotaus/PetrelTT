@@ -52,6 +52,7 @@ public:
     void PopulateSpecVerList(const QStringList& vers);
     void TrySetDutName(QString& dutName); // Return current DUTName
     void TrySetSpecVer(QString& specVer); // Return current SpecVer
+    QString GetSpecsVer() const;
 
     // Fill this panel externally
 public slots:

@@ -143,16 +143,21 @@ void tPanControl::TrySetDutName(QString& dutName) { // Return current DUTName
     }
 }
 
-void tPanControl::TrySetSpecVer(QString& specVer) { // Return current DUTName
-    int res = cbSpecVersion->findText(specVer);
-    if (res != -1) return; // Found
-    if (cbSpecVersion->count() == 0) {
-        specVer = ""; // Empty list
-        qDebug() << "Empty versions list!";
-    } else {
-        cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
-        specVer = cbSpecVersion->currentText(); // return last item  in the list
-    }
+void tPanControl::TrySetSpecVer(QString& specVer) {
+    qDebug() << "TrySetSpecVer oldSpecVer=" << specVer;
+    //int res = cbSpecVersion->findText(specVer);
+    //if (res != -1) return; // Found
+    //if (cbSpecVersion->count() == 0) {
+    //    specVer = ""; // Empty list
+    //    qDebug() << "Empty versions list!";
+    //} else {
+    //    cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
+    //    specVer = cbSpecVersion->currentText(); // return last item  in the list
+    //}
+}
+
+QString tPanControl::GetSpecsVer() const {
+    return cbSpecVersion->currentText();
 }
 
 void tPanControl::slotManualTest() { SetCurTab(btnManualTest); };

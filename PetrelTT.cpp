@@ -94,6 +94,9 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     LoadPanelConfig();
     //testReport();
     PopulateTestProcedures();
+
+    
+
     //SetState(St::Config);
 }
 
@@ -361,8 +364,8 @@ void tPetrelTT::CloseTestProcedure() {
 }
 
 void tPetrelTT::slotSelectSpec() {
-    //Project.Cfg.TestProcedureVer = ;
-    PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    Project.Cfg.TestSpecsVer = PanControl->GetSpecsVer();
+    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     if (IsLoadTp)
         LoadTestProcedure();
 }
@@ -380,14 +383,28 @@ void tPetrelTT::PopulateTestProcedures() {
     PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
     qDebug() << "Versions in the list:" << Project.SpecVerList.size();
     //qDebug() << "Versions in the wlist:" << PanControl->cbSpecVersion-> size();
-    qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
-    PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    //qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
+    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     LoadTestProcedure();
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
-
+#if 1
+void tPetrelTT::slotPopulateTestSpecVersions() {
+    Project.Cfg.DutName = PanControl->cbDutName->currentText();
+    Project.BuildDirNames();
+    Project.DiscoverSpecVersions();
+    IsLoadTp = false;
+    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes TrySetSpecVer and (if IsLoadTp) slotSelectSpec->LoadTestProcedure();
+    //qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
+    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    IsLoadTp = true;
+    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+    //qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+    Project.Cfg.ReportCurrent->Refresh();
+}
+#else
 void tPetrelTT::slotPopulateTestSpecVersions() {
     Project.Cfg.DutName = PanControl->cbDutName->currentText();
     Project.BuildDirNames();
@@ -398,9 +415,10 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
     PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
-    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+    //qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     Project.Cfg.ReportCurrent->Refresh();
 }
+#endif
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     tTestDialog* pDialog = nullptr;
