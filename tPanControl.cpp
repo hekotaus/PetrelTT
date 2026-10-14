@@ -133,8 +133,11 @@ void tPanControl::PopulateSpecVerList(const QStringList& vers) {
 }
 
 void tPanControl::TrySetDutName(QString& dutName) { // Return current DUTName
-    int res = cbDutName->findText(dutName);
-    if (res != -1) return; // Found
+    int idx = cbDutName->findText(dutName);
+    if (idx != -1) {
+        cbDutName->setCurrentIndex(idx);
+        return; // Found
+    }
     if (cbDutName->count() == 0) {
         dutName = ""; // Empty list
     } else {
@@ -143,17 +146,20 @@ void tPanControl::TrySetDutName(QString& dutName) { // Return current DUTName
     }
 }
 
-void tPanControl::TrySetSpecVer(QString& specVer) {
+QString tPanControl::TrySetSpecVer(const QString& specVer) {
     qDebug() << "TrySetSpecVer oldSpecVer=" << specVer;
-    //int res = cbSpecVersion->findText(specVer);
-    //if (res != -1) return; // Found
-    //if (cbSpecVersion->count() == 0) {
-    //    specVer = ""; // Empty list
-    //    qDebug() << "Empty versions list!";
-    //} else {
-    //    cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
-    //    specVer = cbSpecVersion->currentText(); // return last item  in the list
-    //}
+    int idx = cbSpecVersion->findText(specVer);
+    if (idx != -1) {
+        cbSpecVersion->setCurrentIndex(idx);
+        return specVer; // Found
+    }
+    if (cbSpecVersion->count() == 0) {
+        qDebug() << "Empty versions list!";
+        return ""; // Empty list
+    } else {
+        cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
+        return cbSpecVersion->currentText(); // return last item  in the list
+    }
 }
 
 QString tPanControl::GetSpecsVer() const {

@@ -374,22 +374,25 @@ void tPetrelTT::PopulateTestProcedures() {
     Logger.LogSystemMessage("Looking for test procedures...");
     Project.BuildDirNames();
     Project.DiscoverTestProcedures(); // Call from better spot
+    QString tmpSpecVer = Project.Cfg.TestSpecsVer; // Value from config
     PanControl->PopulateDutList(Project.DutNameList);
+    
     PanControl->TrySetDutName(Project.Cfg.DutName);
     
     //PopulateTestSpecVersions()
     Project.DiscoverSpecVersions();
     IsLoadTp = false;
-    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
-    qDebug() << "Versions in the list:" << Project.SpecVerList.size();
+///    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
+///    qDebug() << "Versions in the list:" << Project.SpecVerList.size();
     //qDebug() << "Versions in the wlist:" << PanControl->cbSpecVersion-> size();
     //qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
-    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    Project.Cfg.TestSpecsVer = PanControl->TrySetSpecVer(tmpSpecVer);
     IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     LoadTestProcedure();
-    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+///    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
+
 #if 1
 void tPetrelTT::slotPopulateTestSpecVersions() {
     Project.Cfg.DutName = PanControl->cbDutName->currentText();
@@ -412,7 +415,7 @@ void tPetrelTT::slotPopulateTestSpecVersions() {
     IsLoadTp = false;
     PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
     qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
-    PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
+    Project.Cfg.TestSpecsVer = PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
     IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     //qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
