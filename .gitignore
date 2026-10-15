@@ -55,6 +55,7 @@ compile_commands.json
 # Temporary files
 *.tmp
 *.log
+*.tlog
 *.bak
 *.swp
 
@@ -71,3 +72,5 @@ Testing/
 # Visual Studio
 .vs/
 PetrelTT/
+x64/
+/TestPlugin/x64/*

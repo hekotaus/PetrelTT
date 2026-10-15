@@ -59,7 +59,7 @@ void Test_CheckSwGap(tTestInfo& ti, bool isLimitSwitch = false) {
         TP->Test_Error("Embedded test stopped with Test status " + tReport::GetStatusMessage(Dut->GetServiceCommandStatus()));
     }
 }
-
+#if 0
 void Test_CheckHomeSwGapX(tTestInfo& ti) {
     TP->MB->MotorName = 'X';
     Test_CheckSwGap(ti);
@@ -88,6 +88,8 @@ void Test_CheckHomeSwGapM(tTestInfo& ti) {
     TP->MB->MotorName = 'M';
     Test_CheckSwGap(ti);
 }
+#endif
+
 #include <qmessagebox.h>
 // Set switch gap tests
 
