@@ -139,6 +139,7 @@ void tPanControl::PopulateDutList(const QStringList& duts) {
 void tPanControl::PopulateSpecVerList(const QStringList& vers) {
     AllowUpdate = false;
     cbSpecVersion->clear();
+    cbSpecVersion->addItem("");
     cbSpecVersion->addItems(vers);
     AllowUpdate = true;
 }
@@ -171,7 +172,8 @@ QString tPanControl::TrySetSpecVer(const QString& specVer) {
         qDebug() << "Empty versions list!";
         return ""; // Empty list
     } else {
-        cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
+        //cbSpecVersion->setCurrentIndex(cbSpecVersion->count()-1);
+        cbSpecVersion->setCurrentIndex(0);
         return cbSpecVersion->currentText(); // return last item  in the list
     }
 }

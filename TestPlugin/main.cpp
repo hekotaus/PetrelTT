@@ -1,3 +1,4 @@
+#if 0
 #include <QtCore/QCoreApplication>
 
 int main(int argc, char *argv[])
@@ -6,3 +7,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+#endif

@@ -130,7 +130,8 @@ void tPetrelTT::testReport() {
 
 tPetrelTT::~tPetrelTT() {
     PanTestDialog->SetTestDialog(nullptr); // Unuse it before destructing
-    Project.CloseTestProcedure();
+    //Project.CloseTestProcedure();
+    CloseTestProcedure();
 }
 
 void tPetrelTT::SetState(St st) { 
@@ -368,7 +369,8 @@ void tPetrelTT::CloseTestProcedure() {
 
 void tPetrelTT::slotSpecVerChanged() {
     Project.Cfg.TestSpecsVer = PanControl->GetSpecsVer();
-    LoadTestProcedure();
+    if (Project.Cfg.TestSpecsVer.isEmpty()) CloseTestProcedure();
+    else LoadTestProcedure();
 }
 
 void tPetrelTT::InitTestProcedure() {

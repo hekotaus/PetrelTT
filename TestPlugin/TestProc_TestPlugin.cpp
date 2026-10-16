@@ -9,6 +9,21 @@ tTestDevice* Dpt = nullptr; // No DPT here
 QMessageBox* pTestMessageBox;
 //tMessageBox_MotorSwitchState* pMsgBox_SwState;
 
+
+void Test_11(tTestInfo& ti) {
+    TP->Test_SetResult(1.1);
+}
+void Test_12(tTestInfo& ti) {
+    TP->Test_SetResult(1.2);
+}
+void Test_21(tTestInfo& ti) {
+    TP->Test_SetResult(2.1);
+}
+void Test_22(tTestInfo& ti) {
+    TP->Test_SetResult(2.2);
+}
+
+
 // Check switch tests
 #if 0
 void Test_CheckSwGap(tTestInfo& ti, bool isLimitSwitch = false) {
@@ -322,27 +337,9 @@ PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConf
     Dpt = TestProc->GetDpt();
     return TestProc;
 }
-#if 0
-typedef LxPropModel::LxProperty<uint32_t> PropUInt32;
-void cbMotorXStatus(const char* ctx, PropUInt32* prop, int index) {
-    TP->DutChangedStatus(1);
-}
-void cbMotorYStatus(const char* ctx, PropUInt32* prop, int index) {
-    TP->DutChangedStatus(2);
-}
-void cbMotorZStatus(const char* ctx, PropUInt32* prop, int index) {
-    TP->DutChangedStatus(3);
-}
-void cbMotorCStatus(const char* ctx, PropUInt32* prop, int index) {
-    TP->DutChangedStatus(4);
-}
-void cbMotorMStatus(const char* ctx, PropUInt32* prop, int index) {
-    TP->DutChangedStatus(5);
-}
-#endif
 
 tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg)
-    : tTestProcedure(TestProcName, "SLD board", "TSLT tester", log, cfg)
+    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg)
 {
     MB = new tMailBox_TestPlugin();
     MailBox = MB;
@@ -356,18 +353,6 @@ tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& c
     //pMsgBox_SwState = new tMessageBox_MotorSwitchState();
 
     ConnectControls(true);
-
-//    Dut.PropStp.mMonMotorXStatus.subscribeNotify(cbMotorXStatus, "ObjData");
-//    Dut.PropStp.mMonMotorYStatus.subscribeNotify(cbMotorYStatus, "ObjData");
-//    Dut.PropStp.mMonMotorZStatus.subscribeNotify(cbMotorZStatus, "ObjData");
-//    Dut.PropStp.mMonMotorCStatus.subscribeNotify(cbMotorCStatus, "ObjData");
-//    Dut.PropStp.mMonMotorMStatus.subscribeNotify(cbMotorMStatus, "ObjData");
-
-//    Dut.PropStp.mMonMotorXError.subscribeNotify(cbMotorXStatus, "ObjData");
-//    Dut.PropStp.mMonMotorYError.subscribeNotify(cbMotorYStatus, "ObjData");
-//    Dut.PropStp.mMonMotorZError.subscribeNotify(cbMotorZStatus, "ObjData");
-//    Dut.PropStp.mMonMotorCError.subscribeNotify(cbMotorCStatus, "ObjData");
-//    Dut.PropStp.mMonMotorMError.subscribeNotify(cbMotorMStatus, "ObjData");
 }
 
 tTestProc_TestPlugin::~tTestProc_TestPlugin() {
@@ -395,7 +380,10 @@ tTestProc_TestPlugin::~tTestProc_TestPlugin() {
 //}
 
 void tTestProc_TestPlugin::AssignTestFunctions() {
-//    AssignTestFunction("Check Home switch gap X", Test_CheckHomeSwGapX);
+    AssignTestFunction("Test11", Test_11);
+    AssignTestFunction("Test12", Test_12);
+    AssignTestFunction("Test21", Test_21);
+    AssignTestFunction("Test22", Test_22);
 //    AssignTestFunction("Check Home switch gap Y", Test_CheckHomeSwGapY);
 //    AssignTestFunction("Check Home switch gap Z", Test_CheckHomeSwGapZ);
 //    AssignTestFunction("Check Home switch gap C", Test_CheckHomeSwGapC);

@@ -14,7 +14,7 @@ class tTestProc_TestPlugin : public tTestProcedure {
     Q_OBJECT
     tTestDevice Dut = tTestDevice(this);
     tTestDevice Dpt = tTestDevice(this);
-    tTestDialog1 TestDialog1;
+    //tTestDialog1 TestDialog1;
     void ConnectControls(bool st);
     
 public:
