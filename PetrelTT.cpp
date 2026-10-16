@@ -56,14 +56,17 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     connect(PanControl->btnTestProc, &QPushButton::clicked, this, &tPetrelTT::slotSetModeTestProc);
     connect(PanControl->btnReports, &QPushButton::clicked, this, &tPetrelTT::slotSetModeReports);
 
-    connect(PanControl->cbDutName, &QComboBox::currentTextChanged, this, &tPetrelTT::slotPopulateTestSpecVersions);
-    connect(PanControl->cbSpecVersion, &QComboBox::currentTextChanged, this, &tPetrelTT::slotSelectSpec);
+    //connect(PanControl->cbDutName, &QComboBox::currentTextChanged, this, &tPetrelTT::slotPopulateTestSpecVersions);
+    //connect(PanControl->cbDutName, &QComboBox::currentTextChanged, this, &tPetrelTT::slotDutChanged);
+    //connect(PanControl->cbSpecVersion, &QComboBox::currentTextChanged, this, &tPetrelTT::slotSelectSpec);
+    connect(PanControl, &tPanControl::sigDutChanged, this, &tPetrelTT::slotDutChanged);
+    connect(PanControl, &tPanControl::sigSpecVerChanged, this, &tPetrelTT::slotSpecVerChanged);
 
     connect(PanControl->btnStart, &QPushButton::clicked, this, &tPetrelTT::slotStartTest);
     connect(PanControl->btnStop, &QPushButton::clicked, this, &tPetrelTT::slotStopTest);
     connect(&Project.TestRunner, &tTestRunner::sigSetProgressBar, PanControl->progTestProgress, &QProgressBar::setValue);
 
-    connect(&PanDebug->btnReloadTP, &QPushButton::clicked, this, &tPetrelTT::slotSelectSpec);
+    connect(&PanDebug->btnReloadTP, &QPushButton::clicked, this, &tPetrelTT::slotSpecVerChanged);
 
     connect(PanTestTree, &tPanTestTree::sigChangeGroupName, this, &tPetrelTT::slotTestGroupChanged);
 
@@ -93,9 +96,7 @@ tPetrelTT::tPetrelTT(QWidget *parent)
     LoadProjectConfig();
     LoadPanelConfig();
     //testReport();
-    PopulateTestProcedures();
-
-    
+    InitTestProcedure();
 
     //SetState(St::Config);
 }
@@ -353,75 +354,51 @@ void tPetrelTT::CloseTestProcedure() {
     SetState(St::Init);
     DockLeft->Remove(Project.TP->GetPanDutCfg());
     DockLeft->Remove(Project.TP->GetPanDptCfg());
-    Project.CloseTestProcedure();
+
     disconnect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
     disconnect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
     disconnect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
+
+    Project.CloseTestProcedure();
     ///DockLeft->Remove(PanDutConfig);
     ///PanDutConfig = nullptr;
     ///DockLeft->Remove(PanDptConfig);
     ///PanDptConfig = nullptr;
 }
 
-void tPetrelTT::slotSelectSpec() {
+void tPetrelTT::slotSpecVerChanged() {
     Project.Cfg.TestSpecsVer = PanControl->GetSpecsVer();
-    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
-    if (IsLoadTp)
-        LoadTestProcedure();
+    LoadTestProcedure();
 }
 
-void tPetrelTT::PopulateTestProcedures() {
+void tPetrelTT::InitTestProcedure() {
     Logger.LogSystemMessage("Looking for test procedures...");
     Project.BuildDirNames();
     Project.DiscoverTestProcedures(); // Call from better spot
+    QString tmpDutName = Project.Cfg.DutName; // Value from config
     QString tmpSpecVer = Project.Cfg.TestSpecsVer; // Value from config
+    
     PanControl->PopulateDutList(Project.DutNameList);
-    
-    PanControl->TrySetDutName(Project.Cfg.DutName);
-    
-    //PopulateTestSpecVersions()
+    PanControl->TrySetDutName(tmpDutName, false);
     Project.DiscoverSpecVersions();
-    IsLoadTp = false;
-///    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
-///    qDebug() << "Versions in the list:" << Project.SpecVerList.size();
-    //qDebug() << "Versions in the wlist:" << PanControl->cbSpecVersion-> size();
-    //qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
+    PanControl->PopulateSpecVerList(Project.SpecVerList);
     Project.Cfg.TestSpecsVer = PanControl->TrySetSpecVer(tmpSpecVer);
-    IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
+}
+void tPetrelTT::slotDutChanged() {
+    PopulateTestSpecVersions();
     LoadTestProcedure();
-///    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
 
-#if 1
-void tPetrelTT::slotPopulateTestSpecVersions() {
+void tPetrelTT::PopulateTestSpecVersions() {
     Project.Cfg.DutName = PanControl->cbDutName->currentText();
     Project.BuildDirNames();
     Project.DiscoverSpecVersions();
-    IsLoadTp = false;
     PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes TrySetSpecVer and (if IsLoadTp) slotSelectSpec->LoadTestProcedure();
-    //qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
-    //PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
-    IsLoadTp = true;
-    qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
-    //qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
-    Project.Cfg.ReportCurrent->Refresh();
-}
-#else
-void tPetrelTT::slotPopulateTestSpecVersions() {
-    Project.Cfg.DutName = PanControl->cbDutName->currentText();
-    Project.BuildDirNames();
-    Project.DiscoverSpecVersions();
-    IsLoadTp = false;
-    PanControl->PopulateSpecVerList(Project.SpecVerList); // This causes slotSelectSpec->LoadTestProcedure();
-    qDebug() << "TrySetSpecVer" << Project.Cfg.TestSpecsVer;
     Project.Cfg.TestSpecsVer = PanControl->TrySetSpecVer(Project.Cfg.TestSpecsVer);
-    IsLoadTp = true;
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
-    //qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
     Project.Cfg.ReportCurrent->Refresh();
 }
-#endif
 
 void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     tTestDialog* pDialog = nullptr;

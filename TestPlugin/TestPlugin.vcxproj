@@ -70,6 +70,9 @@
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);../../VedroLink/x64/Debug/VedroLib.lib;</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>call CopyDllToPetrel.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

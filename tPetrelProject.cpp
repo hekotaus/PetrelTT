@@ -152,6 +152,7 @@ void tPetrelProject::CloseTestProcedure() {
         QObject::disconnect(TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout); // Procedure -> Runner <double>
         QObject::disconnect(TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails); // Procedure -> Runner <QString>
 
+
     }
     TPInfo.Clear();
     ClosePlugin();

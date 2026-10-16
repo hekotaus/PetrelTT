@@ -55,6 +55,9 @@ tPanControl::tPanControl(QWidget* parent, int id)
     connect(btnTestProc, &QPushButton::clicked, this, &tPanControl::slotTestProc);
     connect(btnReports, &QPushButton::clicked, this, &tPanControl::slotReports);
 
+    connect(cbDutName, &QComboBox::currentTextChanged, this, &tPanControl::slotDutChanged);
+    connect(cbSpecVersion, &QComboBox::currentTextChanged, this, &tPanControl::slotSpecVerChanged);
+
 }
 
 tPanControl::~tPanControl() {
@@ -63,6 +66,10 @@ tPanControl::~tPanControl() {
     disconnect(btnConfig, &QPushButton::clicked, this, &tPanControl::slotConfig);
     disconnect(btnTestProc, &QPushButton::clicked, this, &tPanControl::slotTestProc);
     disconnect(btnReports, &QPushButton::clicked, this, &tPanControl::slotReports);
+
+    disconnect(cbDutName, &QComboBox::currentTextChanged, this, &tPanControl::slotDutChanged);
+    disconnect(cbSpecVersion, &QComboBox::currentTextChanged, this, &tPanControl::slotSpecVerChanged);
+
 }
 
 void tPanControl::AddControls(tPanelLayout* layout) {
@@ -123,19 +130,25 @@ void tPanControl::SetCurTab(QPushButton* curBtn) {
 }
 
 void tPanControl::PopulateDutList(const QStringList& duts) {
+    AllowUpdate = false;
     cbDutName->clear();
     cbDutName->addItems(duts);
+    AllowUpdate = true;
 }
 
 void tPanControl::PopulateSpecVerList(const QStringList& vers) {
+    AllowUpdate = false;
     cbSpecVersion->clear();
     cbSpecVersion->addItems(vers);
+    AllowUpdate = true;
 }
 
-void tPanControl::TrySetDutName(QString& dutName) { // Return current DUTName
+void tPanControl::TrySetDutName(QString& dutName, bool allowUpdate) { // Return current DUTName
+    AllowUpdate = allowUpdate;
     int idx = cbDutName->findText(dutName);
     if (idx != -1) {
         cbDutName->setCurrentIndex(idx);
+        AllowUpdate = true;
         return; // Found
     }
     if (cbDutName->count() == 0) {
@@ -144,6 +157,7 @@ void tPanControl::TrySetDutName(QString& dutName) { // Return current DUTName
         cbDutName->setCurrentIndex(0);
         dutName = cbDutName->currentText(); // return first item  in the list
     }
+    AllowUpdate = true;
 }
 
 QString tPanControl::TrySetSpecVer(const QString& specVer) {
@@ -171,3 +185,17 @@ void tPanControl::slotAutoTest() { SetCurTab(btnAutoTest); };
 void tPanControl::slotConfig() { SetCurTab(btnConfig); };
 void tPanControl::slotTestProc() { SetCurTab(btnTestProc); };
 void tPanControl::slotReports() { SetCurTab(btnReports); };
+
+
+void tPanControl::slotDutChanged() {
+    // emit signal only when selected by user
+    if (AllowUpdate)
+        emit sigDutChanged();
+}
+
+void tPanControl::slotSpecVerChanged() {
+    // emit signal only when selected by user
+    if (AllowUpdate)
+        emit sigSpecVerChanged();
+}
+

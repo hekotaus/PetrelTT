@@ -75,8 +75,6 @@ class tPetrelTT : public QMainWindow {
     tPetrelProject Project = tPetrelProject(Logger);
     St State = St::Init;
 
-    bool IsLoadTp = false; // True, if should react to change of combo box immediately
-
     std::list<tPanel*> SidePanels; // Collection of side panels
     template <typename T>
     T* AddSidePanel(T* panel) { SidePanels.push_back(panel); return panel; }
@@ -90,7 +88,7 @@ class tPetrelTT : public QMainWindow {
     void SaveConfig();
 
     void SetState(St st);
-    void PopulateTestProcedures();
+    void InitTestProcedure();
     
     void LoadTestProcedure();
     void CloseTestProcedure();
@@ -101,6 +99,7 @@ public:
 
 private:
     void testReport();
+    void PopulateTestSpecVersions();
 public slots:
     void ArrangeDocks();
 
@@ -114,13 +113,13 @@ public slots:
         Project.StopTests(); 
     }
 
-    void slotSelectSpec();
-
     void slotColorizeTree() {
         if (Project.Cfg.ReportCurrent == Project.Cfg.ReportAutoTest)
             Project.ColorizeAutoTestTree(); 
     }
-    void slotPopulateTestSpecVersions();
+    void slotDutChanged();
+    void slotSpecVerChanged();
+
     void slotTestGroupChanged(const QString& groupName);
 
     void slotStartManualTest(const QString&); // From TP

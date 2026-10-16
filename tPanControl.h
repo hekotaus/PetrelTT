@@ -25,6 +25,8 @@ class tPanControl : public tPanPetrel {
     int TabY = 0;
     int SmlY = 0;
 
+    bool AllowUpdate = true;
+
     void AddControls(tPanelLayout* layout);
     void SetCurTab(QPushButton* curBtn);
 
@@ -50,7 +52,7 @@ public:
     ~tPanControl();
     void PopulateDutList(const QStringList& duts);
     void PopulateSpecVerList(const QStringList& vers);
-    void TrySetDutName(QString& dutName); // Return current DUTName
+    void TrySetDutName(QString& dutName, bool allowUpdate); // Return current DUTName
     QString TrySetSpecVer(const QString& specVer); // Return current SpecVer
     QString GetSpecsVer() const;
 
@@ -62,4 +64,10 @@ public slots:
     void slotTestProc();
     void slotReports();
 
+    void slotDutChanged();
+    void slotSpecVerChanged();
+
+signals:
+    void sigDutChanged();
+    void sigSpecVerChanged();
 };
