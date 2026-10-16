@@ -5,5 +5,3 @@
 
 QString IsValid(bool condition, bool& res);
 QString XmlAttribute(tinyxml2::XMLElement* el, QString name, QString defValue = "");
-
-

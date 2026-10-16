@@ -21,6 +21,12 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="Src-Shell">
+      <UniqueIdentifier>{95cf2809-4a22-436c-b0cc-375b77a8a46c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src-Vedro">
+      <UniqueIdentifier>{b80f4301-bad0-42f4-bd4b-91683673c850}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -28,6 +34,30 @@
     </ClCompile>
     <ClCompile Include="TestProc_TestPlugin.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tReport.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tReportRoot.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tTestDevice.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tTestProcedure.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tTestSpec.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tTestSpecs.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\VedroLink\VedroLib\logger\tLogger.cpp">
+      <Filter>Src-Vedro</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PetrelTools.cpp">
+      <Filter>Src-Shell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,5 +67,31 @@
     <QtMoc Include="tTestDialog1.h">
       <Filter>Source Files</Filter>
     </QtMoc>
+    <QtMoc Include="..\tTestProcedure.h">
+      <Filter>Src-Shell</Filter>
+    </QtMoc>
+    <QtMoc Include="..\tReport.h">
+      <Filter>Src-Shell</Filter>
+    </QtMoc>
+    <QtMoc Include="..\..\VedroLink\VedroLib\logger\tLogger.h">
+      <Filter>Src-Vedro</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\tReportRoot.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tTestDevice.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tTestSpec.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tTestSpecs.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\PetrelTools.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
