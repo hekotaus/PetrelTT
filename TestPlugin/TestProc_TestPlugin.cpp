@@ -4,11 +4,10 @@
 
 tTestProc_TestPlugin* TestProc = nullptr;
 #define TP TestProc
-tTestDevice* Dut = nullptr;
-tTestDevice* Dpt = nullptr; // No DPT here
+tTestDevice* gpDut = nullptr; // typed pointer for convenience
+tTestDevice* gpDpt = nullptr; // No DPT here
 QMessageBox* pTestMessageBox;
 //tMessageBox_MotorSwitchState* pMsgBox_SwState;
-
 
 void Test_11(tTestInfo& ti) {
     TP->Test_SetResult(1.1);
@@ -333,8 +332,8 @@ PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConf
     if (TestProc != nullptr) delete TestProc;
     TestProc = nullptr;
     TestProc = new tTestProc_TestPlugin(log, cfg);
-    Dut = TestProc->GetDut();
-    Dpt = TestProc->GetDpt();
+    gpDut = TestProc->GetDut(); //convenience global pointer
+    gpDpt = TestProc->GetDpt();
     return TestProc;
 }
 
@@ -366,7 +365,13 @@ tTestProc_TestPlugin::~tTestProc_TestPlugin() {
     MailBox = nullptr;
     MB = nullptr;
     delete pTestMessageBox;
+    pTestMessageBox = nullptr;
     //delete pMsgBox_SwState;
+    if (TestProc == this) { // Deleted by the shell: don't let CreateTestProcedure delete it again
+        TestProc = nullptr;
+        gpDut = nullptr;
+        gpDpt = nullptr;
+    }
 }
 
 //void tTestProc_Stp::DutChangedStatus(uint8_t devId) {

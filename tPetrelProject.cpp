@@ -186,9 +186,17 @@ void tPetrelProject::ClosePlugin() {
     }
 
     TestRunner.SetTP(nullptr);
-    // Delete PanCfgs
-    TP->DeletePanCfg();
-    TP = nullptr;
+    if (TP != nullptr) {
+        // Delete PanCfgs
+        TP->DeletePanCfg();
+        // TP's vtable lives in the dll, so it must be destroyed before unload.
+        // Otherwise it outlives the dll, and when a receiver it is still connected to
+        // is destroyed (e.g. TestRunner on exit), ~QObject calls TP->metaObject() and
+        // TP->disconnectNotify() through the unloaded vtable -> access violation.
+        delete TP;
+        TP = nullptr;
+    }
+    TestSpecs = nullptr; // Pointed into TP
     PluginLib.unload();
     IsPlugged = false;
 }
