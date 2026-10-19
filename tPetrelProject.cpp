@@ -206,8 +206,8 @@ void tPetrelProject::BuildDirNames() {
     Cfg.CurTestProcDir = "";
     if ((Cfg.TestProcDir != "") && (Cfg.DutName != "")) {
         Cfg.CurDutDir = Cfg.TestProcDir + "/" + Cfg.DutName + ".TestProcedure/";
-        if (Cfg.TestSpecsVer != "")
-            Cfg.TestProcRevDir = Cfg.CurDutDir + Cfg.TestSpecsVer + ".Version/";
+        //if (Cfg.TestSpecsVer != "")
+        Cfg.TestProcRevDir = Cfg.CurDutDir + Cfg.TestSpecsVer + ".Version/";
     }
     Log.LogSystemMessage("Directories:");
     Log.LogSystemMessage("Test Procedures: " + Cfg.TestProcDir);

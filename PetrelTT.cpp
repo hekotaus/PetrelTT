@@ -324,7 +324,8 @@ void tPetrelTT::LoadTestProcedure() {
     CloseTestProcedure();
     // Connect to dll
     SetState(St::Init);
-    Project.CreateTestProcedure();
+    if (!Project.Cfg.TestSpecsVer.isEmpty())
+        Project.CreateTestProcedure();
     if (Project.TP == nullptr) return;
     
 //    DockLeft->Remove(PanDutConfig);
@@ -388,6 +389,7 @@ void tPetrelTT::InitTestProcedure() {
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
 void tPetrelTT::slotDutChanged() {
+    Project.Cfg.TestSpecsVer = "";
     PopulateTestSpecVersions();
     LoadTestProcedure();
 }
