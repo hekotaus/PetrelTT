@@ -127,7 +127,6 @@
     <ClCompile Include="tReport.cpp" />
     <ClCompile Include="tReportRoot.cpp" />
     <ClCompile Include="tSerialNumberDialog.cpp" />
-    <ClCompile Include="tTestDevice.cpp" />
     <ClCompile Include="tTestProcedure.cpp" />
     <ClCompile Include="tTestProcInfo.cpp" />
     <ClCompile Include="tTestRunner.cpp" />

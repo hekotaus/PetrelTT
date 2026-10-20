@@ -41,9 +41,6 @@
     <ClCompile Include="..\tReportRoot.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
-    <ClCompile Include="..\tTestDevice.cpp">
-      <Filter>Src-Shell</Filter>
-    </ClCompile>
     <ClCompile Include="..\tTestProcedure.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>

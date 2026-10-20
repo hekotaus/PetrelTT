@@ -114,7 +114,6 @@
     <ClCompile Include="..\PetrelTools.cpp" />
     <ClCompile Include="..\tReport.cpp" />
     <ClCompile Include="..\tReportRoot.cpp" />
-    <ClCompile Include="..\tTestDevice.cpp" />
     <ClCompile Include="..\tTestProcedure.cpp" />
     <ClCompile Include="..\tTestSpec.cpp" />
     <ClCompile Include="..\tTestSpecs.cpp" />

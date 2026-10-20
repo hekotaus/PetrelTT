@@ -58,9 +58,6 @@
     <ClCompile Include="tTestProcInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tTestDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tTestSpec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

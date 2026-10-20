@@ -7,15 +7,22 @@ class tTestProcedure;
 class tTestDevice { // This is a base class for DUT and DPT classes
 protected:
     tTestProcedure* TP = nullptr;
-    void SetTestProgress(double fraction);
+    //void SetTestProgress(double fraction);
     bool IsInited = false;
     QString SerialNumber = "";
 public:
     //tTestDevice();
-    tTestDevice(tTestProcedure* tp);
-    virtual bool Init(tReport* rep);
-    virtual void Done(tReport* rep);
-    bool GetInited() const;
+    tTestDevice(tTestProcedure* tp) : TP(tp) { }
+    virtual bool Init(tReport* rep) {
+        IsInited = true; // Needed for dummy devices
+        return IsInited;
+    }
+
+    virtual void Done(tReport* rep) {
+        IsInited = false;
+    }
+
+    bool GetInited() const { return IsInited; };
 };
 
 class tTestDevice_SingleComPort : public tTestDevice {
