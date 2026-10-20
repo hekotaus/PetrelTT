@@ -34,6 +34,7 @@ tFileInfo::tFileInfo(QString name, QString target, QString description, bool crc
 tTestProcInfo::tTestProcInfo(tLogger& log, tPetrelProjectConfig& cfg)
     : Cfg(cfg)
     , Log(log)
+    , TestSpecs(Log, Cfg)
     //, ReportRoot(Cfg.ReportTestProc)
 {
     //Log = log;
@@ -419,3 +420,117 @@ bool tTestProcInfo::Validate(tReport* rep) {
     rep1->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);
     return Valid;
 }
+
+QString tTestProcInfo::TestAssignmentSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)
+    QString SpecName = Str2CppId(specName); // C++ -comatible name
+    QString lines = "AssignTestFunction(\"" + specName + "\", Test_" + SpecName + ");\r\n";
+    return lines;
+}
+
+bool tTestProcInfo::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how to call it!
+    bool resMan = true;
+    tReport* rep1 = rep->AddReport("Manual Test assignment verification");
+    // Scan AutoSpecs and check, all items.isTest()==true have function assigned
+    std::list<QString> SpecNames;
+    for (QString& s : SpecNames) {
+        if (0 != TestDict.count(s.toUpper())) {
+            rep1->AddDetails(s);
+        } else {
+            rep1->AddDetails("ERROR! Spec " + s + " does not have executable code!");
+            resMan = false;
+        }
+    }
+    // TODO: verify, if TestSpec is existing
+    if (resMan) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
+    return resMan;
+}
+
+void tTestProcInfo::ValidateAutoTestFuncAssignment(tReport* rep) {
+    bool resAuto = true;
+    tReport* rep1 = rep->AddReport("Auto Test assignment verification");
+    // Scan AutoSpecs and check, all items.isTest()==true have function assigned
+    QStringList SpecNames;
+
+    TestSpecs.BuildNameList(SpecNames);
+    for (QString& s : SpecNames) {
+        rep1->AddDetails(s);
+        if (0 == TestDict.count(s.toUpper())) {
+            rep1->AddDetails("ERROR! No executable code assigned!");
+            resAuto = false;
+        }
+    }
+
+    QString sTmp = "";
+    for (const QString& s : SpecNames) {
+        if (0 == TestDict.count(s.toUpper())) {
+            sTmp = sTmp + TestAssignmentSourceCode("DUT", "GROUP", s);
+        }
+    }
+    if (sTmp != "") Log.LogSystemMessage("Missing test assignments:\r\n" + sTmp);
+
+    sTmp = "";
+    for (const QString& s : SpecNames) {
+        if (0 == TestDict.count(s.toUpper())) {
+            sTmp = sTmp + "\n" + s;
+        }
+    }
+    if (sTmp != "") Log.LogSystemMessage("Missing test functions for specs:\r\n" + sTmp);
+    if (resAuto) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
+    IsValid = IsValid && resAuto;
+    rep1->Expand(!IsValid, true);
+    rep1->SetShowDetails(!IsValid, true);
+    //rep->GetRoot()->Refresh();
+}
+
+bool tTestProcInfo::IsTestFunctionAssigned(QString testName) {
+    return (TestDict.count(testName) > 0);
+}
+
+// Assign test function to TestName
+bool tTestProcInfo::AssignTestFunction(const QString& testName, tTestDelegate testProc) {
+    bool res = false;
+    QString testNameUpper = testName.toUpper();
+    if (0 == TestDict.count(testNameUpper)) {
+        tTestStruct test = tTestStruct();
+        test.Proc = testProc;
+        test.Info.Status = tTestStatus::Pending;
+
+        tTestSpec* curSpec = TestSpecs.GetSpec(testNameUpper);
+        if (curSpec != nullptr) {
+            if (curSpec->GetIsPureGroup()) { // if pure group and function assigned, make non-pure group by adding a Spec internal
+                curSpec->ConvertToSuperTest(); // copy new to cur
+            }
+            test.Info.Result.SetValueType(curSpec->GetValueType());
+        } else { // This means we try to assign Test Function to inexisting Test/Spec
+            if (IsInexistingTestsWarning)
+                Log.LogErrorMessage("Trying to assign Test Function to inexisting Test/Spec\n'" + testName + "'");
+        }
+        TestDict[testNameUpper] = test;
+        res = true;
+
+    }
+    return res;
+}
+
+bool tTestProcInfo::GetTestByName(QString testName, tTestStruct& test) {
+    testName = testName.toUpper();
+    if (TestDict.count(testName) == 0) return false;
+    test = TestDict[testName];
+    return true;
+}
+
+//void tTestProcInfo::SetTestInfo(QString name, tTestInfo info) {
+//    AllTestInfo[name] = info;
+//}
+
+void tTestProcInfo::ClearAllTestsInfo() {
+    AllTestInfo.clear();
+}
+
+//tTestResult tTestProcInfo::GetTestResultByName(QString testName) {
+//    return AllTestInfo[testName].Result;
+//}
+
+//tTestStatus tTestProcInfo::GetTestStatusByName(QString testName) {
+//    return AllTestInfo[testName].Status;
+//}

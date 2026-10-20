@@ -43,6 +43,7 @@ class tPetrelProject /*: public QObject*/ {
     bool OpenPlugin();
     void ClosePlugin();
     bool LoadTestProcedure();
+    void AssignCallbacks();
     void ResetDeviceInfo() { }
     void ColorizeTestTree(QTreeWidgetItem* rootNode);
     void DecolorizeTestTree(QTreeWidgetItem* curNode);

@@ -24,6 +24,7 @@ private:
     int TimeoutWaitSec = 1;
     //QProgressBar* TestProgress = nullptr;
     tTestProcedure* TP = nullptr;
+    tTestProcInfo& TPInfo;
     tLogger& Log;
     ///bool IsAcceptSignals = false;
     QThread TestThread;
@@ -36,7 +37,7 @@ public:
     tReport* CurrentTestReport = nullptr;
     bool InterruptFlag = false;
     bool CancelTestsFlag = false;
-    tTestRunner(tLogger& log);
+    tTestRunner(tTestProcInfo& tpinfo, tLogger& log);
     ~tTestRunner();
     void SetCurTestTree(QTreeWidgetItem* testTree);
     //void FlushSignals();
@@ -53,7 +54,7 @@ public slots:
     void slotCancelTesting(); // Procedure -> Runner
     void slotCancelSubtests(); // Procedure -> Runner
  signals:
-    void sigRunTest();
+    void sigRunTest(tTestStruct currentTest);
     //void sigFinishTest(); // Runner -> Procedure Move TP back to main thread
     void sigInterruptTest(); // Runner -> Procedure <void>
 

@@ -1,6 +1,6 @@
 #include "PetrelTools.h"
 
-QString IsValid(bool condition, bool& res) {
+QString ValidateToString(bool condition, bool& res) {
     res = res && condition;
     if (condition) return " -- Valid"; else return " -- Invalid";
 }

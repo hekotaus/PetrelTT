@@ -328,17 +328,17 @@ PPT_DLL_API tTestProcedure* GetTestProcedure() {
     return TestProc;
 }
 
-PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg) {
+PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo) {
     if (TestProc != nullptr) delete TestProc;
     TestProc = nullptr;
-    TestProc = new tTestProc_TestPlugin(log, cfg);
+    TestProc = new tTestProc_TestPlugin(log, cfg, testProcInfo);
     gpDut = TestProc->GetDut(); //convenience global pointer
     gpDpt = TestProc->GetDpt();
     return TestProc;
 }
 
-tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg)
-    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg)
+tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo)
+    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg, testProcInfo)
 {
     MB = new tMailBox_TestPlugin();
     MailBox = MB;
@@ -385,10 +385,11 @@ tTestProc_TestPlugin::~tTestProc_TestPlugin() {
 //}
 
 void tTestProc_TestPlugin::AssignTestFunctions() {
-    AssignTestFunction("Test11", Test_11);
-    AssignTestFunction("Test12", Test_12);
-    AssignTestFunction("Test21", Test_21);
-    AssignTestFunction("Test22", Test_22);
+    if (Test_AssignTestFunction == nullptr) return;
+    Test_AssignTestFunction("Test11", Test_11);
+    Test_AssignTestFunction("Test12", Test_12);
+    Test_AssignTestFunction("Test21", Test_21);
+    Test_AssignTestFunction("Test22", Test_22);
 //    AssignTestFunction("Check Home switch gap Y", Test_CheckHomeSwGapY);
 //    AssignTestFunction("Check Home switch gap Z", Test_CheckHomeSwGapZ);
 //    AssignTestFunction("Check Home switch gap C", Test_CheckHomeSwGapC);

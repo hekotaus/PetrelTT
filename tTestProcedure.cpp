@@ -5,13 +5,14 @@
 
 tTestProcedure::tTestProcedure(
     QString name, QString dutName, QString dptName,
-    tLogger& log, tPetrelProjectConfig& cfg)//,
+    tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo)//,
     : TestProcName(name)
-    , DutName(dutName)
+    //, DutName(dutName)
     , DptName(dptName)
     , Log(log)
     , Cfg(cfg)
-    , TestSpecs(tTestSpecs(Log, Cfg))
+    , TestSpecs(testProcInfo.TestSpecs)
+    , TestProcInfo(testProcInfo)
 {
     //connect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
     //connect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
@@ -53,112 +54,10 @@ tTestProcedure* tTestProcedure::Test_CancelSubtests(QString details) {
 ///    CancelTestingFlag = false;
 ///}
 
-void tTestProcedure::SetTestInfo(QString name, tTestInfo info) {
-    AllTestInfo[name] = info;
-}
+//void tTestProcedure::Test_AssignTestFunction(const QString& testName, tTestDelegate testProc) {
+    //emit AssignTestFunction(testName, testProc);
+//}
 
-void tTestProcedure::ClearAllTestsInfo() {
-    AllTestInfo.clear();
-}
- 
-tTestResult tTestProcedure::GetTestResultByName(QString testName) {
-    return AllTestInfo[testName].Result;
-}
-
-tTestStatus tTestProcedure::GetTestStatusByName(QString testName) {
-    return AllTestInfo[testName].Status;
-}
-
-// Assign test function to TestName
-bool tTestProcedure::AssignTestFunction(const QString& testName, tTestDelegate testProc) {
-    bool res = false;
-    QString testNameUpper = testName.toUpper();
-    if (0 == TestDict.count(testNameUpper)) {
-        tTestStruct test = tTestStruct();
-        test.Proc = testProc;
-        test.Info.Status = tTestStatus::Pending;
-
-        tTestSpec* curSpec = TestSpecs.GetSpec(testNameUpper);
-        if (curSpec != nullptr) {
-            if (curSpec->GetIsPureGroup()) { // if pure group and function assigned, make non-pure group by adding a Spec internal
-                curSpec->ConvertToSuperTest(); // copy new to cur
-            }
-            test.Info.Result.SetValueType(curSpec->GetValueType());
-        } else { // This means we try to assign Test Function to inexisting Test/Spec
-            if (IsInexistingTestsWarning)
-                Log.LogErrorMessage("Trying to assign Test Function to inexisting Test/Spec\n'" + testName + "'");
-        }
-        TestDict[testNameUpper] = test;
-        res = true;
-
-    }
-    return res;
-}
-
-bool tTestProcedure::IsTestFunctionAssigned(QString testName) {
-    return (TestDict.count(testName) > 0);
-}
-
-QString tTestProcedure::TestAssignmentSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)
-    QString SpecName = Str2CppId(specName); // C++ -comatible name
-    QString lines = "AssignTestFunction(\"" + specName + "\", Test_" + SpecName + ");\r\n";
-    return lines;
-}
-
-void tTestProcedure::ValidateAutoTestFuncAssignment(tReport* rep) {
-    bool resAuto = true;
-    tReport* rep1 = rep->AddReport("Auto Test assignment verification");
-    // Scan AutoSpecs and check, all items.isTest()==true have function assigned
-    QStringList SpecNames;
-
-    TestSpecs.BuildNameList(SpecNames);
-    for(QString& s : SpecNames) {
-        rep1->AddDetails(s);
-        if (0 == TestDict.count(s.toUpper())) {
-            rep1->AddDetails("ERROR! No executable code assigned!");
-            resAuto = false;
-        }
-    }
-
-    QString sTmp = "";
-    for(const QString& s : SpecNames) {
-        if (0 == TestDict.count(s.toUpper())) {
-            sTmp = sTmp + TestAssignmentSourceCode("DUT", "GROUP", s);
-        }
-    }
-    if (sTmp != "") Log.LogSystemMessage("Missing test assignments:\r\n" + sTmp);
-
-    sTmp = "";
-    for(const QString& s : SpecNames) {
-        if (0 == TestDict.count(s.toUpper())) {
-            sTmp = sTmp + "\n" + s;
-        }
-    }
-    if (sTmp != "") Log.LogSystemMessage("Missing test functions for specs:\r\n" + sTmp);
-    if (resAuto) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
-    IsValid = IsValid && resAuto;
-    rep1->Expand(!IsValid, true);
-    rep1->SetShowDetails(!IsValid, true);
-    //rep->GetRoot()->Refresh();
-}
-
-bool tTestProcedure::ValidateManualTestFuncAssignment(tReport* rep) { // X3 how to call it!
-    bool resMan = true;
-    tReport* rep1 = rep->AddReport("Manual Test assignment verification");
-    // Scan AutoSpecs and check, all items.isTest()==true have function assigned
-    std::list<QString> SpecNames;
-    for (QString& s : SpecNames) {
-        if (0 != TestDict.count(s.toUpper())) {
-            rep1->AddDetails(s);
-        } else {
-            rep1->AddDetails("ERROR! Spec " + s + " does not have executable code!");
-            resMan = false;
-        }
-    }
-    // TODO: verify, if TestSpec is existing
-    if (resMan) rep1->SetStatus(tTestStatus::Passed); else rep1->SetStatus(tTestStatus::Failed);
-    return resMan;
-}
 
 ///bool tTestProcedure::GetTestResultInternal() const {
 ///    if (CurrentTest.Info.Status == tTestStatus::Tested)
@@ -278,10 +177,10 @@ void tTestProcedure::SetTestInfo() {
 //}
 
 //public 
-void tTestProcedure::SetupTest(const QString& testName) {
-    TestName = testName;
-    InterruptFlag = false;
-}
+//void tTestProcedure::_SetupTest(const QString& testName) {
+    //TestName = testName;
+//    InterruptFlag = false;
+//}
 
 bool tTestProcedure::InitDptAndDut(tReport* rep) {
     tReport* r1 = rep->AddReportTesting("InitManualTest", true);
@@ -331,19 +230,22 @@ void tTestProcedure::DoneManualTests(tReport* rep) { // Called once when leaving
 }
 
 //public 
-void tTestProcedure::slotRunTest() {
+void tTestProcedure::slotRunTest(tTestStruct currentTest) {
+#if 0
     if (TestName == "") {
         CurrentTest.Info.Details = "ERROR: Test name is empty!";
         return;
     }
 
-    if (TestDict.count(TestName.toUpper()) == 0) {
+    if (!TestProcInfo.GetTestByName(TestName, CurrentTest)) {
         CurrentTest.Info.Details = "No test procedure for '" + TestName;
         //SetTestStatus(TTestStatus.TestError);
         return;
     }
-    
-    CurrentTest = TestDict[TestName.toUpper()];
+#endif
+    CurrentTest = currentTest;
+
+    ///CurrentTest = TestProcInfo->TestDict[TestName.toUpper()];
     if (CurrentTest.Info.Status != tTestStatus::Pending) return;
 
     ///if (!InterruptFlag && !CancelTestingFlag) {
@@ -375,7 +277,7 @@ void tTestProcedure::slotRunTest() {
         CurrentTest.Info.Status = tTestStatus::Interrupted;
     }
     SetTestInfo(); // emit signal once to avoid unwanted switching. Do we really need it in the very end? Yes. To signal end of work
-    TestName = "";
+//    TestName = "";
     disconnect(this, &tTestProcedure::sigMessageResult, MessageBoxWaiterLoop, &QEventLoop::quit);
     disconnect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
     delete MessageBoxWaiterLoop;

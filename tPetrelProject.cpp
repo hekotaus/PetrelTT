@@ -3,14 +3,25 @@
 #include <qdir.h>
 #include <QObject.h>
 
+tPetrelProject* gProject = nullptr;
+bool CB_AssignTestFunction(const QString& testName, tTestDelegate testProc) {
+    gProject->TPInfo.AssignTestFunction(testName, testProc);
+    return true;
+}
+
+void tPetrelProject::AssignCallbacks() {
+    TP->Test_AssignTestFunction = CB_AssignTestFunction;// TPInfo.AssignTestFunction;
+}
+
 tPetrelProject::tPetrelProject(tLogger &log)
     : Log(log) 
     , TPInfo(Log, Cfg)
-    , TestRunner(Log)
+    , TestRunner(TPInfo, Log)
 {
     // Adding general params groups to general supergroup
     ParGrpProject = GeneralParamsSuperGroup.Add("Project");
     InitParGrpProjectConfig();
+    gProject = this;
 }
 
 void tPetrelProject::InitParGrpProjectConfig() {
@@ -164,12 +175,12 @@ void tPetrelProject::CreateTestProcedure() {
     
     if (!OpenPlugin()) return;
 
-    typedef tTestProcedure*(*tTpFunc)(tLogger& log, tPetrelProjectConfig& cfg);
+    typedef tTestProcedure*(*tTpFunc)(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo* tpinfo);
     tTpFunc func = (tTpFunc)PluginLib.resolve("CreateTestProcedure");
     if (func == nullptr) {
         Log.LogErrorMessage("Plug-in does not contain TestProcedure");
     } else {
-        TP = func(Log, Cfg);
+        TP = func(Log, Cfg, &TPInfo);
     }
     if (TP == nullptr) {
         Log.LogErrorMessage("TestProcedure is null");
@@ -177,6 +188,7 @@ void tPetrelProject::CreateTestProcedure() {
     }
     BuildDirNames();
     LoadTestProcedure();
+    AssignCallbacks();
 }
 
 void tPetrelProject::ClosePlugin() {
@@ -217,7 +229,7 @@ void tPetrelProject::BuildDirNames() {
 
 bool tPetrelProject::LoadTestProcedure() {
     bool res = false;
-    TP->SetValid(false);
+    TPInfo.SetValid(false);
     ReportsClear();
     
     if (!TPInfo.LoadAndValidate((tReport*)Cfg.ReportCurrent)) return false; // Load, and Check if current TestProcedure is good
@@ -230,14 +242,14 @@ bool tPetrelProject::LoadTestProcedure() {
     TestSpecs->LoadAndValidate(); // Check if current TestProcedure is good
     TestSpecs->SetReadonly(); // Write protected
 
-    if (TPInfo.IsValid() && TestSpecs->IsValid()) {
+    if (TPInfo.GetValid() && TestSpecs->IsValid()) {
         Cfg.TestProcedureVer = TPInfo.GetVersion();
         Cfg.TestSpecsVer = TestSpecs->sVersion;
-        TP->SetValid(true);
+        TPInfo.SetValid(true);
         TP->AssignTestFunctions();
-        TP->ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
+        TPInfo.ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
 
-        if (TP->GetValid()) {
+        if (TPInfo.GetValid()) {
             TestRunner.SetTP(TP);
 
             // signals TestRunner to TP
@@ -262,7 +274,7 @@ bool tPetrelProject::LoadTestProcedure() {
     PopulateAutoTestTree();
     PopulateManualTestTree();
 
-    res = (TP != 0) && (TP->GetValid());
+    res = (TP != 0) && (TPInfo.GetValid());
     return (res);
 }
 
@@ -356,7 +368,7 @@ bool tPetrelProject::StartManualTest(const QString & testName) {
     tReport* manRep = spec->BuildTestReport(Cfg.ReportManualTest, true, false, true);
 
     ///TP->ResetCancelTestingFlag();
-    TP->ClearAllTestsInfo();
+    TPInfo.ClearAllTestsInfo();
     LinearReports.clear();
     
     BuildReportsList(LinearReports, manRep);
@@ -401,7 +413,7 @@ void tPetrelProject::StartAutoTests() {
         Cfg.ReportCurrent->Refresh();
 
         ///TP->ResetCancelTestingFlag();
-        TP->ClearAllTestsInfo();
+        TPInfo.ClearAllTestsInfo();
         LinearReports.clear();
         BuildReportsList(LinearReports, Cfg.ReportCurrent);
 
@@ -424,7 +436,7 @@ void tPetrelProject::StartAutoTests() {
 
 void tPetrelProject::RunAutoTests() {
     for (tReport* test : LinearReports) {
-        if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
+        if (TPInfo.IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
             ///TP->ResetTest(test->GetName(), "Auto"); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
             if (!TestRunner.InterruptFlag) {
@@ -439,7 +451,7 @@ void tPetrelProject::RunAutoTests() {
 // So far (22/05/2026), it's the same as RunAutoTests, so may not be needed
 void tPetrelProject::RunManualTests() {
     for (tReport* test : LinearReports) {
-        if (TP->IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
+        if (TPInfo.IsTestFunctionAssigned(test->GetName().toUpper())) { // Skip pure groups
             ///TP->ResetTest(test->GetName(), test->GetName()); // Erase old specs, remove old results
             TestRunner.CurrentTestReport = test; // For Signals processing
             if (!TestRunner.InterruptFlag) {

@@ -111,7 +111,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\VedroLink\VedroLib\logger\tLogger.cpp" />
     <ClCompile Include="..\PetrelTools.cpp" />
     <ClCompile Include="..\tReport.cpp" />
     <ClCompile Include="..\tReportRoot.cpp" />

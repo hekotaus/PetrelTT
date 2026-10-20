@@ -8,8 +8,16 @@
 #include "logger/tLogger.h"
 //#include "tReport.h"
 #include "tPetrelProjectConfig.h"
+#include "tTestInfo.h"
+#include "tTestSpecs.h"
 
 class tReport;
+using tTestDelegate = void (*)(tTestInfo&);
+
+struct tTestStruct {
+    tTestInfo Info;
+    tTestDelegate Proc; // Function()
+};
 
 class tFileInfo {
 public:
@@ -54,7 +62,7 @@ public:
     tTestProcInfo(tLogger& log, tPetrelProjectConfig& cfg);
     bool IsTestManualEnabled() const { return TestManualEnabled; }
     QString GetTestManual();
-    bool IsValid() const { return Valid; }
+    //bool IsValid() const { return Valid; }
     bool IsValidParam(QString name, QString value, QString expected, bool validityCondition, tReport* rep, tLogger& log, bool& globalResult);
     bool IsValidFile(tFileInfo& f, tReport* rep, tLogger& log, bool& globalResult);
     bool Validate(tReport* rep);
@@ -64,4 +72,29 @@ public:
     bool GetDeprecated() const { return IsDeprecated; }
     QString GetVersion() const { return sVersion; }
     void Clear();
+
+    // Moved from tTestProcedure
+private:
+    bool IsValid = true;
+    bool IsInexistingTestsWarning = true;
+    std::map<QString, tTestStruct> TestDict; // Call Test by Name
+    std::map<QString, tTestInfo> AllTestInfo;
+public:
+    tTestSpecs TestSpecs;
+    bool GetValid() const { return IsValid; }
+    void SetValid(bool st) { IsValid = st; }
+    bool IsTestFunctionAssigned(QString testName);
+    QString TestAssignmentSourceCode(QString dut, QString group, QString specName); // Just a little help for test procedure programmer :)
+    bool ValidateManualTestFuncAssignment(tReport* rep); // X3 how to call it!
+    void ValidateAutoTestFuncAssignment(tReport* rep);
+    bool GetTestByName(QString testName, tTestStruct& test);
+    
+    // AllTestInfo
+    //void SetTestInfo(QString name, tTestInfo info);
+    void ClearAllTestsInfo();
+    //tTestResult GetTestResultByName(QString testName);
+    //tTestStatus GetTestStatusByName(QString testName);
+
+public slots:
+    bool AssignTestFunction(const QString& testName, tTestDelegate testProc);
 };

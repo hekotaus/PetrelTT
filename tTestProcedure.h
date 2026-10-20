@@ -21,7 +21,7 @@ class tReport;
 class tTestSpecs;
 class tTestProcInfo;
 class tTestDevice;
-using tTestDelegate = void (*)(tTestInfo&);
+
 
 enum class tTestMode {
     None,
@@ -38,40 +38,32 @@ protected:
     const QString DutName;
     const QString DptName;
     tLogger& Log;
+    tTestProcInfo& TestProcInfo;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;
     tPanDevCfg* PanDutCfg = nullptr;
     tPanDevCfg* PanDptCfg = nullptr;
 
-    struct tTestStruct {
-        tTestInfo Info;
-        tTestDelegate Proc; // Function()
-    };
-
-    bool IsValid = true;
     tTestStruct CurrentTest;
     //QString TestGroup = "";
-    std::map<QString, tTestStruct> TestDict; // Call Test by Name
-    std::map<QString, tTestInfo> AllTestInfo;
-    tTestSpecs TestSpecs;
+
+//    std::map<QString, tTestInfo> AllTestInfo;
+    tTestSpecs& TestSpecs;
     
     QEventLoop* MessageBoxWaiterLoop = nullptr; // used for waiting and getting info from main
     QTimer MessageBoxWaiterTimer;
     int MessageBoxResult = 0;
 
-    bool IsInexistingTestsWarning = true;
     std::atomic<bool> InterruptFlag = false;
     ///std::atomic<bool> CancelTestingFlag = false;
-    QString TestName = "";
+    //QString TestName = "";
 
-    QString TestAssignmentSourceCode(QString dut, QString group, QString specName); // Just a little help for test procedure programmer :)
-    bool ValidateManualTestFuncAssignment(tReport* rep); // X3 how to call it!
     void SetTestStatus(tTestStatus newStatus);
     void SetTestInfo();
 
 public:
     tTestResult GetResult() const { return CurrentTest.Info.Result; }
-    tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg);//, 
+    tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo);//, 
     ~tTestProcedure();
 
     tTestSpecs* GetTestSpecs() { return &TestSpecs; }
@@ -95,29 +87,25 @@ public:
     virtual void DoneManualTests(tReport* rep);
     virtual void AssignTestFunctions() = 0; // to be called after loading specs
 
-    bool GetValid() const { return IsValid; }
-    void SetValid(bool st) { IsValid = st; }
-
     tTestDevice* pDUT = nullptr; // Generic pointer to Device Under Test
     tTestDevice* pDPT = nullptr; // Generic pointer to Device Performing Test
     bool IsInterrupted() const { return InterruptFlag; }
+    void InterruptReset() { InterruptFlag = false; }
 
     ///void ResetCancelTestingFlag(); // This is called before starting test session
-    void SetupTest(const QString& testName);
+    //void _SetupTest(const QString& testName);
     //void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
-    void SetTestInfo(QString name, tTestInfo info);
+
 
     tTestInfo& GetCurrentTestInfo() { return CurrentTest.Info; }
     tTestResult GetCurrentTestResult() const { return CurrentTest.Info.Result; }
-
-    void ClearAllTestsInfo();
-    tTestResult GetTestResultByName(QString testName);
-    tTestStatus GetTestStatusByName(QString testName);
-    bool IsTestFunctionAssigned(QString testName);
-    void ValidateAutoTestFuncAssignment(tReport* rep);
+//    void SetTestInfo(QString name, tTestInfo info);
+//    void ClearAllTestsInfo();
+//    tTestResult GetTestResultByName(QString testName);
+//    tTestStatus GetTestStatusByName(QString testName);
 
  public slots:
-    void slotRunTest();
+    void slotRunTest(tTestStruct currentTest);
     void slotInterruptTest(); // Runner -> Procedure <void>
     //void slotFinishTest(); // Move TP back to main thread
     void slotMessageResult(int); // From UI
@@ -135,7 +123,11 @@ signals:
 
     // TEST API
 public:
-    bool AssignTestFunction(const QString& testName, tTestDelegate testProc);
+
+    bool (*Test_AssignTestFunction)(const QString& testName, tTestDelegate testProc) = nullptr;
+    //void CB_AssignTestFunction(const QString& testName, tTestDelegate testProc);
+    //void Test_AssignTestFunction(const QString& testName, tTestDelegate testProc);
+
     tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
     bool AssignManualDialog(QString name, tTestDialog* pDialog); //Scan Specs tree until name found.Return ManualTestDialog
 

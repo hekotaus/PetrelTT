@@ -53,9 +53,6 @@
     <ClCompile Include="..\tTestSpecs.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\VedroLink\VedroLib\logger\tLogger.cpp">
-      <Filter>Src-Vedro</Filter>
-    </ClCompile>
     <ClCompile Include="..\PetrelTools.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>

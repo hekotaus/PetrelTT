@@ -1,8 +1,8 @@
 ﻿#include "tTestRunner.h"
 #include "tPetrelProject.h"
 
-tTestRunner::tTestRunner(tLogger& log)
-    : Log(log) {
+tTestRunner::tTestRunner(tTestProcInfo& tpinfo, tLogger& log)
+    : TPInfo(tpinfo), Log(log) {
     //TestProgress->setValue(0);
     //emit sigSetProgressBar(0); // not conneced yet, makes no sense
 
@@ -44,17 +44,34 @@ void tTestRunner::RunTest() {
     ///TestTimeout.Restart(10.0);
     qDebug() << "CurrentTestReport status" << CurrentTestReport->GetStatusMessage();
     //TestProcedure.ResetTest(testName, "Auto"); // Erase old specs, remove old results
-    TP->SetupTest(testName); // This gets a new specs structure
+    //TP->_SetupTest(testName); // This Set name and reset Interrupt flag
+    TP->InterruptReset();
+
     LastTestInfo.Status = tTestStatus::Pending;
     LastTestInfo.Details = "";
     LastTestInfo.Result.Clear();
     // New test cycle
+    // 
+    tTestStruct currentTest;
+    if (testName == "") {
+        currentTest.Info.Details = "ERROR: Test name is empty!";
+        return;
+    }
+
+    if (!TPInfo.GetTestByName(testName, currentTest)) {
+        currentTest.Info.Details = "No test procedure for '" + testName;
+        //SetTestStatus(TTestStatus.TestError);
+        return;
+    }
+
     // 1. Run test thread
     TP->moveToThread(&TestThread);
     qDebug() << "Test Runner is starting the test thread...";
     TestThread.start(); // Need to do it every time, as we can interrupt the test with exit()/terminate()
     qDebug() << "Test Runner is signaling run test...";
-    emit sigRunTest();
+
+
+    emit sigRunTest(currentTest); // XXX: this may be bad. Need to call setuptest()
     qDebug() << "Test Runner is entering waiting loop...";
     // Wait untils test TESTED or SKIPPED or TEST ERROR or timeout
     

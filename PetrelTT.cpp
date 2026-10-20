@@ -342,7 +342,7 @@ void tPetrelTT::LoadTestProcedure() {
     DockLeft->Add(Project.TP->GetPanDptCfg());
     Project.TP->GetPanDptCfg()->SetLayout(0);
 
-    if (Project.TP->GetValid()) SetState(St::TestProc);
+    if (Project.TPInfo.GetValid()) SetState(St::TestProc);
 
     connect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
     connect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
