@@ -111,11 +111,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\PetrelTools.cpp" />
-    <ClCompile Include="..\tReport.cpp" />
-    <ClCompile Include="..\tReportRoot.cpp" />
     <ClCompile Include="..\tTestProcedure.cpp" />
-    <ClCompile Include="..\tTestSpec.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestProc_TestPlugin.cpp" />
   </ItemGroup>
@@ -126,11 +122,7 @@
     <QtMoc Include="tTestDialog1.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\PetrelTools.h" />
-    <ClInclude Include="..\tTestSpec.h" />
     <QtMoc Include="..\..\VedroLink\VedroLib\logger\tLogger.h" />
-    <QtMoc Include="..\tReport.h" />
-    <ClInclude Include="..\tReportRoot.h" />
     <QtMoc Include="..\tTestProcedure.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

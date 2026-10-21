@@ -567,3 +567,261 @@ void tTestProcInfo::DoneDutAndDpt(tReport* rep) {
 //tTestStatus tTestProcInfo::GetTestStatusByName(QString testName) {
 //    return AllTestInfo[testName].Status;
 //}
+
+//////////////////////////////////////////////////////////////////////////
+// THESE METHODS MOVED FROM THE OLD TTESTPROCEDURE.                     //
+// AT THE MOMENT OF TRANSFER THEY ARE COMMENTED OUT / NOT TESTED IN C++ //
+// SOME OF THEM MAY BE RELATED TO TTESTPROCEDURE CLASS                  //
+//////////////////////////////////////////////////////////////////////////
+#if 0
+public List<TFileInfo> GetFilesByTarget(string target) {
+    return TestProcInfo.GetFilesByTarget(target);
+}
+
+public TFileInfo GetFileByTarget(string target) {
+    return TestProcInfo.GetFileByTarget(target);
+}
+
+// Get parameter from TestProcedure.XML
+public string GetParameter(string name) {
+    if (TestProcInfo.Parameters.ContainsKey(name))
+        return TestProcInfo.Parameters[name];
+    else
+        return "";
+}
+
+// Save parameter to registry
+public void SaveParameter(string param, string value) {
+    AppConfig.SaveTestProcParameter(TestProcInfo.DutType, param, value);
+}
+
+// Load parameter from registry
+public string LoadParameter(string param) {
+    string res = AppConfig.LoadTestProcParameter(TestProcInfo.DutType, param);
+    if (res == null) res = "";
+    return res;
+}
+
+public void GenerateCode(string workDir) {
+    // Create output directory
+    string outputDir = workDir + "SourceCodes\" + TestName;
+        Directory.CreateDirectory(outputDir);
+    // Generate C(onfig)D(ialog)F(orm) file
+    // Generate TestProc_<Device>.cs
+    // Generate TestProc_<Device>_Unit files
+    // Generate TestForm_<Device>_<Unit> files
+}
+
+public bool FindFailedTests() {
+    bool res = false;
+    foreach(var test in AllTestInfo) {
+        var st = test.Value.Status;
+        res = res ||
+            (st == TTestStatus.Failed) ||
+            (st == TTestStatus.Interrupted) ||
+            (st == TTestStatus.TestError);
+    }
+    return res;
+}
+#if 0
+//RichTextBox SpecsRtf = new RichTextBox(); // Print here to output file
+private void AddSpecText(StringBuilder strTable, TTestSpec spec, int level) {
+    /*
+    strTable.Append(@"\intbl Spec" + @"\cell Value" + @"\cell Range" + @"\cell Units" + @"\row");
+    */
+    strTable.Append(@"\intbl " + spec.Name + @"\cell " + spec.Req + @"\cell " + spec.sRange + @"\cell " + spec.GetUnits() + @"\row");
+    foreach(var ch in spec.Children) {
+        AddSpecText(strTable, ch, level + 1);
+    }
+}
+
+private void AddSpecText(RichTextBox specsRtf, TTestSpec spec, int level) {
+    //specsRtf.SelectionIndent = level * 10; // IndentLeftPx;
+    String sIndent = "";
+    for (int i = 0; i < level; i++) sIndent += "  ";
+    specsRtf.SelectionColor = FontColorTest;
+    specsRtf.SelectionAlignment = HorizontalAlignment.Left;
+    specsRtf.SelectionFont = new Font("Arial", 14);
+    specsRtf.SelectedText = "\r\n" + sIndent + "L" + level.ToString() + ": " + spec.GetName();
+#if true
+    if (spec.Req.Length != 0) {
+        if (spec.Req == "") {
+        }
+        if (spec.GetValueType() != TTestResult.TValueType.None) {
+            specsRtf.SelectionFont = new Font("Arial", 12);
+            specsRtf.SelectedText = spec.Name + " shall be " + spec.Req + "\r\n";
+        }
+    }
+#else
+    if (level == 0) {
+    } else if (level == 1) { // Top group
+        specsRtf.SelectionFont = new Font("Arial", 16);
+        specsRtf.SelectedText = "\r\n" + spec.Desc;
+        if (spec.Desc.Length == 0) specsRtf.SelectedText = "No requirement";
+        //specsRtf.SelectedText = "\r\n\r\n";
+    } else if (level > 1) {
+        if (spec.GetValueType() != TTestResult.TValueType.None) {
+            if (spec.IsTest()) {
+                if (spec.Desc.Length == 0) specsRtf.SelectedText = "No requirement";
+                // Name
+                if (level == 1) {
+                    specsRtf.SelectionFont = new Font("Arial", 14);
+                } else {
+                    specsRtf.SelectionFont = new Font("Arial", 12);
+                }
+                //specsRtf.SelectedText = spec.GetName() + "\r\n";
+                specsRtf.SelectedText = spec.Desc + "\r\n";
+                // Status
+                //specsRtf.SelectionAlignment = HorizontalAlignment.Right;
+                string res = "";
+                specsRtf.SelectedText = "The value shall be ";// spec.Desc + "\r\n";
+
+                //specsRtf.SelectionFont = new Font("Courier", 12);
+                res = res + spec.CheckTypeToString();
+                if (spec.GetUnits() != "")
+                    res = res + ", [ " + spec.GetUnits() + " ]";
+                specsRtf.SelectedText = res + "\r\n";
+                //SpecsRtf.SelectionFont = FontTestStatus;
+                //SpecsRtf.SelectionColor = TestStatusColors[(int)Status];
+                //SpecsRtf.SelectedText = TestStatusMessages[(int)Status] + "\r\n\r\n";
+                // Details
+                //SpecsRtf.SelectionFont = FontTestDetails;
+                //specsRtf.SelectionAlignment = HorizontalAlignment.Left;
+                //SpecsRtf.SelectionColor = FontColorTestDetails;
+                //SpecsRtf.SelectedText = FormatResult() + Details + "\r\n\r\n";
+            } else {
+                specsRtf.SelectionFont = new Font("Arial", 14);
+                // Currently ignoring higher level groups 
+            }
+        }
+        //specsRtf.SelectedText = "\r\n";
+    }
+#endif
+    foreach(var ch in spec.Children) {
+        AddSpecText(specsRtf, ch, level + 1);
+    }
+}
+
+public void GenSpecsDoc(RichTextBox specsRtf) { // Generate RTF document from AutoSpecs
+    //if (level == 0) {
+    //tReportRoot.TextBoxVisible.Rtf = SpecsRtf;
+    //SpecsRtf =  ReportTextBox;
+    //FontTestName = new Font(FontTypeTestFamily, fontSize, fontStyle, GraphicsUnit.Point);
+    //}
+    specsRtf.Clear();
+    StringBuilder strTable = new StringBuilder();
+    strTable.Append(@"{\rtf1 ");
+
+    strTable.Append(@"{\fonttbl{\f0\fnil\fcharset0 Courier;}}");
+    //Start the row
+    strTable.Append(@"\trowd");
+
+    //First cell with width 1000.
+    strTable.Append(@"\cellx3300");
+
+    //Second cell with width 1000.Ending point is 2000, which is 1000+1000.
+    strTable.Append(@"\cellx4400");
+
+    //Third cell with width 1000.Endingat3000,which is 2000+1000.
+    strTable.Append(@"\cellx5800");
+    strTable.Append(@"\cellx6600");
+
+    strTable.Append(@"\intbl Spec" + @"\cell Value" + @"\cell Range" + @"\cell Units" + @"\row");
+    //Append the row in StringBuilder
+    //strTable.Append(@"\intbl \cell \row"); //create the row
+
+    //Add 3 data Rows.Give proper padding space between data.Notice the gap after cell.
+    //strTable.Append(@"\intbl   1" + @"\cell Raj" + @"\cell Bangalore" + @"\cell India" + @"\row");
+    //strTable.Append(@"\intbl   2" + @"\cell Peter" + @"\cell Mumbai" + @"\cell India" + @"\row");
+    //strTable.Append(@"\intbl   3" + @"\cell Chris" + @"\cell Delhi" + @"\cell India" + @"\row");
+
+    foreach(var spec in AutoTestSpecs.Specs) {
+        //AddSpecText(specsRtf, spec, 0);
+        AddSpecText(strTable, spec, 0);
+    }
+    strTable.Append(@"\pard");
+    strTable.Append(@"}");
+    specsRtf.Rtf = strTable.ToString();
+}
+}
+#endif
+#endif
+
+#if 0 // not needed, set in TestRunner
+bool tTestProcedure::ReturnTestResult() {
+    CurrentTest.Info.Details = "tested";
+    CurrentTest.Info.Status = tTestStatus::Tested;
+    ///CurrentTest.Info.ResultInternal = false;
+    return true;
+}
+#endif
+#if 0
+bool tTestProcedure::ReturnTestError(const QString& details) {
+    CurrentTest.Info.Details = details;
+    CurrentTest.Info.Status = tTestStatus::TestError;
+    ///CurrentTest.Info.ResultInternal = false;
+    return false;
+}
+#endif
+#if 0
+// Moved from tTestUnit
+tTestInfo tTestProcedure::BuildTestInfo(const tTestResult& res, tTestStatus status, const QString& details, bool internalRes) {
+    tTestInfo info;
+    info.Result = res;
+    info.Details = details;
+    info.Status = status;
+    ///info.ResultInternal = internalRes;
+    return info;
+}
+
+tTestInfo tTestProcedure::BuildTestInfo_Failed(const QString& details, bool internalRes) {
+    tTestInfo info;
+    //info.Result = 0;
+    info.Details = details;
+    info.Status = tTestStatus::Failed;
+    ///info.ResultInternal = internalRes;
+    return info;
+}
+
+tTestInfo tTestProcedure::BuildTestInfo_Skipped(const QString& details, bool internalRes) {
+    tTestInfo info;
+    //info.Result = 0;
+    info.Details = details;
+    info.Status = tTestStatus::Skipped;
+    ///info.ResultInternal = internalRes;
+    return info;
+}
+
+tTestInfo tTestProcedure::BuildUnfinishedTestInfo(const tTestResult& res, const QString& details) {
+    tTestInfo info;
+    info.Result = res;
+    info.Details = details;
+    info.Status = tTestStatus::Testing;
+    ///info.ResultInternal = false;
+    return info;
+}
+#endif
+//protected 
+//void tTestProcedure::SetTestProgress_f(double percentage) {
+//    SetTestProgress((int)percentage*100);
+//}
+
+//protected static 
+//tTestStatus tTestProcedure::Test_BoolToTestStatus(bool val) {
+//    return val ? tTestStatus::Tested : tTestStatus::TestError;
+//}
+
+//public 
+#if 0
+void tTestProcedure::PerformOperation(bool result, const QString& operationName, tTestStatus& status, tTestStatus failedStatus) {
+    if (status != tTestStatus::Testing) return;
+    if (result) {
+        AddTestDetails(operationName + " done.");
+        status = tTestStatus::Testing;
+    } else {
+        AddTestDetails("ERROR: failed to " + operationName + "!");
+        status = failedStatus;
+    }
+}
+#endif
+
