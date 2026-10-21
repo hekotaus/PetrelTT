@@ -24,9 +24,6 @@
     <Filter Include="Src-Shell">
       <UniqueIdentifier>{95cf2809-4a22-436c-b0cc-375b77a8a46c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src-Vedro">
-      <UniqueIdentifier>{b80f4301-bad0-42f4-bd4b-91683673c850}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,9 +45,6 @@
     </QtMoc>
     <QtMoc Include="..\tTestProcedure.h">
       <Filter>Src-Shell</Filter>
-    </QtMoc>
-    <QtMoc Include="..\..\VedroLink\VedroLib\logger\tLogger.h">
-      <Filter>Src-Vedro</Filter>
     </QtMoc>
   </ItemGroup>
 </Project>

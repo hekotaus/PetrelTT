@@ -4,7 +4,7 @@
 #include <qmessagebox.h>
 #include <qtimer.h>
 
-#include "logger/tLogger.h"
+//#include "logger/tLogger.h"
 
 #include "tTestProcMailBox.h"
 #include "tPanDevCfg.h"
@@ -43,7 +43,7 @@ protected:
     const QString TestProcName;
     const QString DutName;
     const QString DptName;
-    tLogger& Log;
+    //tLogger& Log;
     //tTestProcInfo& TestProcInfo;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;

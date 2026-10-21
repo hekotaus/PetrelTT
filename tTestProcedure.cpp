@@ -9,7 +9,7 @@ tTestProcedure::tTestProcedure(
     : TestProcName(name)
     //, DutName(dutName)
     , DptName(dptName)
-    , Log(log)
+    //, Log(log)
     , Cfg(cfg)
 {
 }
