@@ -33,12 +33,12 @@ public:
     tMailBox_TestPlugin* MB;
     uint8_t DevId = -1; // set by test
 
-    tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo);
+    tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg);
     ~tTestProc_TestPlugin();
 
     tPanDevCfg* MakePanDutCfg(QWidget* parent, int id) override;
     tPanDevCfg* MakePanDptCfg(QWidget* parent, int id) override;
-    tTestDialog* GetManualTestDialog(const QString& groupName) override;
+    tTestDialog* GetManualDialog(const QString& groupName) override;
 
     void AssignTestFunctions() override;
     tTestDevice* GetDut() { return &Dut; }
@@ -68,4 +68,4 @@ public:
 //PPT_DLL_API tEspResult GetLastResult();
 PPT_DLL_API char* GetTestProcName();
 PPT_DLL_API tTestProcedure* GetTestProcedure();
-PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo);
+PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg);

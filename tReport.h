@@ -11,11 +11,11 @@
 // Local
 #include "tReportCommon.h"
 #include "tTestResult.h"
-#include "tTestProcedure.h"
+//#include "tTestProcedure.h"
 #include "tPetrelProjectConfig.h"
 #include "tTestStatus.h"
 #include "tTestInfo.h"
-#include "tTestProcInfo.h"
+//#include "tTestProcInfo.h"
 
 class tTestSpec;
 class tReportRoot;

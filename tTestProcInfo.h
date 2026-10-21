@@ -6,18 +6,15 @@
 #include "PetrelTools.h"
 #include "app/tAppConfig.h"
 #include "logger/tLogger.h"
+#include "tTestProcedure.h"
 //#include "tReport.h"
 #include "tPetrelProjectConfig.h"
+
 #include "tTestInfo.h"
 #include "tTestSpecs.h"
 
 class tReport;
-using tTestDelegate = void (*)(tTestInfo&);
-
-struct tTestStruct {
-    tTestInfo Info;
-    tTestDelegate Proc; // Function()
-};
+struct tTestStruct;
 
 class tFileInfo {
 public:
@@ -25,7 +22,7 @@ public:
     QString FullName;
     QString Target;
     QString Description;
-    uint32_t CRC;
+    uint32_t CRC = -1;
     bool Valid = false;
     bool CrcUsed = true;
     tFileInfo(QString path, QString name);
@@ -88,7 +85,8 @@ public:
     bool ValidateManualTestFuncAssignment(tReport* rep); // X3 how to call it!
     void ValidateAutoTestFuncAssignment(tReport* rep);
     bool GetTestByName(QString testName, tTestStruct& test);
-    
+    tTestSpecs* GetTestSpecs() { return &TestSpecs; }
+    tTestDialog* GetManualTestDialog(const QString& groupName) { return TestSpecs.GetManualDialog(groupName); };
     // AllTestInfo
     //void SetTestInfo(QString name, tTestInfo info);
     void ClearAllTestsInfo();

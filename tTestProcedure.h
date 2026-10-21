@@ -8,26 +8,32 @@
 
 #include "tTestProcMailBox.h"
 #include "tPanDevCfg.h"
-#include "tTestSpecs.h"
+//#include "tTestSpecs.h"
 #include "tTestDevice.h"
 #include "tTestStatus.h"
 #include "tTestInfo.h"
-#include "tTestProcInfo.h"
+//#include "tTestProcInfo.h"
 #include "tPetrelProjectConfig.h"
 #include "tTestResult.h"
 #include "tTestDialog.h"
 
 class tReport;
 class tTestSpecs;
-class tTestProcInfo;
+//class tTestProcInfo;
 class tTestDevice;
-
 
 enum class tTestMode {
     None,
     Auto,
     Manual,
     Service
+};
+
+using tTestDelegate = void (*)(tTestInfo&);
+
+struct tTestStruct {
+    tTestInfo Info;
+    tTestDelegate Proc; // Function()
 };
 
 class tTestProcedure : public QObject {
@@ -38,7 +44,7 @@ protected:
     const QString DutName;
     const QString DptName;
     tLogger& Log;
-    tTestProcInfo& TestProcInfo;
+    //tTestProcInfo& TestProcInfo;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;
     tPanDevCfg* PanDutCfg = nullptr;
@@ -48,7 +54,7 @@ protected:
     //QString TestGroup = "";
 
 //    std::map<QString, tTestInfo> AllTestInfo;
-    tTestSpecs& TestSpecs;
+//    tTestSpecs& TestSpecs;
     
     QEventLoop* MessageBoxWaiterLoop = nullptr; // used for waiting and getting info from main
     QTimer MessageBoxWaiterTimer;
@@ -63,10 +69,8 @@ protected:
 
 public:
     tTestResult GetResult() const { return CurrentTest.Info.Result; }
-    tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo);//, 
+    tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg);//, 
     ~tTestProcedure();
-
-    tTestSpecs* GetTestSpecs() { return &TestSpecs; }
 
     // DPT and DUT
     QString GetDutName() const { return DutName; }
@@ -76,7 +80,7 @@ public:
     void DeletePanCfg();
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
-    virtual tTestDialog* GetManualTestDialog(const QString& groupName) { return TestSpecs.GetManualDialog(groupName);  };
+    
     
     bool InitDptAndDut(tReport* rep);
     void DoneDutAndDpt(tReport* rep);
@@ -125,11 +129,15 @@ signals:
 public:
 
     bool (*Test_AssignTestFunction)(const QString& testName, tTestDelegate testProc) = nullptr;
+    bool (*Test_AssignManualDialog)(const QString& groupName, tTestDialog* pDialog) = nullptr;
+    tTestDialog* (*Test_GetManualDialog)(const QString& groupName) = nullptr; // TODO:
+
     //void CB_AssignTestFunction(const QString& testName, tTestDelegate testProc);
     //void Test_AssignTestFunction(const QString& testName, tTestDelegate testProc);
 
-    tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
-    bool AssignManualDialog(QString name, tTestDialog* pDialog); //Scan Specs tree until name found.Return ManualTestDialog
+    //tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
+    bool AssignManualDialog(const QString groupName, tTestDialog* pDialog);
+    virtual tTestDialog* GetManualDialog(const QString& groupName);
 
     // Here all *TP results are used only for easier returning from the test
     void Test_DelayAndSetProgress(int delayMs);

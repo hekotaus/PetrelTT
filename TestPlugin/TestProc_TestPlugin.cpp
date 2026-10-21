@@ -328,17 +328,17 @@ PPT_DLL_API tTestProcedure* GetTestProcedure() {
     return TestProc;
 }
 
-PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo) {
+PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg) {
     if (TestProc != nullptr) delete TestProc;
     TestProc = nullptr;
-    TestProc = new tTestProc_TestPlugin(log, cfg, testProcInfo);
+    TestProc = new tTestProc_TestPlugin(log, cfg);
     gpDut = TestProc->GetDut(); //convenience global pointer
     gpDpt = TestProc->GetDpt();
     return TestProc;
 }
 
-tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo)
-    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg, testProcInfo)
+tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg)
+    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg)
 {
     MB = new tMailBox_TestPlugin();
     MailBox = MB;
@@ -416,8 +416,8 @@ tPanDevCfg* tTestProc_TestPlugin::MakePanDptCfg(QWidget* parent, int id) {
     return PanDptCfg;
 }
 
-tTestDialog* tTestProc_TestPlugin::GetManualTestDialog(const QString& groupName) {
-    tTestDialog* manDialog = tTestProcedure::GetManualTestDialog(groupName);
+tTestDialog* tTestProc_TestPlugin::GetManualDialog(const QString& groupName) {
+    tTestDialog* manDialog = tTestProcedure::GetManualDialog(groupName);
     if (manDialog == nullptr) {
         qDebug() << "Test dialog for" << groupName << "is not assigned";
     }

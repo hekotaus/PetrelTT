@@ -4,6 +4,7 @@
 #include <qthread.h>
 //#include "EventQueue.h"
 #include "tTestProcedure.h"
+#include "tTestProcInfo.h"
 #include "tTimeOut.h"
 
 class tProgressBar; // TEMPORARY

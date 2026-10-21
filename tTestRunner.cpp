@@ -121,7 +121,7 @@ void tTestRunner::RunTest() {
     if (LastTestInfo.Status == tTestStatus::Testing) { // Check value range
         CurrentTestReport->SetStatus(tTestStatus::TestError, "Test not finished (result has not been set)");
     } else if (LastTestInfo.Status == tTestStatus::Tested) { // Check value range
-        tTestSpec* spec = TP->GetTestSpecs()->GetSpec(testName);
+        tTestSpec* spec = TPInfo.GetTestSpecs()->GetSpec(testName);
         if ((spec != nullptr) && (spec->GetIsTest())) {
             LastTestInfo.Status = spec->TestValue(LastTestInfo.Result);
         }

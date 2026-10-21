@@ -44,13 +44,10 @@
     <ClCompile Include="..\tTestProcedure.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
-    <ClCompile Include="..\tTestSpec.cpp">
-      <Filter>Src-Shell</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tTestSpecs.cpp">
-      <Filter>Src-Shell</Filter>
-    </ClCompile>
     <ClCompile Include="..\PetrelTools.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tTestSpec.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
   </ItemGroup>
@@ -78,13 +75,10 @@
     <ClInclude Include="..\tTestDevice.h">
       <Filter>Src-Shell</Filter>
     </ClInclude>
-    <ClInclude Include="..\tTestSpec.h">
-      <Filter>Src-Shell</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tTestSpecs.h">
-      <Filter>Src-Shell</Filter>
-    </ClInclude>
     <ClInclude Include="..\PetrelTools.h">
+      <Filter>Src-Shell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\tTestSpec.h">
       <Filter>Src-Shell</Filter>
     </ClInclude>
   </ItemGroup>

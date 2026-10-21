@@ -9,7 +9,7 @@ tTestSpecs::tTestSpecs(tLogger& log, tPetrelProjectConfig& cfg)
     : Log(log), Cfg(cfg) {
 }
 
-tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs) {
+tTestSpec* tTestSpecs::AddGroup(const QString& name, tTestSpecs* sourceSpecs) {
     if (IsReadonly) return nullptr;
     bool duplicate = false; // Check, if the name already exists
     for(tTestSpec& s : Specs)
@@ -35,7 +35,7 @@ tTestSpec* tTestSpecs::AddGroup(QString name, tTestSpecs* sourceSpecs) {
         return nullptr;
 }
 
-tTestSpec* tTestSpecs::AddGroup(QString name) {
+tTestSpec* tTestSpecs::AddGroup(const QString& name) {
     if (IsReadonly) return nullptr;
     bool duplicate = false; // Check, if the name already exists
     for(tTestSpec& s : Specs)
@@ -322,7 +322,7 @@ void tTestSpecs::BuildTestReport(tReport* report, QString name, bool allowDuplic
 }
 
 //public
-tTestSpec* tTestSpecs::GetSpec(QString name) { // Returns testSpec with specified name
+tTestSpec* tTestSpecs::GetSpec(const QString& name) { // Returns testSpec with specified name
     tTestSpec* res = nullptr;
     QString nameUpper = name.toUpper();
     //if (name == "this") return this;
@@ -336,13 +336,13 @@ tTestSpec* tTestSpecs::GetSpec(QString name) { // Returns testSpec with specifie
     return res;
 }
 
-tTestDialog* tTestSpecs::GetManualDialog(QString name) {
+tTestDialog* tTestSpecs::GetManualDialog(const QString& name) {
     tTestSpec* spec = GetSpec(name);
     if (spec == nullptr) return nullptr;
     return spec->GetManualDialog();
 }
 
-bool tTestSpecs::AssignManualDialog(QString name, tTestDialog* manDialog) {
+bool tTestSpecs::AssignManualDialog(const QString& name, tTestDialog* manDialog) {
     tTestSpec* spec = GetSpec(name);
     if (spec == nullptr) return false;
     spec->AssignManualDialog(manDialog);

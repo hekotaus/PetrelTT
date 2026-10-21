@@ -1,5 +1,6 @@
 ﻿#include "tReport.h"
 #include "tReportRoot.h"
+#include "tTestSpec.h"
 #include "common/tTickTock.h"
 
 tReportSignaler g_ReportSignaler;

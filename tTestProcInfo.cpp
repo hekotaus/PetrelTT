@@ -1,9 +1,9 @@
 ﻿#include <qfile.h>
 #include <qstring.h>
 #include "common/tCrc32.h"
+#include "io/tinyxml2.h"
 #include "tTestProcInfo.h"
 #include "tReportRoot.h"
-#include "io/tinyxml2.h"
 
 tFileInfo::tFileInfo(QString path, QString name) {
     Name = name;

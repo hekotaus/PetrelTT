@@ -33,7 +33,7 @@ class tPetrelProject /*: public QObject*/ {
 
     //QTreeWidgetItem* ManualTestTree = nullptr;
 
-    tTestSpecs* TestSpecs = nullptr;
+    tTestSpecs* TestSpecs = nullptr; // points to TPInfo.Specs
     void InitParGrpProjectConfig();
     
     ///void FindPlugins();// return PluginList map<DUTname, filename>

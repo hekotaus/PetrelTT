@@ -5,14 +5,13 @@
 
 tTestProcedure::tTestProcedure(
     QString name, QString dutName, QString dptName,
-    tLogger& log, tPetrelProjectConfig& cfg, tTestProcInfo& testProcInfo)//,
+    tLogger& log, tPetrelProjectConfig& cfg)//,
     : TestProcName(name)
     //, DutName(dutName)
     , DptName(dptName)
     , Log(log)
     , Cfg(cfg)
-    , TestSpecs(testProcInfo.TestSpecs)
-    , TestProcInfo(testProcInfo)
+    //, TestSpecs(testProcInfo.TestSpecs)
 {
     //connect(this, &tTestProcedure::sigMessageResult, &MessageBoxWaiterLoop, &QEventLoop::quit);
     //connect(&MessageBoxWaiterTimer, &QTimer::timeout, &MessageBoxWaiterLoop, &QEventLoop::quit);
@@ -85,15 +84,23 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
     }
 }
 
-bool tTestProcedure::AssignManualDialog(QString name, tTestDialog* pDialog) { //Scan Specs tree until name found.Return ManualTestDialog
-    return TestSpecs.AssignManualDialog(name, pDialog);
+bool tTestProcedure::AssignManualDialog(QString groupName, tTestDialog* pDialog) { //Scan Specs tree until name found.Return ManualTestDialog
+    if (Test_AssignManualDialog != nullptr)
+        return Test_AssignManualDialog(groupName, pDialog);
+    else return false;
 }
 
-tTestDialog* tTestProcedure::FindManualDialog(QString name) {
-    tTestDialog* res = nullptr;
-    //TestSpecs.FindManualDialog(name, res);
-    return res;
+tTestDialog* tTestProcedure::GetManualDialog(const QString& groupName) {
+    if (Test_GetManualDialog != nullptr)
+        return Test_GetManualDialog(groupName);
+    else return nullptr;
 }
+
+//tTestDialog* tTestProcedure::FindManualDialog(QString name) {
+//    tTestDialog* res = nullptr;
+    //TestSpecs.FindManualDialog(name, res);
+//    return res;
+//}
 
 void tTestProcedure::Test_SetTimeout(double timeoutSec) {
     emit sigSetTestTimeout(timeoutSec);

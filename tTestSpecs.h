@@ -34,8 +34,8 @@ public:
     bool IsValid() { return Valid; }
     void SetReadonly() { IsReadonly = true; }
     tTestSpecs(tLogger& log, tPetrelProjectConfig& cfg);
-    tTestSpec* AddGroup(QString name, tTestSpecs* sourceSpecs);
-    tTestSpec* AddGroup(QString name);
+    tTestSpec* AddGroup(const QString& name, tTestSpecs* sourceSpecs);
+    tTestSpec* AddGroup(const QString& name);
     tTestSpec* AddSpec(tTestSpec* spec);
     void LoadAndValidate();
     void Clear();
@@ -45,8 +45,8 @@ public:
     void BuildAutoTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
     void BuildManualTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
     void BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual); // start building test re[ort from "name"
-    tTestSpec* GetSpec(QString name);
-    tTestDialog* GetManualDialog(QString name);
-    bool AssignManualDialog(QString name, tTestDialog* manDialog);
+    tTestSpec* GetSpec(const QString& name);
+    tTestDialog* GetManualDialog(const QString& name);
+    bool AssignManualDialog(const QString& name, tTestDialog* manDialog);
 
 };

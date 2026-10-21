@@ -411,7 +411,7 @@ void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     QString caption = "Test " + groupName;
     if (Project.TP != nullptr) {
         if (State == St::ManualStopped) {
-            pDialog = Project.TP->GetManualTestDialog(groupName); // Hide previous and Show new
+            pDialog = Project.TP->GetManualDialog(groupName); // Hide previous and Show new
          }
     }
     PanTestDialog->SetTestDialog(pDialog);

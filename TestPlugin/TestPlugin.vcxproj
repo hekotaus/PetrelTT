@@ -116,7 +116,6 @@
     <ClCompile Include="..\tReportRoot.cpp" />
     <ClCompile Include="..\tTestProcedure.cpp" />
     <ClCompile Include="..\tTestSpec.cpp" />
-    <ClCompile Include="..\tTestSpecs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestProc_TestPlugin.cpp" />
   </ItemGroup>
@@ -128,13 +127,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PetrelTools.h" />
+    <ClInclude Include="..\tTestSpec.h" />
     <QtMoc Include="..\..\VedroLink\VedroLib\logger\tLogger.h" />
     <QtMoc Include="..\tReport.h" />
     <ClInclude Include="..\tReportRoot.h" />
     <ClInclude Include="..\tTestDevice.h" />
     <QtMoc Include="..\tTestProcedure.h" />
-    <ClInclude Include="..\tTestSpec.h" />
-    <ClInclude Include="..\tTestSpecs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

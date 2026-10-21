@@ -9,8 +9,20 @@ bool CB_AssignTestFunction(const QString& testName, tTestDelegate testProc) {
     return true;
 }
 
+bool CB_AssignManualDialog(const QString& groupName, tTestDialog* pDialog) {
+    bool res = gProject->TPInfo.TestSpecs.AssignManualDialog(groupName, pDialog);
+    return res;
+}
+
+tTestDialog* CB_GetManualDialog(const QString& groupName) {
+    tTestDialog* res = gProject->TPInfo.TestSpecs.GetManualDialog(groupName);
+    return res;
+}
+
 void tPetrelProject::AssignCallbacks() {
-    TP->Test_AssignTestFunction = CB_AssignTestFunction;// TPInfo.AssignTestFunction;
+    TP->Test_AssignTestFunction = CB_AssignTestFunction; // TPInfo.AssignTestFunction;
+    TP->Test_AssignManualDialog = CB_AssignManualDialog;
+    TP->Test_GetManualDialog = CB_GetManualDialog;
 }
 
 tPetrelProject::tPetrelProject(tLogger &log)
@@ -235,7 +247,7 @@ bool tPetrelProject::LoadTestProcedure() {
     if (!TPInfo.LoadAndValidate((tReport*)Cfg.ReportCurrent)) return false; // Load, and Check if current TestProcedure is good
     Cfg.TestProcedureVer = TPInfo.GetVersion();
     if (TPInfo.GetDeprecated())  return false;
-    TestSpecs = TP->GetTestSpecs();
+    TestSpecs =  TPInfo.GetTestSpecs();
     if (TestSpecs == nullptr) {
         return false;
     }
@@ -281,13 +293,13 @@ bool tPetrelProject::LoadTestProcedure() {
 //private 
 void tPetrelProject::PopulateAutoTestTree() {
     AutoTestTree.setText(0, "Auto test text");// .Nodes.Add(ReportTestAuto.GetName());
-    TP->GetTestSpecs()->BuildAutoTestTree(&AutoTestTree);
+    TPInfo.GetTestSpecs()->BuildAutoTestTree(&AutoTestTree);
 }
 
 //private 
 void tPetrelProject::PopulateManualTestTree() {
     ManualTestTree.setText(0, "Manual test text");// .Nodes.Add(ReportTestAuto.GetName());
-    TP->GetTestSpecs()->BuildManualTestTree(&ManualTestTree);
+    TPInfo.GetTestSpecs()->BuildManualTestTree(&ManualTestTree);
 }
 
 void tPetrelProject::ReportsClear() {
