@@ -527,6 +527,39 @@ void tTestProcInfo::ClearAllTestsInfo() {
     AllTestInfo.clear();
 }
 
+bool tTestProcInfo::InitDptAndDut(tReport* rep) {
+    tTestDevice* pDPT = TP->pDPT;
+    tTestDevice* pDUT = TP->pDUT;
+
+    tReport* r1 = rep->AddReportTesting("InitManualTest", true);
+    bool res = true;
+    if (pDPT != nullptr) {
+        pDPT->Init(r1);
+        if (!res) {
+            pDPT->Done(rep);
+            return res;
+        }
+    }
+    if (pDUT != nullptr) {
+        res = pDUT->Init(r1);
+        if (!res) {
+            pDUT->Done(rep);
+            if (pDPT != nullptr) pDPT->Done(rep);
+        }
+    }
+    r1->SetStatusPassFail(res);
+    r1->Expand(!res, true);
+    return res;
+}
+
+void tTestProcInfo::DoneDutAndDpt(tReport* rep) {
+    tTestDevice* pDPT = TP->pDPT;
+    tTestDevice* pDUT = TP->pDUT;
+
+    if (pDPT != nullptr) pDPT->Done(rep);
+    if (pDUT != nullptr) pDUT->Done(rep);
+}
+
 //tTestResult tTestProcInfo::GetTestResultByName(QString testName) {
 //    return AllTestInfo[testName].Result;
 //}

@@ -35,7 +35,6 @@ struct tPetrelProjectConfig {
     tReportRoot* ReportTestProc = nullptr;
     tReportRoot* ReportReports = nullptr;
     tReportRoot* ReportCurrent = nullptr;
-
 };
 
 

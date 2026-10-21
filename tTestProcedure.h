@@ -81,14 +81,19 @@ public:
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
     
-    
-    bool InitDptAndDut(tReport* rep);
-    void DoneDutAndDpt(tReport* rep);
+//    bool InitDptAndDut(tReport* rep);
+//    void DoneDutAndDpt(tReport* rep);
     // Basic init and done methods, can be replaced in plugin
-    virtual bool InitAutoTests(tReport* rep);
-    virtual bool InitManualTests(tReport* rep);
-    virtual void DoneAutoTests(tReport* rep);
-    virtual void DoneManualTests(tReport* rep);
+    virtual bool InitAutoTests() { if (cbInitAutoTests != nullptr) return true; return cbInitAutoTests; };
+    virtual bool InitManualTests() { if (cbInitManualTests != nullptr) return true; return cbInitManualTests; };
+    virtual void DoneAutoTests() { if (cbDoneAutoTests != nullptr) cbDoneAutoTests; };
+    virtual void DoneManualTests() { if (cbDoneManualTests != nullptr) cbDoneManualTests; };
+
+    //virtual bool InitAutoTests(tReport* rep);
+    //virtual bool InitManualTests(tReport* rep);
+    //virtual void DoneAutoTests(tReport* rep);
+    //virtual void DoneManualTests(tReport* rep);
+
     virtual void AssignTestFunctions() = 0; // to be called after loading specs
 
     tTestDevice* pDUT = nullptr; // Generic pointer to Device Under Test
@@ -126,11 +131,15 @@ signals:
     void sigCancelSubtests(); // Procedure -> Runner
 
     // TEST API
-public:
 
-    bool (*Test_AssignTestFunction)(const QString& testName, tTestDelegate testProc) = nullptr;
-    bool (*Test_AssignManualDialog)(const QString& groupName, tTestDialog* pDialog) = nullptr;
-    tTestDialog* (*Test_GetManualDialog)(const QString& groupName) = nullptr; // TODO:
+public:
+    bool (*cbAssignTestFunction)(const QString& testName, tTestDelegate testProc) = nullptr;
+    bool (*cbAssignManualDialog)(const QString& groupName, tTestDialog* pDialog) = nullptr;
+    tTestDialog* (*cbGetManualDialog)(const QString& groupName) = nullptr;
+    bool (*cbInitAutoTests)() = nullptr;
+    bool (*cbInitManualTests)() = nullptr;
+    void (*cbDoneAutoTests)() = nullptr;
+    void (*cbDoneManualTests)() = nullptr;
 
     //void CB_AssignTestFunction(const QString& testName, tTestDelegate testProc);
     //void Test_AssignTestFunction(const QString& testName, tTestDelegate testProc);

@@ -35,13 +35,13 @@
     <ClCompile Include="TestProc_TestPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\tTestProcedure.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
     <ClCompile Include="..\tReport.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
     <ClCompile Include="..\tReportRoot.cpp">
-      <Filter>Src-Shell</Filter>
-    </ClCompile>
-    <ClCompile Include="..\tTestProcedure.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
     <ClCompile Include="..\PetrelTools.cpp">
@@ -70,9 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\tReportRoot.h">
-      <Filter>Src-Shell</Filter>
-    </ClInclude>
-    <ClInclude Include="..\tTestDevice.h">
       <Filter>Src-Shell</Filter>
     </ClInclude>
     <ClInclude Include="..\PetrelTools.h">

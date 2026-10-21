@@ -183,11 +183,11 @@ void tPetrelTT::SetState(St st) {
     PanControl->cbDutName->setEnabled(isTestProc || isInit);
     PanControl->cbSpecVersion->setEnabled(isTestProc || isInit);
     
-    if (Project.TP != nullptr) {
-        tPanPetrel* pan = Project.TP->GetPanDutCfg();
+    if (Project.TPInfo.TP != nullptr) {
+        tPanPetrel* pan = Project.TPInfo.TP->GetPanDutCfg();
         if (pan != nullptr) pan->SetLayout(isConfig ? 1 : 0);
 
-        pan = Project.TP->GetPanDptCfg();
+        pan = Project.TPInfo.TP->GetPanDptCfg();
         if (pan != nullptr) pan->SetLayout(isConfig ? 1 : 0);
     }
 
@@ -326,40 +326,40 @@ void tPetrelTT::LoadTestProcedure() {
     SetState(St::Init);
     if (!Project.Cfg.TestSpecsVer.isEmpty())
         Project.CreateTestProcedure();
-    if (Project.TP == nullptr) return;
+    if (Project.TPInfo.TP == nullptr) return;
     
 //    DockLeft->Remove(PanDutConfig);
     ///PanDutConfig = 
-    Project.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
+    Project.TPInfo.TP->MakePanDutCfg(DockLeft, ePanDutCfgId);
     ///DockLeft->Add(PanDutConfig);
-    DockLeft->Add(Project.TP->GetPanDutCfg());
+    DockLeft->Add(Project.TPInfo.TP->GetPanDutCfg());
     //PanDutConfig->SetLayout(0);
-    Project.TP->GetPanDutCfg()->SetLayout(0);
+    Project.TPInfo.TP->GetPanDutCfg()->SetLayout(0);
 
 //    DockLeft->Remove(PanDptConfig);
     ///PanDptConfig = 
-    Project.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
-    DockLeft->Add(Project.TP->GetPanDptCfg());
-    Project.TP->GetPanDptCfg()->SetLayout(0);
+    Project.TPInfo.TP->MakePanDptCfg(DockLeft, ePanDptCfgId);
+    DockLeft->Add(Project.TPInfo.TP->GetPanDptCfg());
+    Project.TPInfo.TP->GetPanDptCfg()->SetLayout(0);
 
     if (Project.TPInfo.GetValid()) SetState(St::TestProc);
 
-    connect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
-    connect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
-    connect(Project.TP, &tTestProcedure::sigRequestSn, this, &tPetrelTT::slotRequestSn);
-    connect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
+    connect(Project.TPInfo.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
+    connect(Project.TPInfo.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
+    connect(Project.TPInfo.TP, &tTestProcedure::sigRequestSn, this, &tPetrelTT::slotRequestSn);
+    connect(this, &tPetrelTT::sigMessageResult, Project.TPInfo.TP, &tTestProcedure::slotMessageResult);
 }
 
 void tPetrelTT::CloseTestProcedure() {
-    if (Project.TP == nullptr) return;
+    if (Project.TPInfo.TP == nullptr) return;
     // Connect to dll
     SetState(St::Init);
-    DockLeft->Remove(Project.TP->GetPanDutCfg());
-    DockLeft->Remove(Project.TP->GetPanDptCfg());
+    DockLeft->Remove(Project.TPInfo.TP->GetPanDutCfg());
+    DockLeft->Remove(Project.TPInfo.TP->GetPanDptCfg());
 
-    disconnect(Project.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
-    disconnect(Project.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
-    disconnect(this, &tPetrelTT::sigMessageResult, Project.TP, &tTestProcedure::slotMessageResult);
+    disconnect(Project.TPInfo.TP, &tTestProcedure::sigStartManualTest, this, &tPetrelTT::slotStartManualTest);
+    disconnect(Project.TPInfo.TP, &tTestProcedure::sigShowMessage, this, &tPetrelTT::slotShowMessage);
+    disconnect(this, &tPetrelTT::sigMessageResult, Project.TPInfo.TP, &tTestProcedure::slotMessageResult);
 
     Project.CloseTestProcedure();
     ///DockLeft->Remove(PanDutConfig);
@@ -409,9 +409,9 @@ void tPetrelTT::slotTestGroupChanged(const QString& groupName) {
     if (State == St::ManualStopped)
         Project.SetCurrentGroupName(groupName);
     QString caption = "Test " + groupName;
-    if (Project.TP != nullptr) {
+    if (Project.TPInfo.TP != nullptr) {
         if (State == St::ManualStopped) {
-            pDialog = Project.TP->GetManualDialog(groupName); // Hide previous and Show new
+            pDialog = Project.TPInfo.TP->GetManualDialog(groupName); // Hide previous and Show new
          }
     }
     PanTestDialog->SetTestDialog(pDialog);

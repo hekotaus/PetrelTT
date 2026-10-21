@@ -45,6 +45,7 @@ class tTestProcInfo {
     std::map<QString, QString> Parameters;
     tLogger& Log;
     tPetrelProjectConfig& Cfg;
+    
     //tReportRoot*& ReportRoot;
     //tReport* ReportRoot;
     bool Valid = false;
@@ -56,6 +57,7 @@ class tTestProcInfo {
     bool ReadXml(tReport* rep);
     
 public:
+    tTestProcedure* TP = nullptr;
     tTestProcInfo(tLogger& log, tPetrelProjectConfig& cfg);
     bool IsTestManualEnabled() const { return TestManualEnabled; }
     QString GetTestManual();
@@ -90,6 +92,11 @@ public:
     // AllTestInfo
     //void SetTestInfo(QString name, tTestInfo info);
     void ClearAllTestsInfo();
+
+    bool InitDptAndDut(tReport* rep);
+    void DoneDutAndDpt(tReport* rep);
+
+
     //tTestResult GetTestResultByName(QString testName);
     //tTestStatus GetTestStatusByName(QString testName);
 

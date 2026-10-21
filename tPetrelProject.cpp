@@ -19,10 +19,32 @@ tTestDialog* CB_GetManualDialog(const QString& groupName) {
     return res;
 }
 
+bool CB_InitAutoTests() {
+    return gProject->TPInfo.InitDptAndDut(gProject->Cfg.ReportAutoTest);
+}
+
+bool CB_InitManualTests() {
+    return gProject->TPInfo.InitDptAndDut(gProject->Cfg.ReportManualTest);
+}
+
+void CB_DoneAutoTests() {
+    gProject->TPInfo.DoneDutAndDpt(gProject->Cfg.ReportAutoTest);
+}
+
+void CB_DoneManualTests() {
+    gProject->TPInfo.DoneDutAndDpt(gProject->Cfg.ReportManualTest);
+}
+
 void tPetrelProject::AssignCallbacks() {
-    TP->Test_AssignTestFunction = CB_AssignTestFunction; // TPInfo.AssignTestFunction;
-    TP->Test_AssignManualDialog = CB_AssignManualDialog;
-    TP->Test_GetManualDialog = CB_GetManualDialog;
+    TPInfo.TP->cbAssignTestFunction = CB_AssignTestFunction; // TPInfo.AssignTestFunction;
+    TPInfo.TP->cbAssignManualDialog = CB_AssignManualDialog;
+    TPInfo.TP->cbGetManualDialog = CB_GetManualDialog;
+
+    TPInfo.TP->cbInitAutoTests = CB_InitAutoTests;
+    TPInfo.TP->cbInitManualTests = CB_InitManualTests;
+    TPInfo.TP->cbDoneAutoTests = CB_DoneAutoTests;
+    TPInfo.TP->cbDoneManualTests = CB_DoneManualTests;
+
 }
 
 tPetrelProject::tPetrelProject(tLogger &log)
@@ -163,26 +185,24 @@ bool tPetrelProject::OpenPlugin() {
 
 void tPetrelProject::CloseTestProcedure() {
     // signals TestRunner to TP
-    if (TP != nullptr) {
+    if (TPInfo.TP != nullptr) {
         // signals TestRunner to TP
-        QObject::disconnect(&TestRunner, &tTestRunner::sigRunTest, TP, &tTestProcedure::slotRunTest);
-        QObject::disconnect(&TestRunner, &tTestRunner::sigInterruptTest, TP, &tTestProcedure::slotInterruptTest); // Runner -> Procedure <void>
+        QObject::disconnect(&TestRunner, &tTestRunner::sigRunTest, TPInfo.TP, &tTestProcedure::slotRunTest);
+        QObject::disconnect(&TestRunner, &tTestRunner::sigInterruptTest, TPInfo.TP, &tTestProcedure::slotInterruptTest); // Runner -> Procedure <void>
         //QObject::disconnect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest);
 
         // signals TP to TestRunner
-        QObject::disconnect(TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo);   // Procedure -> Runner <tTestInfo>
-        QObject::disconnect(TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress); // Procedure -> Runner <double>
-        QObject::disconnect(TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout); // Procedure -> Runner <double>
-        QObject::disconnect(TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails); // Procedure -> Runner <QString>
-
-
+        QObject::disconnect(TPInfo.TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo);   // Procedure -> Runner <tTestInfo>
+        QObject::disconnect(TPInfo.TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress); // Procedure -> Runner <double>
+        QObject::disconnect(TPInfo.TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout); // Procedure -> Runner <double>
+        QObject::disconnect(TPInfo.TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails); // Procedure -> Runner <QString>
     }
     TPInfo.Clear();
     ClosePlugin();
 }
 
 void tPetrelProject::CreateTestProcedure() {
-    if (TP != nullptr)
+    if (TPInfo.TP != nullptr)
         CloseTestProcedure();
     
     if (!OpenPlugin()) return;
@@ -192,9 +212,9 @@ void tPetrelProject::CreateTestProcedure() {
     if (func == nullptr) {
         Log.LogErrorMessage("Plug-in does not contain TestProcedure");
     } else {
-        TP = func(Log, Cfg, &TPInfo);
+        TPInfo.TP = func(Log, Cfg, &TPInfo);
     }
-    if (TP == nullptr) {
+    if (TPInfo.TP == nullptr) {
         Log.LogErrorMessage("TestProcedure is null");
         return;
     }
@@ -205,20 +225,20 @@ void tPetrelProject::CreateTestProcedure() {
 
 void tPetrelProject::ClosePlugin() {
     if (!IsPlugged) return;
-    if ((TP != nullptr) && (TestRunner.GetRunningTest())) {
+    if ((TPInfo.TP != nullptr) && (TestRunner.GetRunningTest())) {
         TestRunner.CancelTests();
     }
 
     TestRunner.SetTP(nullptr);
-    if (TP != nullptr) {
+    if (TPInfo.TP != nullptr) {
         // Delete PanCfgs
-        TP->DeletePanCfg();
+        TPInfo.TP->DeletePanCfg();
         // TP's vtable lives in the dll, so it must be destroyed before unload.
         // Otherwise it outlives the dll, and when a receiver it is still connected to
         // is destroyed (e.g. TestRunner on exit), ~QObject calls TP->metaObject() and
         // TP->disconnectNotify() through the unloaded vtable -> access violation.
-        delete TP;
-        TP = nullptr;
+        delete TPInfo.TP;
+        TPInfo.TP = nullptr;
     }
     TestSpecs = nullptr; // Pointed into TP
     PluginLib.unload();
@@ -258,25 +278,25 @@ bool tPetrelProject::LoadTestProcedure() {
         Cfg.TestProcedureVer = TPInfo.GetVersion();
         Cfg.TestSpecsVer = TestSpecs->sVersion;
         TPInfo.SetValid(true);
-        TP->AssignTestFunctions();
+        TPInfo.TP->AssignTestFunctions();
         TPInfo.ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
 
         if (TPInfo.GetValid()) {
-            TestRunner.SetTP(TP);
+            TestRunner.SetTP(TPInfo.TP);
 
             // signals TestRunner to TP
-            QObject::connect(&TestRunner, &tTestRunner::sigRunTest, TP, &tTestProcedure::slotRunTest, Qt::QueuedConnection);
-            QObject::connect(&TestRunner, &tTestRunner::sigInterruptTest, TP, &tTestProcedure::slotInterruptTest, Qt::DirectConnection); // Runner -> Procedure <void>
+            QObject::connect(&TestRunner, &tTestRunner::sigRunTest, TPInfo.TP, &tTestProcedure::slotRunTest, Qt::QueuedConnection);
+            QObject::connect(&TestRunner, &tTestRunner::sigInterruptTest, TPInfo.TP, &tTestProcedure::slotInterruptTest, Qt::DirectConnection); // Runner -> Procedure <void>
             //QObject::connect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest, Qt::QueuedConnection);
 
             // signals TP to TestRunner
-            QObject::connect(TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo, Qt::QueuedConnection);   // Procedure -> Runner <tTestInfo>
-            QObject::connect(TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress, Qt::QueuedConnection); // Procedure -> Runner <double>
-            QObject::connect(TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout, Qt::QueuedConnection); // Procedure -> Runner <double>
-            QObject::connect(TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails, Qt::QueuedConnection); // Procedure -> Runner <QString>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo, Qt::QueuedConnection);   // Procedure -> Runner <tTestInfo>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress, Qt::QueuedConnection); // Procedure -> Runner <double>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout, Qt::QueuedConnection); // Procedure -> Runner <double>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails, Qt::QueuedConnection); // Procedure -> Runner <QString>
 
-            QObject::connect(TP, &tTestProcedure::sigCancelTesting, &TestRunner, &tTestRunner::slotCancelTesting, Qt::QueuedConnection); // Procedure -> Runner <QString>
-            QObject::connect(TP, &tTestProcedure::sigCancelSubtests, &TestRunner, &tTestRunner::slotCancelSubtests, Qt::QueuedConnection); // Procedure -> Runner <QString>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelTesting, &TestRunner, &tTestRunner::slotCancelTesting, Qt::QueuedConnection); // Procedure -> Runner <QString>
+            QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelSubtests, &TestRunner, &tTestRunner::slotCancelSubtests, Qt::QueuedConnection); // Procedure -> Runner <QString>
 
             Cfg.ReportAutoTest->SetName("Auto test : " + Cfg.DutName);
             Cfg.ReportManualTest->SetName("Manual test : " + Cfg.DutName);
@@ -286,7 +306,7 @@ bool tPetrelProject::LoadTestProcedure() {
     PopulateAutoTestTree();
     PopulateManualTestTree();
 
-    res = (TP != 0) && (TPInfo.GetValid());
+    res = (TPInfo.TP != 0) && (TPInfo.GetValid());
     return (res);
 }
 
@@ -363,7 +383,7 @@ void tPetrelProject::BuildReportsList(std::list<tReport*>& repList, tReport* rep
 }
 
 bool tPetrelProject::StartManualTest(const QString & testName) {
-    if (TP == nullptr) return false;
+    if (TPInfo.TP == nullptr) return false;
     TestRunner.InterruptFlag = false;
     TestRunner.CancelTestsFlag = false;
     TestRunner.SetCurTestTree(&ManualTestTree);
@@ -407,7 +427,7 @@ void tPetrelProject::RequestSn(QString sn) { // From TP
 
 // Test controls
 void tPetrelProject::StartAutoTests() {
-    if (TP == nullptr) return;
+    if (TPInfo.TP == nullptr) return;
     TestRunner.InterruptFlag = false;
     TestRunner.CancelTestsFlag = false;
     TestRunner.SetCurTestTree(&AutoTestTree);
@@ -419,7 +439,7 @@ void tPetrelProject::StartAutoTests() {
     DecolorizeTestTree(&AutoTestTree); // Uncolor Auto test tree
 
     tReport* repInitAuto = Cfg.ReportCurrent->AddReport("Init Auto Tests");
-    if (TP->InitAutoTests(Cfg.ReportAutoTest)) {
+    if (TPInfo.TP->InitAutoTests()) {
         repInitAuto->SetStatus(tTestStatus::Passed, autoTestInitDetails);
         TestSpecs->BuildTestReport(Cfg.ReportAutoTest, "Auto test: " + Cfg.DutName, false, true, false);
         Cfg.ReportCurrent->Refresh();
@@ -482,8 +502,8 @@ void tPetrelProject::StopTests() {
 }
 
 bool tPetrelProject::InitManualTest() {
-    if (TP == nullptr) return false;
-    bool res = TP->InitManualTests(Cfg.ReportManualTest);
+    if (TPInfo.TP == nullptr) return false;
+    bool res = TPInfo.TP->InitManualTests();
     tTestStatus status = Cfg.ReportManualTest->GetStatus();
     bool expand = (status != tTestStatus::Passed);
     Cfg.ReportManualTest->Expand(status != tTestStatus::Passed, true);
@@ -491,12 +511,12 @@ bool tPetrelProject::InitManualTest() {
 }
 
 void tPetrelProject::DoneManualTest() {
-    if (TP == nullptr) return;
-    TP->DoneManualTests(Cfg.ReportManualTest);
+    if (TPInfo.TP == nullptr) return;
+    TPInfo.TP->DoneManualTests();
 }
 void tPetrelProject::DoneAutoTest() {
-    if (TP == nullptr) return;
-    TP->DoneAutoTests(Cfg.ReportAutoTest);
+    if (TPInfo.TP == nullptr) return;
+    TPInfo.TP->DoneAutoTests();
 }
 
 void tPetrelProject::SetCurrentGroupName(const QString& groupName) {

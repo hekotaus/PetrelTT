@@ -385,11 +385,11 @@ tTestProc_TestPlugin::~tTestProc_TestPlugin() {
 //}
 
 void tTestProc_TestPlugin::AssignTestFunctions() {
-    if (Test_AssignTestFunction == nullptr) return;
-    Test_AssignTestFunction("Test11", Test_11);
-    Test_AssignTestFunction("Test12", Test_12);
-    Test_AssignTestFunction("Test21", Test_21);
-    Test_AssignTestFunction("Test22", Test_22);
+    if (cbAssignTestFunction == nullptr) return;
+    cbAssignTestFunction("Test11", Test_11);
+    cbAssignTestFunction("Test12", Test_12);
+    cbAssignTestFunction("Test21", Test_21);
+    cbAssignTestFunction("Test22", Test_22);
 //    AssignTestFunction("Check Home switch gap Y", Test_CheckHomeSwGapY);
 //    AssignTestFunction("Check Home switch gap Z", Test_CheckHomeSwGapZ);
 //    AssignTestFunction("Check Home switch gap C", Test_CheckHomeSwGapC);

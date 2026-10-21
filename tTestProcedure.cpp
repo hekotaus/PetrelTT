@@ -85,14 +85,14 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
 }
 
 bool tTestProcedure::AssignManualDialog(QString groupName, tTestDialog* pDialog) { //Scan Specs tree until name found.Return ManualTestDialog
-    if (Test_AssignManualDialog != nullptr)
-        return Test_AssignManualDialog(groupName, pDialog);
+    if (cbAssignManualDialog != nullptr)
+        return cbAssignManualDialog(groupName, pDialog);
     else return false;
 }
 
 tTestDialog* tTestProcedure::GetManualDialog(const QString& groupName) {
-    if (Test_GetManualDialog != nullptr)
-        return Test_GetManualDialog(groupName);
+    if (cbGetManualDialog != nullptr)
+        return cbGetManualDialog(groupName);
     else return nullptr;
 }
 
@@ -189,6 +189,7 @@ void tTestProcedure::SetTestInfo() {
 //    InterruptFlag = false;
 //}
 
+#if 0
 bool tTestProcedure::InitDptAndDut(tReport* rep) {
     tReport* r1 = rep->AddReportTesting("InitManualTest", true);
     bool res = true;
@@ -215,26 +216,26 @@ void tTestProcedure::DoneDutAndDpt(tReport* rep) {
     if (pDPT != nullptr) pDPT->Done(rep);
     if (pDUT != nullptr) pDUT->Done(rep);
 }
+#endif
+//public virtual 
+//bool tTestProcedure::InitAutoTests(tReport * rep) { // Called once before running tests
+//    return InitDptAndDut(rep);
+//}
 
 //public virtual 
-bool tTestProcedure::InitAutoTests(tReport * rep) { // Called once before running tests
-    return InitDptAndDut(rep);
-}
+//bool tTestProcedure::InitManualTests(tReport* rep) { // Called once when entering Manual mode
+//    return InitDptAndDut(rep);
+//}
 
 //public virtual 
-bool tTestProcedure::InitManualTests(tReport* rep) { // Called once when entering Manual mode
-    return InitDptAndDut(rep);
-}
+//void tTestProcedure::DoneAutoTests(tReport* rep) { // Called once after running tests
+//    DoneDutAndDpt(rep);
+//}
 
 //public virtual 
-void tTestProcedure::DoneAutoTests(tReport* rep) { // Called once after running tests
-    DoneDutAndDpt(rep);
-}
-
-//public virtual 
-void tTestProcedure::DoneManualTests(tReport* rep) { // Called once when leaving Manual mode
-    DoneDutAndDpt(rep);
-}
+//void tTestProcedure::DoneManualTests(tReport* rep) { // Called once when leaving Manual mode
+//    DoneDutAndDpt(rep);
+//}
 
 //public 
 void tTestProcedure::slotRunTest(tTestStruct currentTest) {

@@ -63,7 +63,7 @@ public:
 
     tPetrelProjectConfig Cfg;
     tProjectState State;
-    tTestProcedure* TP = nullptr;
+    //tTestProcedure* TP = nullptr;
     tTestProcInfo TPInfo;
     tTestRunner TestRunner;
 

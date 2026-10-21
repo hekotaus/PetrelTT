@@ -131,7 +131,6 @@
     <QtMoc Include="..\..\VedroLink\VedroLib\logger\tLogger.h" />
     <QtMoc Include="..\tReport.h" />
     <ClInclude Include="..\tReportRoot.h" />
-    <ClInclude Include="..\tTestDevice.h" />
     <QtMoc Include="..\tTestProcedure.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
