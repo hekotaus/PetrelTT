@@ -52,9 +52,6 @@
     <ClCompile Include="tReportRoot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tTestProcedure.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tTestProcInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -77,6 +74,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tSerialNumberDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tTestProcedure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

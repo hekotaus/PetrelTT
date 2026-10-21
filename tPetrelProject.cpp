@@ -1,5 +1,6 @@
 #include "tPetrelProject.h"
 #include "tReportRoot.h"
+#include "tTestProcedure.h"
 #include <qdir.h>
 #include <QObject.h>
 
@@ -232,7 +233,8 @@ void tPetrelProject::ClosePlugin() {
     TestRunner.SetTP(nullptr);
     if (TPInfo.TP != nullptr) {
         // Delete PanCfgs
-        TPInfo.TP->DeletePanCfg();
+        //TPInfo.TP->DeletePanCfg(); // moved to TP destructor
+        
         // TP's vtable lives in the dll, so it must be destroyed before unload.
         // Otherwise it outlives the dll, and when a receiver it is still connected to
         // is destroyed (e.g. TestRunner on exit), ~QObject calls TP->metaObject() and

@@ -328,17 +328,16 @@ PPT_DLL_API tTestProcedure* GetTestProcedure() {
     return TestProc;
 }
 
-PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg) {
+PPT_DLL_API tTestProcedure* CreateTestProcedure(tPetrelProjectConfig& cfg) {
     if (TestProc != nullptr) delete TestProc;
-    TestProc = nullptr;
-    TestProc = new tTestProc_TestPlugin(log, cfg);
+    TestProc = new tTestProc_TestPlugin(cfg);
     gpDut = TestProc->GetDut(); //convenience global pointer
     gpDpt = TestProc->GetDpt();
     return TestProc;
 }
 
-tTestProc_TestPlugin::tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg)
-    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", log, cfg)
+tTestProc_TestPlugin::tTestProc_TestPlugin(tPetrelProjectConfig& cfg)
+    : tTestProcedure(TestProcName, "DUT Test plugin", "DPT Test plugin", cfg)
 {
     MB = new tMailBox_TestPlugin();
     MailBox = MB;
@@ -406,7 +405,8 @@ void tTestProc_TestPlugin::AssignTestFunctions() {
 
 tPanDevCfg* tTestProc_TestPlugin::MakePanDutCfg(QWidget *parent, int id) {
     if (PanDutCfg != nullptr) delete PanDutCfg;
-    PanDutCfg = new tPanDevCfg(parent, id, "DUT config: " + DutName);
+    //PanDutCfg = new tPanDevCfg(parent, id, "DUT config: " + DutName);
+    PanDutCfg = new tPanDevCfg(parent, id, "DUT config: ");
     return PanDutCfg;
 }
 

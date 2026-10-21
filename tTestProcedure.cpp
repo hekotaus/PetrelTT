@@ -5,16 +5,16 @@
 
 tTestProcedure::tTestProcedure(
     QString name, QString dutName, QString dptName,
-    tLogger& log, tPetrelProjectConfig& cfg)
+    tPetrelProjectConfig& cfg)
     : TestProcName(name)
     //, DutName(dutName)
     , DptName(dptName)
-    //, Log(log)
     , Cfg(cfg)
 {
 }
 
-tTestProcedure::~tTestProcedure() { 
+tTestProcedure::~tTestProcedure() {
+    DeletePanCfg();
 }
 
 void tTestProcedure::DeletePanCfg() {

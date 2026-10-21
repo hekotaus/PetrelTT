@@ -33,7 +33,7 @@ public:
     tMailBox_TestPlugin* MB;
     uint8_t DevId = -1; // set by test
 
-    tTestProc_TestPlugin(tLogger& log, tPetrelProjectConfig& cfg);
+    tTestProc_TestPlugin(tPetrelProjectConfig& cfg);
     ~tTestProc_TestPlugin();
 
     tPanDevCfg* MakePanDutCfg(QWidget* parent, int id) override;
@@ -68,4 +68,4 @@ public:
 //PPT_DLL_API tEspResult GetLastResult();
 PPT_DLL_API char* GetTestProcName();
 PPT_DLL_API tTestProcedure* GetTestProcedure();
-PPT_DLL_API tTestProcedure* CreateTestProcedure(tLogger& log, tPetrelProjectConfig& cfg);
+PPT_DLL_API tTestProcedure* CreateTestProcedure(tPetrelProjectConfig& cfg);

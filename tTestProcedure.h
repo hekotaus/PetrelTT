@@ -4,22 +4,15 @@
 #include <qmessagebox.h>
 #include <qtimer.h>
 
-//#include "logger/tLogger.h"
-
 #include "tTestProcMailBox.h"
 #include "tPanDevCfg.h"
-//#include "tTestSpecs.h"
 #include "tTestDevice.h"
 #include "tTestStatus.h"
 #include "tTestInfo.h"
-//#include "tTestProcInfo.h"
 #include "tPetrelProjectConfig.h"
 #include "tTestResult.h"
 #include "tTestDialog.h"
 
-class tReport;
-class tTestSpecs;
-//class tTestProcInfo;
 class tTestDevice;
 
 enum class tTestMode {
@@ -41,21 +34,13 @@ class tTestProcedure : public QObject {
 
 protected:
     const QString TestProcName;
-    const QString DutName;
+    //const QString DutName;
     const QString DptName;
-    //tLogger& Log;
-    //tTestProcInfo& TestProcInfo;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;
     tPanDevCfg* PanDutCfg = nullptr;
     tPanDevCfg* PanDptCfg = nullptr;
-
     tTestStruct CurrentTest;
-    //QString TestGroup = "";
-
-//    std::map<QString, tTestInfo> AllTestInfo;
-//    tTestSpecs& TestSpecs;
-    
     QEventLoop* MessageBoxWaiterLoop = nullptr; // used for waiting and getting info from main
     QTimer MessageBoxWaiterTimer;
     int MessageBoxResult = 0;
@@ -66,18 +51,19 @@ protected:
 
     void SetTestStatus(tTestStatus newStatus);
     void SetTestInfo();
+    void DeletePanCfg();
 
 public:
     tTestResult GetResult() const { return CurrentTest.Info.Result; }
-    tTestProcedure(QString name, QString dutName, QString dptName, tLogger& log, tPetrelProjectConfig& cfg);//, 
+    tTestProcedure(QString name, QString dutName, QString dptName, tPetrelProjectConfig& cfg);//, 
     ~tTestProcedure();
 
     // DPT and DUT
-    QString GetDutName() const { return DutName; }
+    QString GetDutName() const { return "DutName"; }
     QString GetDptName() const { return DptName; }
     virtual tPanDevCfg* MakePanDutCfg(QWidget* parent, int id) = 0; // need parent to avoid stupid parentless window blinking
     virtual tPanDevCfg* MakePanDptCfg(QWidget* parent, int id) = 0;
-    void DeletePanCfg();
+    
     tPanDevCfg* GetPanDutCfg() { return PanDutCfg; }
     tPanDevCfg* GetPanDptCfg() { return PanDptCfg; }
     
@@ -89,11 +75,6 @@ public:
     virtual void DoneAutoTests() { if (cbDoneAutoTests != nullptr) cbDoneAutoTests; };
     virtual void DoneManualTests() { if (cbDoneManualTests != nullptr) cbDoneManualTests; };
 
-    //virtual bool InitAutoTests(tReport* rep);
-    //virtual bool InitManualTests(tReport* rep);
-    //virtual void DoneAutoTests(tReport* rep);
-    //virtual void DoneManualTests(tReport* rep);
-
     virtual void AssignTestFunctions() = 0; // to be called after loading specs
 
     tTestDevice* pDUT = nullptr; // Generic pointer to Device Under Test
@@ -101,17 +82,8 @@ public:
     bool IsInterrupted() const { return InterruptFlag; }
     void InterruptReset() { InterruptFlag = false; }
 
-    ///void ResetCancelTestingFlag(); // This is called before starting test session
-    //void _SetupTest(const QString& testName);
-    //void SetupManualTest(const QString& groupName, const QString& testName = "Auto");
-
-
     tTestInfo& GetCurrentTestInfo() { return CurrentTest.Info; }
     tTestResult GetCurrentTestResult() const { return CurrentTest.Info.Result; }
-//    void SetTestInfo(QString name, tTestInfo info);
-//    void ClearAllTestsInfo();
-//    tTestResult GetTestResultByName(QString testName);
-//    tTestStatus GetTestStatusByName(QString testName);
 
  public slots:
     void slotRunTest(tTestStruct currentTest);
