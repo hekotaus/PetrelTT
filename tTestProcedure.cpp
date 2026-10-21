@@ -84,6 +84,12 @@ void tTestProcedure::Test_DelayAndSetProgress(int delayMs) {
     }
 }
 
+bool tTestProcedure::AssignTestFunction(const QString& testName, tTestDelegate testProc) {
+    if (cbAssignTestFunction != nullptr)
+        return cbAssignTestFunction(testName, testProc);
+    else return false;
+}
+
 bool tTestProcedure::AssignManualDialog(QString groupName, tTestDialog* pDialog) { //Scan Specs tree until name found.Return ManualTestDialog
     if (cbAssignManualDialog != nullptr)
         return cbAssignManualDialog(groupName, pDialog);

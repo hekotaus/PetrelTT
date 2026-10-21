@@ -38,9 +38,6 @@
     <ClCompile Include="..\tTestProcedure.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
-    <ClCompile Include="..\tReport.cpp">
-      <Filter>Src-Shell</Filter>
-    </ClCompile>
     <ClCompile Include="..\tReportRoot.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
@@ -48,6 +45,9 @@
       <Filter>Src-Shell</Filter>
     </ClCompile>
     <ClCompile Include="..\tTestSpec.cpp">
+      <Filter>Src-Shell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tReport.cpp">
       <Filter>Src-Shell</Filter>
     </ClCompile>
   </ItemGroup>

@@ -145,6 +145,7 @@ public:
     //void Test_AssignTestFunction(const QString& testName, tTestDelegate testProc);
 
     //tTestDialog* FindManualDialog(QString name); //Scan Specs tree until name found.Return ManualTestDialog
+    bool AssignTestFunction(const QString& testName, tTestDelegate testProc);
     bool AssignManualDialog(const QString groupName, tTestDialog* pDialog);
     virtual tTestDialog* GetManualDialog(const QString& groupName);
 
