@@ -1,20 +1,20 @@
 ﻿#include "tTestProcedure.h"
 #include "common/VedroLibTools.h"
-#include<qthread.h>
+#include <qthread.h>
 #include <exception>
 
 tTestProcedure::tTestProcedure(
     QString name, QString dutName, QString dptName,
     tPetrelProjectConfig& cfg)
     : TestProcName(name)
-    //, DutName(dutName)
+    , DutName(dutName)
     , DptName(dptName)
     , Cfg(cfg)
 {
 }
 
 tTestProcedure::~tTestProcedure() {
-    DeletePanCfg();
+    //DeletePanCfg();
 }
 
 void tTestProcedure::DeletePanCfg() {

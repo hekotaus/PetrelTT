@@ -388,6 +388,7 @@ void tPetrelTT::InitTestProcedure() {
     Project.Cfg.TestSpecsVer = PanControl->TrySetSpecVer(tmpSpecVer);
     qDebug() << "Cfg.TestSpecsVer" << Project.Cfg.TestSpecsVer;
 }
+
 void tPetrelTT::slotDutChanged() {
     Project.Cfg.TestSpecsVer = "";
     PopulateTestSpecVersions();

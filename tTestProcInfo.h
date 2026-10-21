@@ -48,7 +48,7 @@ class tTestProcInfo {
     
     //tReportRoot*& ReportRoot;
     //tReport* ReportRoot;
-    bool Valid = false;
+    bool IsValid = false;
     bool TestManualEnabled = false;
     QString WorkingDir = ""; // Writable directory. Log files are created in WorkingDir/Log
     QString TempDir = ""; // Writable directory for temporary files
@@ -74,7 +74,6 @@ public:
 
     // Moved from tTestProcedure
 private:
-    bool IsValid = true;
     bool IsInexistingTestsWarning = true;
     std::map<QString, tTestStruct> TestDict; // Call Test by Name
     std::map<QString, tTestInfo> AllTestInfo;

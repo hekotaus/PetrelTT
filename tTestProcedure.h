@@ -34,7 +34,7 @@ class tTestProcedure : public QObject {
 
 protected:
     const QString TestProcName;
-    //const QString DutName;
+    const QString DutName;
     const QString DptName;
     tPetrelProjectConfig& Cfg;
     tTestProcMailBox* MailBox = nullptr;
@@ -51,15 +51,16 @@ protected:
 
     void SetTestStatus(tTestStatus newStatus);
     void SetTestInfo();
-    void DeletePanCfg();
+    
 
 public:
+    void DeletePanCfg();
     tTestResult GetResult() const { return CurrentTest.Info.Result; }
     tTestProcedure(QString name, QString dutName, QString dptName, tPetrelProjectConfig& cfg);//, 
     ~tTestProcedure();
 
     // DPT and DUT
-    QString GetDutName() const { return "DutName"; }
+    QString GetDutName() const { return DutName; }
     QString GetDptName() const { return DptName; }
     virtual tPanDevCfg* MakePanDutCfg(QWidget* parent, int id) = 0; // need parent to avoid stupid parentless window blinking
     virtual tPanDevCfg* MakePanDptCfg(QWidget* parent, int id) = 0;

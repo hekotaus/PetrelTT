@@ -31,13 +31,13 @@ public:
     QString DutPn = "";
     QString Description = "";
     std::list<tTestSpec> Specs;
-    bool IsValid() { return Valid; }
+    bool GetValid() { return Valid; }
     void SetReadonly() { IsReadonly = true; }
     tTestSpecs(tLogger& log, tPetrelProjectConfig& cfg);
     tTestSpec* AddGroup(const QString& name, tTestSpecs* sourceSpecs);
     tTestSpec* AddGroup(const QString& name);
     tTestSpec* AddSpec(tTestSpec* spec);
-    void LoadAndValidate();
+    bool LoadAndValidate(); // returns Valid
     void Clear();
     bool LoadSpecTree(std::list<tTestSpec>& specs, tinyxml2::XMLElement* el, tReport* rep);
     bool ReadXml();

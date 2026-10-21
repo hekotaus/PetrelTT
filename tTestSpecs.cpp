@@ -60,7 +60,7 @@ tTestSpec* tTestSpecs::AddSpec(tTestSpec* spec) {
 }
 
 //public 
-void tTestSpecs::LoadAndValidate() {
+bool tTestSpecs::LoadAndValidate() {
     tReport* ReportRoot = (tReport*)Cfg.ReportCurrent;
     Report = ReportRoot->AddReport("Loading Auto Test Specs");
     Valid = true;
@@ -72,6 +72,7 @@ void tTestSpecs::LoadAndValidate() {
         Log.LogErrorMessage("Failed to read Specs from file!");
     if (Valid) Validate();
     Report->Expand(!Valid, true);
+    return Valid;
 }
 
 //public 

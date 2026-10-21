@@ -52,7 +52,7 @@ void tTestProcInfo::Clear() {
     Description = "";
     Files.clear();
     Parameters.clear();
-    Valid = false;
+    IsValid = false;
     TestManualEnabled = false;
     WorkingDir = ""; // Writable directory. Log files are created in WorkingDir/Log
     TempDir = ""; // Writable directory for temporary files
@@ -385,19 +385,19 @@ bool tTestProcInfo::Validate(tReport* rep) {
 
     tReport* rep1 = rep->AddReport("Test Procedure Validation");
     Log.LogSystemMessage("Test Procedure validation");
-    Valid = true;
+    IsValid = true;
     
     //IsValidParam("Test Procedure version", sVersion, "positive number", (sVersion == Cfg.TestSpecsVer), rep1, Log, Valid);
-    IsValidParam("Test Procedure version", QString("%1").arg(Version, 6, 'f', 3), "positive number", (Version > 0), rep1, Log, Valid);
-    IsValidParam("DUT name", DutName, Cfg.DutName, (DutName == Cfg.DutName), rep1, Log, Valid);
-    IsValidParam("DUT revision", DutRevision, Cfg.DutRevision, (DutRevision == Cfg.DutRevision), rep1, Log, Valid);
-    IsValidParam("DUT P/N", DutPn, "any" /*Cfg.DutPartNumber*/, true /*(DutPn == Cfg.DutPartNumber)*/, rep1, Log, Valid);
-    IsValidParam("Application version", Cfg.AppVer.ToQString(), "at least " + ApplicationMinVersion.ToQString(), !(Cfg.AppVer < ApplicationMinVersion), rep1, Log, Valid);
+    IsValidParam("Test Procedure version", QString("%1").arg(Version, 6, 'f', 3), "positive number", (Version > 0), rep1, Log, IsValid);
+    IsValidParam("DUT name", DutName, Cfg.DutName, (DutName == Cfg.DutName), rep1, Log, IsValid);
+    IsValidParam("DUT revision", DutRevision, Cfg.DutRevision, (DutRevision == Cfg.DutRevision), rep1, Log, IsValid);
+    IsValidParam("DUT P/N", DutPn, "any" /*Cfg.DutPartNumber*/, true /*(DutPn == Cfg.DutPartNumber)*/, rep1, Log, IsValid);
+    IsValidParam("Application version", Cfg.AppVer.ToQString(), "at least " + ApplicationMinVersion.ToQString(), !(Cfg.AppVer < ApplicationMinVersion), rep1, Log, IsValid);
     //rep1->AddDetails(": " +  + tPetrelTools::IsValid(!(), Valid));
 
     rep1->AddDetails("\nValidating files...");
     for(tFileInfo& f : Files) {
-        IsValidFile(f, rep1, Log, Valid);
+        IsValidFile(f, rep1, Log, IsValid);
 
         //rep1->AddDetails("File name: " + f.Name +
         //    tPetrelTools::IsValid((QFile::exists(f.FullName)), f.Valid));
@@ -415,10 +415,10 @@ bool tTestProcInfo::Validate(tReport* rep) {
         //    rep1->AddDetails(QString("File CRC: 0x%1").arg(f.CRC, 8, '0'));
         //}
         if ((f.Target == "test manual") && f.Valid) TestManualEnabled = true;
-        Valid = Valid && f.Valid;
+        IsValid = IsValid && f.Valid;
     }
-    rep1->SetStatus(Valid ? tTestStatus::Passed : tTestStatus::Failed);
-    return Valid;
+    rep1->SetStatus(IsValid ? tTestStatus::Passed : tTestStatus::Failed);
+    return IsValid;
 }
 
 QString tTestProcInfo::TestAssignmentSourceCode(QString dut, QString group, QString specName) { // Just a little help for test procedure programmer :)

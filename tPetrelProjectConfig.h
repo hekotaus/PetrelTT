@@ -1,6 +1,6 @@
 #pragma once
 #include "app/tAppConfig.h"
-//#include "tReport.h"
+
 class tReportRoot;
 struct tPetrelProjectConfig {
     //tProjectSettings Project;
@@ -36,5 +36,3 @@ struct tPetrelProjectConfig {
     tReportRoot* ReportReports = nullptr;
     tReportRoot* ReportCurrent = nullptr;
 };
-
-

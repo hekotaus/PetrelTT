@@ -221,7 +221,6 @@ void tPetrelProject::CreateTestProcedure() {
     }
     BuildDirNames();
     LoadTestProcedure();
-    AssignCallbacks();
 }
 
 void tPetrelProject::ClosePlugin() {
@@ -233,7 +232,7 @@ void tPetrelProject::ClosePlugin() {
     TestRunner.SetTP(nullptr);
     if (TPInfo.TP != nullptr) {
         // Delete PanCfgs
-        //TPInfo.TP->DeletePanCfg(); // moved to TP destructor
+        TPInfo.TP->DeletePanCfg();
         
         // TP's vtable lives in the dll, so it must be destroyed before unload.
         // Otherwise it outlives the dll, and when a receiver it is still connected to
@@ -265,44 +264,43 @@ bool tPetrelProject::LoadTestProcedure() {
     bool res = false;
     TPInfo.SetValid(false);
     ReportsClear();
-    
+
     if (!TPInfo.LoadAndValidate((tReport*)Cfg.ReportCurrent)) return false; // Load, and Check if current TestProcedure is good
     Cfg.TestProcedureVer = TPInfo.GetVersion();
     if (TPInfo.GetDeprecated())  return false;
-    TestSpecs =  TPInfo.GetTestSpecs();
+    TestSpecs = TPInfo.GetTestSpecs();
     if (TestSpecs == nullptr) {
         return false;
     }
-    TestSpecs->LoadAndValidate(); // Check if current TestProcedure is good
+    if (!TestSpecs->LoadAndValidate()) // Check if current TestProcedure is good
+        return false;
     TestSpecs->SetReadonly(); // Write protected
 
-    if (TPInfo.GetValid() && TestSpecs->IsValid()) {
-        Cfg.TestProcedureVer = TPInfo.GetVersion();
-        Cfg.TestSpecsVer = TestSpecs->sVersion;
-        TPInfo.SetValid(true);
-        TPInfo.TP->AssignTestFunctions();
-        TPInfo.ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
+    Cfg.TestProcedureVer = TPInfo.GetVersion();
+    Cfg.TestSpecsVer = TestSpecs->sVersion;
+    AssignCallbacks();
+    TPInfo.TP->AssignTestFunctions();
+    TPInfo.ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
 
-        if (TPInfo.GetValid()) {
-            TestRunner.SetTP(TPInfo.TP);
+    if (TPInfo.GetValid()) {
+        TestRunner.SetTP(TPInfo.TP);
 
-            // signals TestRunner to TP
-            QObject::connect(&TestRunner, &tTestRunner::sigRunTest, TPInfo.TP, &tTestProcedure::slotRunTest, Qt::QueuedConnection);
-            QObject::connect(&TestRunner, &tTestRunner::sigInterruptTest, TPInfo.TP, &tTestProcedure::slotInterruptTest, Qt::DirectConnection); // Runner -> Procedure <void>
-            //QObject::connect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest, Qt::QueuedConnection);
+        // signals TestRunner to TP
+        QObject::connect(&TestRunner, &tTestRunner::sigRunTest, TPInfo.TP, &tTestProcedure::slotRunTest, Qt::QueuedConnection);
+        QObject::connect(&TestRunner, &tTestRunner::sigInterruptTest, TPInfo.TP, &tTestProcedure::slotInterruptTest, Qt::DirectConnection); // Runner -> Procedure <void>
+        //QObject::connect(&TestRunner, &tTestRunner::sigFinishTest, TP, &tTestProcedure::slotFinishTest, Qt::QueuedConnection);
 
-            // signals TP to TestRunner
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo, Qt::QueuedConnection);   // Procedure -> Runner <tTestInfo>
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress, Qt::QueuedConnection); // Procedure -> Runner <double>
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout, Qt::QueuedConnection); // Procedure -> Runner <double>
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails, Qt::QueuedConnection); // Procedure -> Runner <QString>
+        // signals TP to TestRunner
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestInfo, &TestRunner, &tTestRunner::slotSetTestInfo, Qt::QueuedConnection);   // Procedure -> Runner <tTestInfo>
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestProgress, &TestRunner, &tTestRunner::slotSetTestProgress, Qt::QueuedConnection); // Procedure -> Runner <double>
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigSetTestTimeout, &TestRunner, &tTestRunner::slotSetTestTimeout, Qt::QueuedConnection); // Procedure -> Runner <double>
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigAddTestDetails, &TestRunner, &tTestRunner::slotAddTestDetails, Qt::QueuedConnection); // Procedure -> Runner <QString>
 
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelTesting, &TestRunner, &tTestRunner::slotCancelTesting, Qt::QueuedConnection); // Procedure -> Runner <QString>
-            QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelSubtests, &TestRunner, &tTestRunner::slotCancelSubtests, Qt::QueuedConnection); // Procedure -> Runner <QString>
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelTesting, &TestRunner, &tTestRunner::slotCancelTesting, Qt::QueuedConnection); // Procedure -> Runner <QString>
+        QObject::connect(TPInfo.TP, &tTestProcedure::sigCancelSubtests, &TestRunner, &tTestRunner::slotCancelSubtests, Qt::QueuedConnection); // Procedure -> Runner <QString>
 
-            Cfg.ReportAutoTest->SetName("Auto test : " + Cfg.DutName);
-            Cfg.ReportManualTest->SetName("Manual test : " + Cfg.DutName);
-        }
+        Cfg.ReportAutoTest->SetName("Auto test : " + Cfg.DutName);
+        Cfg.ReportManualTest->SetName("Manual test : " + Cfg.DutName);
     }
 
     PopulateAutoTestTree();

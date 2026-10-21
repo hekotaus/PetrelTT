@@ -1,6 +1,5 @@
 #include "TestProc_TestPlugin.h"
 //#include "../ProdTest-TSLT-Common/tMessageBox.h"
-//#include "../TSLTConcept/StepperBoard/Src/StepperSettingsI.h"
 
 tTestProc_TestPlugin* TestProc = nullptr;
 #define TP TestProc
@@ -385,28 +384,18 @@ tTestProc_TestPlugin::~tTestProc_TestPlugin() {
 
 void tTestProc_TestPlugin::AssignTestFunctions() {
     if (cbAssignTestFunction == nullptr) return;
-    cbAssignTestFunction("Test11", Test_11);
-    cbAssignTestFunction("Test12", Test_12);
-    cbAssignTestFunction("Test21", Test_21);
-    cbAssignTestFunction("Test22", Test_22);
-//    AssignTestFunction("Check Home switch gap Y", Test_CheckHomeSwGapY);
-//    AssignTestFunction("Check Home switch gap Z", Test_CheckHomeSwGapZ);
-//    AssignTestFunction("Check Home switch gap C", Test_CheckHomeSwGapC);
-//    AssignTestFunction("Check Home switch gap M", Test_CheckHomeSwGapM);
-//    AssignTestFunction("Check Limit switch gap C", Test_CheckLimitSwGapC);
+    AssignTestFunction("Test11", Test_11);
+    AssignTestFunction("Test12", Test_12);
+    AssignTestFunction("Test21", Test_21);
+    AssignTestFunction("Test22", Test_22);
 
     // Manual test dialogues
 //    AssignManualDialog("Motor X", &TestDialogMotor);
-//    AssignManualDialog("Motor Y", &TestDialogMotor);
-//    AssignManualDialog("Motor Z", &TestDialogMotor);
-//    AssignManualDialog("Motor C", &TestDialogMotor);
-//    AssignManualDialog("Motor M", &TestDialogMotor);
 }
 
 tPanDevCfg* tTestProc_TestPlugin::MakePanDutCfg(QWidget *parent, int id) {
     if (PanDutCfg != nullptr) delete PanDutCfg;
-    //PanDutCfg = new tPanDevCfg(parent, id, "DUT config: " + DutName);
-    PanDutCfg = new tPanDevCfg(parent, id, "DUT config: ");
+    PanDutCfg = new tPanDevCfg(parent, id, "DUT config: " + DutName);
     return PanDutCfg;
 }
 
