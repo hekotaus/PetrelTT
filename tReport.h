@@ -79,10 +79,9 @@ protected:
 
     static const tRepStatus StatusList[int(tTestStatus::LAST)];
     tLogger* Log = nullptr;
-    QTextDocument* ReportText = nullptr; // Buffer/shadow
-    //QTextDocument* ReportTextVisible = nullptr; // Application UI
-    QTextDocument* ReportTextRtf = nullptr; // Print here to RTF file
-    QTextDocument* ReportTextPdf = nullptr; // Print here to PDF file
+    QTextDocument* ReportTextCur = nullptr; // Current output Document. Looks like we don;t need the others
+    QTextDocument* ReportTextDisp = nullptr; // Application UI
+    QTextDocument* ReportTextFile = nullptr; // Print here to RTF/PDF file
     QTextEdit* ReportView = nullptr;
 
     QString Name = "";

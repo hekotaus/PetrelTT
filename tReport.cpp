@@ -95,8 +95,8 @@ void tReport::SetResult(const tTestResult& testRes) {
 
 tReport::~tReport() {
     if (IsRoot) {
-        delete ReportTextRtf;
-        delete ReportText;
+        delete ReportTextFile;
+        delete ReportTextDisp;
     }
 }
 
@@ -110,17 +110,18 @@ tReport::tReport(tReportRoot* root, tReport* parent, int level, QString name) :
     Level = level;
 
     if (IsRoot) {
-        ReportText = new QTextDocument(); // Buffer/shadow
+        ReportTextDisp = new QTextDocument(); // Buffer/shadow
         //ReportTextVisible = new QTextDocument();// Root->ReportTextVisible; // Application UI
-        ReportTextRtf = new QTextDocument(); //Root->ReportTextRtf; // Print here to output file
+        ReportTextFile = new QTextDocument(); //Root->ReportTextFile; // Print here to output file
+        ReportTextCur = ReportTextDisp;
         //ReportView = Root->ReportView;
         //Expanded = NewChildExpanded;
         //ShowDetails = NewChildShowDetails;
     } else {
         //ShowDetails = Parent->ShowDetails;
-        ReportText = Root->ReportText; // Buffer/shadow
+        ReportTextCur = Root->ReportTextCur; // Buffer/shadow
         //ReportTextVisible = Root->ReportTextVisible; // Application UI
-        ReportTextRtf = Root->ReportTextRtf; // Print here to output file
+        ReportTextFile = Root->ReportTextFile; // Print here to output file
         ReportView = Root->ReportView;
         //IsExpanded = Root->NewChildExpanded;
         //IsShowDetails = Root->NewChildShowDetails;
@@ -543,14 +544,14 @@ QString tReport::FormatResult() { // TODO: remove. Format defined by tSpec and t
 #endif
 void tReport::Build() { // Standard
     if (IsRoot)
-        ReportText->clear();
+        ReportTextCur->clear();
 //    TestNameLineNumber = ReportText->lineCount();// toPlainText() //TextBox.Lines.Count();TestNameLineNumber = ReportText->lineCount();
     ///TextBox->GetLineFromCharIndex(TextBox->SelectionStart);
 //if (Level > 0) TestNameLineNumber--; //For the root we don't have previous line
-    ReportView->setDocument(ReportText);
+    ReportView->setDocument(ReportTextCur);
     qreal fontSize = std::max(FontSizeTestNameMin, FontSizeBase - Level * FontSizeTestNameDec);
 
-    QTextCursor cursor = QTextCursor(Root->ReportText);
+    QTextCursor cursor = QTextCursor(Root->ReportTextCur);
     cursor.movePosition(QTextCursor::MoveOperation::End);
     int posBegin = cursor.position();
 
@@ -563,7 +564,7 @@ void tReport::Build() { // Standard
         ReportView->setTextColor(fmt.TextColor);
         Qt::Alignment alignment = fmt.Alignment; // must be set after appending text only
 
-        LineNumber[iRepEl] = ReportText->lineCount();
+        LineNumber[iRepEl] = ReportTextCur->lineCount();
         if (IsRoot && (iRepEl == 0)) LineNumber[iRepEl]--;
         //qDebug() << "ReportText" << ReportText->toPlainText();
         switch (iRepEl) {
@@ -625,7 +626,7 @@ void tReport::Build() { // Standard
 
         case eRepDetails:
             if (ViewSettings.IsShowDetails && !Details.isEmpty()) {
-                LineNumber[eRepDetails] = ReportText->lineCount();
+                LineNumber[eRepDetails] = ReportTextCur->lineCount();
                 // Trick to align details multiple lines
                 ReportView->setFontPointSize(1);
                 ReportView->append("");
@@ -642,7 +643,7 @@ void tReport::Build() { // Standard
         }
         
     } // for iRepEl
-    LineNumber[eRepNext] = ReportText->lineCount();
+    LineNumber[eRepNext] = ReportTextCur->lineCount();
     //NextItemLineNumber = ReportText->lineCount();
 ///        TextBox.GetLineFromCharIndex(TextBox.SelectionStart);
 

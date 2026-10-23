@@ -75,7 +75,7 @@ public:
     bool SaveToRtfFile(QString& fname);
     bool SaveToPdfFile(QString fname);
     //QTextDocument* GetDocument() { return ReportTextVisible; }
-    QTextDocument* GetDocument() { return ReportText; }
+    QTextDocument* GetDocument() { return ReportTextCur; }
     //void SetDocument(QTextDocument* doc) { ReportTextVisible}
     void ReportDoubleClicked(int);
 };

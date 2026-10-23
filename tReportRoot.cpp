@@ -9,7 +9,7 @@ tReportRoot::tReportRoot(tReportType reportType, QTextEdit* reportView, tLogger*
     tReport(this, nullptr, 0, "Test report") { // call to create root report item
     //ReportType = reportType;
     ReportView = reportView;
-    ReportView->setDocument(ReportText);
+    ReportView->setDocument(ReportTextCur);
     Summary.resize(int(TestSummary::LAST));
     //ReportView = reportView;
     switch (RootType) {
@@ -79,7 +79,7 @@ tReportRoot::tReportRoot(tReportType reportType, QTextEdit* reportView, tLogger*
     //TextBoxVisible = textBox;
     ///TextBox = new RichTextBox(); // This is an invisible buffer
     ///ReportText.setVisible(false);
-    ReportText->setTextWidth(ReportView->width());
+    ReportTextCur->setTextWidth(ReportView->width());
     //ReportText.setTextHeight(ReportView->height());
     Log = log;
     //Cfg = cfg;
@@ -128,8 +128,8 @@ void tReportRoot::Refresh() {
     if (!RefreshEnabled) return;
     if (!Visible) return;
     FirstVisibleItem = GetFirstVisibleItem();
-    ReportView->setDocument(ReportText);
-    ReportText->clear();
+    ReportView->setDocument(ReportTextCur);
+    ReportTextCur->clear();
     if (ViewSettings.IsShowDetails) MakeSummary();
     Build();
 
@@ -385,8 +385,13 @@ bool tReportRoot::SaveToPdfFile(QString fname) { // Exports the report as curren
     writer.setResolution(300);
 
     // print() lays out a clone of the document to the page size, so the on-screen view is not affected
-    ReportText->print(&writer);
-
+    //ReportTextCur = ReportTextFile;
+    ExpandSubtree(true);
+    Refresh();
+    ReportTextCur->print(&writer);
+    ExpandSubtree(false);
+    Expand(true, true);
+    //ReportTextCur = ReportTextDisp;
     bool res = QFileInfo(fname).exists() && QFileInfo(fname).size() > 0;
     if (!res) qDebug() << "tReportRoot::SaveToPdfFile() failed:" << fname;
     return res;
