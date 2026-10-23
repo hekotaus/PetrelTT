@@ -73,6 +73,7 @@ public:
     void ScrollToTop();
     void ScrollToEnd();
     bool SaveToRtfFile(QString& fname);
+    bool SaveToPdfFile(QString fname);
     //QTextDocument* GetDocument() { return ReportTextVisible; }
     QTextDocument* GetDocument() { return ReportText; }
     //void SetDocument(QTextDocument* doc) { ReportTextVisible}

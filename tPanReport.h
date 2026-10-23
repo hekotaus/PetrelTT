@@ -41,6 +41,7 @@ public:
     QPushButton btnExpandAll = QPushButton("Expand all");
     QPushButton btnCollapseAll = QPushButton("Collapse all");
     QPushButton btnClear = QPushButton("Clear");
+    QPushButton btnSave = QPushButton("Save");
     //QPushButton btnShowLog = QPushButton("Toggle Log");
     int RepY = 0;
     tReportTextEdit ReportView;
@@ -56,5 +57,6 @@ public slots:
     void slotCollapseAll();
     void slotReportDoubleClicked(int);
     void slotClear();
+    void slotSave();
     //checkStateChanged(Qt::CheckState state)
 };

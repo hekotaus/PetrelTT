@@ -1,4 +1,8 @@
 ﻿#include "tReportRoot.h"
+#include <QPdfWriter>
+#include <QPageSize>
+#include <QPageLayout>
+#include <QFileInfo>
 
 tReportRoot::tReportRoot(tReportType reportType, QTextEdit* reportView, tLogger* log, tPetrelProjectConfig& cfg)
     : Cfg(cfg), RootType(reportType), 
@@ -359,6 +363,33 @@ bool tReportRoot::SaveToRtfFile(QString& fname) {
     }
     return res;
 #endif
+}
+
+bool tReportRoot::SaveToPdfFile(QString fname) { // Exports the report as currently built in ReportText
+    if (fname == "") {
+        fname = Cfg.ReportDir + "/" +
+            CurrentDateTime(true, true) + "--" +
+            Cfg.DutName + "-rev." + Cfg.DutRevision + "--" +
+            "PN-" + QString(Cfg.DutPartNumber).replace('/', '-') + "--" +
+            "SN-" + QString(Cfg.DutSerialNumber).replace('/', '-') + "--" +
+            Cfg.TestType + "-" +
+            GetStatusMessage(Status) +
+            ".pdf";
+    }
+
+    QPdfWriter writer(fname);
+    writer.setTitle(Name);
+    writer.setCreator(Cfg.AppName + " ver." + Cfg.AppVer.ToQString());
+    writer.setPageSize(QPageSize(QPageSize::A4));
+    writer.setPageMargins(QMarginsF(15, 15, 15, 15), QPageLayout::Millimeter);
+    writer.setResolution(300);
+
+    // print() lays out a clone of the document to the page size, so the on-screen view is not affected
+    ReportText->print(&writer);
+
+    bool res = QFileInfo(fname).exists() && QFileInfo(fname).size() > 0;
+    if (!res) qDebug() << "tReportRoot::SaveToPdfFile() failed:" << fname;
+    return res;
 }
 
 void tReportRoot::ReportDoubleClicked(int lineNum) {

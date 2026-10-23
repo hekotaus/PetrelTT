@@ -18,6 +18,7 @@ tPanReport::tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConf
     AddWidget(&btnExpandAll);
     AddWidget(&btnCollapseAll);
     AddWidget(&btnClear);
+    AddWidget(&btnSave);
 
     int loIdx = AddLayout(0, 0, tPanelStyle(eBorderStyle::None, true), StdH);
     auto Lo1 = GetLayoutPtr(1);
@@ -33,7 +34,9 @@ tPanReport::tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConf
     Lo1->AddWidget(&btnExpandAll, X_3_4, y, W_1_4, CbH);
     Lo1->AddWidget(&btnCollapseAll, X_4_4, y, W_1_4, CbH);
     const int X_5_4 = PaddingX + (W_1_4 + SpacingX) * 4;
+    const int X_6_4 = PaddingX + (W_1_4 + SpacingX) * 5;
     Lo1->AddWidget(&btnClear, X_5_4, y, W_1_4, CbH);
+    Lo1->AddWidget(&btnSave, X_6_4, y, W_1_4, CbH);
     y += dy;
     RepY = y;
     Lo1->AddWidget(&ReportView, PaddingX, y, 100, 100);
@@ -45,6 +48,7 @@ tPanReport::tPanReport(QWidget* parent, int id, tLogger* log, tPetrelProjectConf
     connect(&btnExpandAll, &QPushButton::clicked, this, &tPanReport::slotExpandAll);
     connect(&btnCollapseAll, &QPushButton::clicked, this, &tPanReport::slotCollapseAll);
     connect(&btnClear, &QPushButton::clicked, this, &tPanReport::slotClear);
+    connect(&btnSave, &QPushButton::clicked, this, &tPanReport::slotSave);
     connect(&ReportView, &tReportTextEdit::sigReportDoubleClicked, this, &tPanReport::slotReportDoubleClicked);
 }
 
@@ -54,6 +58,7 @@ tPanReport::~tPanReport() {
     disconnect(&btnExpandAll, &QPushButton::clicked, this, &tPanReport::slotExpandAll);
     disconnect(&btnCollapseAll, &QPushButton::clicked, this, &tPanReport::slotCollapseAll);
     disconnect(&btnClear, &QPushButton::clicked, this, &tPanReport::slotClear);
+    disconnect(&btnSave, &QPushButton::clicked, this, &tPanReport::slotSave);
     disconnect(&ReportView, &tReportTextEdit::sigReportDoubleClicked, this, &tPanReport::slotReportDoubleClicked);
 }
 
@@ -84,7 +89,6 @@ void tPanReport::SetHeight(int h) { // TODO: move to tPanel
     int loH = h - paddings.top() - paddings.bottom();
     SetAllLayoutsHeight(loH);
     lo->Elements[&ReportView].H = loH - RepY - PaddingY;// -lo->GetPaddings().top() - lo->GetPaddings().bottom();
-
 
     SetLayout();
 }
@@ -120,6 +124,10 @@ void tPanReport::slotCollapseAll() {
 
 void tPanReport::slotClear() {
     Cfg.ReportCurrent->Clear();
+}
+
+void tPanReport::slotSave() {
+    Cfg.ReportCurrent->SaveToPdfFile("");
 }
 
 //checkStateChanged(Qt::CheckState state)

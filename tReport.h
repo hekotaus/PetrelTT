@@ -81,7 +81,8 @@ protected:
     tLogger* Log = nullptr;
     QTextDocument* ReportText = nullptr; // Buffer/shadow
     //QTextDocument* ReportTextVisible = nullptr; // Application UI
-    QTextDocument* ReportTextRtf = nullptr; // Print here to output file
+    QTextDocument* ReportTextRtf = nullptr; // Print here to RTF file
+    QTextDocument* ReportTextPdf = nullptr; // Print here to PDF file
     QTextEdit* ReportView = nullptr;
 
     QString Name = "";
