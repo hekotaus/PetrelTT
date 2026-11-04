@@ -297,6 +297,9 @@ void tTestSpecs::BuildNameList(QStringList& specNames) {
 //public
 void tTestSpecs::BuildAutoTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Auto test");
+    while (treeNode->childCount() > 0) {
+        delete treeNode->takeChild(0);
+    }
     for (tTestSpec& s : Specs) {
         if (s.GetIsAutoTest()) {
             s.BuildTestTreeAuto(treeNode);
@@ -308,6 +311,9 @@ void tTestSpecs::BuildAutoTestTree(QTreeWidgetItem* treeNode) {
 //public
 void tTestSpecs::BuildManualTestTree(QTreeWidgetItem* treeNode) {
     treeNode->setText(0, "Manual test");
+    while (treeNode->childCount() > 0) {
+        delete treeNode->takeChild(0);
+    }
     for (tTestSpec& s : Specs) {
         if (s.GetIsManualTest() && (s.Children.size() != 0))
             s.BuildTestTreeManual(treeNode);

@@ -44,6 +44,8 @@ public:
     void BuildNameList(QStringList& specNames);
     void BuildAutoTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
     void BuildManualTestTree(QTreeWidgetItem* treeRoot); // Build test tree for the panel
+
+
     void BuildTestReport(tReport* report, QString name, bool allowDuplicates, bool includeAuto, bool includeManual); // start building test re[ort from "name"
     tTestSpec* GetSpec(const QString& name);
     tTestDialog* GetManualDialog(const QString& name);
