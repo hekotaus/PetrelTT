@@ -211,21 +211,23 @@ bool tTestSpec::CheckRangeMask() {
 bool tTestSpec::CheckRangeExact() {
     if (sRange.isEmpty()) return false;
     bool res = false;
+    int base = 10;
     switch (ValueType) {
     case tTestResult::tValueType::String:
         ExactValueString = sRange;
         res = true;
         break;
     case tTestResult::tValueType::Integer:
-        ExactValueInteger = sRange.toLong(&res);
         if (res && sRange.startsWith("0x")) {
             IsHex = true;
             Digits = sRange.size() - 2;
-        }
-        if (res && sRange.startsWith("b")) { 
+            base = 16;
+        } else if (res && sRange.startsWith("b")) { 
             IsBin = true; 
             Digits = sRange.size() - 1; 
+            base = 2;
         }
+        ExactValueInteger = sRange.toLong(&res, base);
         break;
     case tTestResult::tValueType::Float:
         ExactValueFloat = sRange.toDouble(&res);
@@ -249,10 +251,13 @@ bool tTestSpec::CheckRangeSet() {
         ((ValueType == tTestResult::tValueType::Integer) || (ValueType == tTestResult::tValueType::String))) {
         for(QString& s : args) {
             if (ValueType == tTestResult::tValueType::Integer) {
-                if (res) iVal = s.toUInt(&res);
-                if (res) SetInteger.insert(iVal);
-                if (res && s.startsWith("0x")) { IsHex = true; Digits = s.size() - 2; }
-                if (res && s.startsWith("b")) { IsBin = true; Digits = s.size() - 1; }
+                int base = 10;
+                if (res) {
+                    if (res && s.startsWith("0x")) { IsHex = true; Digits = s.size() - 2; base = 16; }
+                    else if (res && s.startsWith("b")) { IsBin = true; Digits = s.size() - 1; base = 2; }
+                    iVal = s.toUInt(&res, base);
+                    if (res) SetInteger.insert(iVal);
+                }
             } else {
                 SetString.insert(s);
             }
@@ -275,12 +280,20 @@ bool tTestSpec::CheckRangeRange() {
         QString sMin = sRange.left(p);
         QString sMax = sRange.right(sRange.size() - (p + 3));
         if (ValueType == tTestResult::tValueType::Integer) {
-            if (res) MinValueInt = sMin.toLong(&res);
-            if (res && sMin.startsWith("0x")) { IsHex = true; Digits = sMin.size() - 2; }
-            if (res && sMin.startsWith("b")) { IsBin = true; Digits = sMin.size() - 1; }
-            if (res) MaxValueInt = sMax.toLong(&res);
-            if (res && sMax.startsWith("0x")) { IsHex = true; Digits = sMax.size() - 2; }
-            if (res && sMax.startsWith("b")) { IsBin = true; Digits = sMax.size() - 1; }
+            int base = 10;
+            if (res) {
+                if (sMin.startsWith("0x")) { IsHex = true; Digits = sMin.size() - 2; base = 16; } 
+                else if (sMin.startsWith("b")) { IsBin = true; Digits = sMin.size() - 1; base = 2; }
+                //else if (res) MinValueInt = sMin.toLong(&res);
+                MinValueInt = sMin.toLong(&res, base);
+            }
+
+            if (res) {
+                base = 10;
+                if (sMax.startsWith("0x")) { IsHex = true; Digits = sMax.size() - 2; base = 16; } 
+                else if (sMax.startsWith("b")) { IsBin = true; Digits = sMax.size() - 1; base = 2; }
+                MaxValueInt = sMax.toLong(&res, base);
+            }
         } else {
             if (res) MinValueFloat = sMin.toDouble(&res);
             if (res) MaxValueFloat = sMax.toDouble(&res);
