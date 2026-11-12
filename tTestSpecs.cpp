@@ -185,7 +185,7 @@ bool tTestSpecs::ReadXml() {
     sVersion = XmlAttribute(root, "Version"); // QString("%1").arg(root->Attribute("Version"));
     bool res = true;
     //Version = sVersion.toFloat(&res);
-    Version = sVersion.toFloat();
+    //Version = sVersion.toFloat();
     //if (!res) {
     if (sVersion == "") {
         errmsg = "Failed to read VERSION";

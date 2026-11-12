@@ -11,6 +11,7 @@ tTestProcedure::tTestProcedure(
     , DptName(dptName)
     , Cfg(cfg)
 {
+
 }
 
 tTestProcedure::~tTestProcedure() {

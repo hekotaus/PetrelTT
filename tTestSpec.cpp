@@ -218,11 +218,11 @@ bool tTestSpec::CheckRangeExact() {
         res = true;
         break;
     case tTestResult::tValueType::Integer:
-        if (res && sRange.startsWith("0x")) {
+        if (sRange.startsWith("0x")) {
             IsHex = true;
             Digits = sRange.size() - 2;
             base = 16;
-        } else if (res && sRange.startsWith("b")) { 
+        } else if (sRange.startsWith("b")) { 
             IsBin = true; 
             Digits = sRange.size() - 1; 
             base = 2;

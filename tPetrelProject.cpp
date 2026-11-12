@@ -213,6 +213,7 @@ void tPetrelProject::CreateTestProcedure() {
     if (func == nullptr) {
         Log.LogErrorMessage("Plug-in does not contain TestProcedure");
     } else {
+        //Cfg.TestProcedureVer = Cfg.TestSpecsVer; // TestProcedureVer; TestSpecsVer
         TPInfo.TP = func(Log, Cfg, &TPInfo);
     }
     if (TPInfo.TP == nullptr) {
@@ -266,7 +267,7 @@ bool tPetrelProject::LoadTestProcedure() {
     ReportsClear();
 
     if (!TPInfo.LoadAndValidate((tReport*)Cfg.ReportCurrent)) return false; // Load, and Check if current TestProcedure is good
-    Cfg.TestProcedureVer = TPInfo.GetVersion();
+    Cfg.TestSpecsVer = TPInfo.GetVersion();
     if (TPInfo.GetDeprecated())  return false;
     TestSpecs = TPInfo.GetTestSpecs();
     if (TestSpecs == nullptr) {
@@ -279,6 +280,7 @@ bool tPetrelProject::LoadTestProcedure() {
     Cfg.TestProcedureVer = TPInfo.GetVersion();
     Cfg.TestSpecsVer = TestSpecs->sVersion;
     AssignCallbacks();
+    //TPInfo.TP->SetTestProcName(Cfg.TestSpecsVer);
     TPInfo.TP->AssignTestFunctions();
     TPInfo.ValidateAutoTestFuncAssignment((tReport*)Cfg.ReportCurrent);
 

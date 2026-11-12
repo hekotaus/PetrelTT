@@ -44,7 +44,7 @@ tTestProcInfo::tTestProcInfo(tLogger& log, tPetrelProjectConfig& cfg)
 void tTestProcInfo::Clear() {
     sVersion = "-1";
     IsDeprecated = false; // If the hardware is not supported anymore, add attribute Deprecated="yes" to the <TESTPROCEDURE> item
-    Version = -2;
+    //Version = -2;
     DutName = "";
     DutRevision = "";
     DutPn = "";
@@ -113,6 +113,7 @@ bool tTestProcInfo::ReadXml(tReport* rep) {
     }
 
     sVersion = XmlAttribute(root, "Version"); // QString("%1").arg(root->Attribute("Version"));
+#if 0
     bool res;
     Version = sVersion.toFloat(&res);
     if (!res) {
@@ -122,7 +123,7 @@ bool tTestProcInfo::ReadXml(tReport* rep) {
         rep1->SetStatus(tTestStatus::Failed, errmsg);
         return false;
     }
-
+#endif
     //QString sDeprecated = "NO";
     IsDeprecated = false;
     QString sDeprecated = XmlAttribute(root, "Deprecated").toUpper();
@@ -388,7 +389,8 @@ bool tTestProcInfo::Validate(tReport* rep) {
     IsValid = true;
     
     //IsValidParam("Test Procedure version", sVersion, "positive number", (sVersion == Cfg.TestSpecsVer), rep1, Log, Valid);
-    IsValidParam("Test Procedure version", QString("%1").arg(Version, 6, 'f', 3), "positive number", (Version > 0), rep1, Log, IsValid);
+    //IsValidParam("Test Procedure version", QString("%1").arg(Version, 6, 'f', 3), "positive number", (Version > 0), rep1, Log, IsValid);
+    IsValidParam("Test Procedure version", sVersion, "", (sVersion == Cfg.TestSpecsVer), rep1, Log, IsValid);
     IsValidParam("DUT name", DutName, Cfg.DutName, (DutName == Cfg.DutName), rep1, Log, IsValid);
     IsValidParam("DUT revision", DutRevision, Cfg.DutRevision, (DutRevision == Cfg.DutRevision), rep1, Log, IsValid);
     IsValidParam("DUT P/N", DutPn, "any" /*Cfg.DutPartNumber*/, true /*(DutPn == Cfg.DutPartNumber)*/, rep1, Log, IsValid);
@@ -461,14 +463,14 @@ void tTestProcInfo::ValidateAutoTestFuncAssignment(tReport* rep) {
     }
 
     QString sTmp = "";
-    for (const QString& s : SpecNames) {
-        if (0 == TestDict.count(s.toUpper())) {
-            sTmp = sTmp + TestAssignmentSourceCode("DUT", "GROUP", s);
-        }
-    }
-    if (sTmp != "") Log.LogSystemMessage("Missing test assignments:\r\n" + sTmp);
+    //for (const QString& s : SpecNames) {
+    //    if (0 == TestDict.count(s.toUpper())) {
+    //        sTmp = sTmp + TestAssignmentSourceCode("DUT", "GROUP", s);
+    //    }
+    //}
+    //if (sTmp != "") Log.LogSystemMessage("Missing test assignments:\r\n" + sTmp);
+    //sTmp = "";
 
-    sTmp = "";
     for (const QString& s : SpecNames) {
         if (0 == TestDict.count(s.toUpper())) {
             sTmp = sTmp + "\n" + s;
@@ -482,7 +484,7 @@ void tTestProcInfo::ValidateAutoTestFuncAssignment(tReport* rep) {
     //rep->GetRoot()->Refresh();
 }
 
-bool tTestProcInfo::IsTestFunctionAssigned(QString testName) {
+bool tTestProcInfo::IsTestFunctionAssigned(const QString& testName) {
     return (TestDict.count(testName) > 0);
 }
 

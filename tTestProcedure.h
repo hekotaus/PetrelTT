@@ -51,7 +51,6 @@ protected:
 
     void SetTestStatus(tTestStatus newStatus);
     void SetTestInfo();
-    
 
 public:
     void DeletePanCfg();
@@ -62,6 +61,8 @@ public:
     // DPT and DUT
     QString GetDutName() const { return DutName; }
     QString GetDptName() const { return DptName; }
+    QString GetTestProcName() const { return TestProcName; }
+    //void SetTestProcName(QString tpname) const { TestProcName = tpname; }
     virtual tPanDevCfg* MakePanDutCfg(QWidget* parent, int id) = 0; // need parent to avoid stupid parentless window blinking
     virtual tPanDevCfg* MakePanDptCfg(QWidget* parent, int id) = 0;
     
@@ -71,10 +72,18 @@ public:
 //    bool InitDptAndDut(tReport* rep);
 //    void DoneDutAndDpt(tReport* rep);
     // Basic init and done methods, can be replaced in plugin
-    virtual bool InitAutoTests() { if (cbInitAutoTests != nullptr) return true; return cbInitAutoTests; };
-    virtual bool InitManualTests() { if (cbInitManualTests != nullptr) return true; return cbInitManualTests; };
-    virtual void DoneAutoTests() { if (cbDoneAutoTests != nullptr) cbDoneAutoTests; };
-    virtual void DoneManualTests() { if (cbDoneManualTests != nullptr) cbDoneManualTests; };
+    virtual bool InitAutoTests() { 
+        if (cbInitAutoTests != nullptr) 
+            return cbInitAutoTests();
+        return true; };
+    virtual bool InitManualTests() { 
+        if (cbInitManualTests != nullptr) 
+            return cbInitManualTests();
+        return 
+            true;
+    };
+    virtual void DoneAutoTests() { if (cbDoneAutoTests != nullptr) cbDoneAutoTests(); };
+    virtual void DoneManualTests() { if (cbDoneManualTests != nullptr) cbDoneManualTests(); };
 
     virtual void AssignTestFunctions() = 0; // to be called after loading specs
 

@@ -25,7 +25,7 @@ private:
 
 public:
     QString sVersion = "";
-    float Version = 0.0f;
+    //float Version = 0.0f;
     QString DutName = "";
     QString DutRevision = "";
     QString DutPn = "";

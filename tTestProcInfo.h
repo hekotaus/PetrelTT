@@ -34,7 +34,7 @@ public:
 class tTestProcInfo {
     QString sVersion = "-1";
     bool IsDeprecated = false; // If the hardware is not supported anymore, add attribute Deprecated="yes" to the <TESTPROCEDURE> item
-    float Version = -2;
+    //float Version = -2;
     QString DutName = "";
     QString DutRevision = "";
     QString DutPn = "";
@@ -81,7 +81,7 @@ public:
     tTestSpecs TestSpecs;
     bool GetValid() const { return IsValid; }
     void SetValid(bool st) { IsValid = st; }
-    bool IsTestFunctionAssigned(QString testName);
+    bool IsTestFunctionAssigned(const QString& testName);
     QString TestAssignmentSourceCode(QString dut, QString group, QString specName); // Just a little help for test procedure programmer :)
     bool ValidateManualTestFuncAssignment(tReport* rep); // X3 how to call it!
     void ValidateAutoTestFuncAssignment(tReport* rep);
