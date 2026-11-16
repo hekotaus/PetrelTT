@@ -22,7 +22,8 @@ enum class tTestMode {
     Service
 };
 
-using tTestDelegate = void (*)(tTestInfo&);
+//using tTestDelegate = void (*)(tTestInfo&);
+using tTestDelegate = void (*)();
 
 struct tTestStruct {
     tTestInfo Info;

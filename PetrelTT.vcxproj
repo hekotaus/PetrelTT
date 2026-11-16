@@ -140,7 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="tSerialNumberDialog.h" />
-    <ClInclude Include="tTestProcedure_base.h" />
     <ClInclude Include="tTimeOut.h" />
     <QtMoc Include="tPanReport.h" />
     <QtMoc Include="tPanTestTree.h" />

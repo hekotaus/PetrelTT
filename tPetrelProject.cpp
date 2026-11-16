@@ -355,7 +355,7 @@ QTreeWidgetItem* tPetrelProject::SearchNode(const QString& searchText, QTreeWidg
 
 void tPetrelProject::ColorizeTestTree(QTreeWidgetItem* rootNode) {
     for (tReport* curTestRep : LinearReports) {
-        qDebug() << "Colourising" << curTestRep->GetName();
+        //qDebug() << "Colourising" << curTestRep->GetName();
         QTreeWidgetItem* curNode = SearchNode(curTestRep->GetName().toLower(), rootNode);
         if (curNode != nullptr)
             curNode->setForeground(0, QBrush(curTestRep->GetTestColor()));

@@ -214,7 +214,7 @@ public:
     void SetStatusPassError(bool res, QString details = "");
     void SetStatus(tTestStatus newStatus, QString details);
     void SetStatus(tTestStatus newStatus);
-    void SetResult(const tTestResult& testRes);
+    void SetResult(tTestResult testRes);
     void SetDescription(const QString& description) { Description = description; };
 
     void TestStatusChanged(tTestInfo testInfo);

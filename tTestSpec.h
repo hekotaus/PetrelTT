@@ -62,8 +62,8 @@ public:
     // ranges
     double MaxValueFloat = 0;
     double MinValueFloat = 0;
-    int MaxValueInt = 0;
-    int MinValueInt = 0;
+    int64_t MaxValueInt = 0;
+    int64_t MinValueInt = 0;
     // Mask
     uint32_t MaskPositive = 0;
     uint32_t MaskNegative = 0;

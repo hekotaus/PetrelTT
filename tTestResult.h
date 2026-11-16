@@ -26,7 +26,9 @@ private:
     bool InternalCheckValue = false;
     QString BoolPosValue = "true";
     QString BoolNegValue = "false";
-    int FloatPrecision = 3;
+    int Digits = 3; // Number of digits. For float Precision
+    bool IsHex = false;
+    bool IsBin = false;
 protected:
     bool ValueSet = false;
     QString ResultComment = "";
@@ -50,11 +52,14 @@ public:
     tValueType GetValueType() const { 
         return ValueType; 
     }
-    void SetPrecision(int prec) { FloatPrecision = prec; }
+    void SetHex() { IsHex = true; IsBin = false; }
+    void SetBin() { IsHex = false; IsBin = true; }
+    void SetDigits(int digs) { Digits = digs; }
     void SetBoolValues(const QString& posVal, const QString& negVal) { BoolPosValue = posVal; BoolNegValue = negVal; }
     void SetBoolValues(const QString& posVal) { // Automatically detects pair of bool values
         // TODO
-    };
+    }
+
     bool SetValue(bool value/*, const QString &comment = ""*/) {
         if (ValueSet) return false; // Value can be set only once
         if (ValueType == tValueType::Boolean) {
@@ -150,10 +155,15 @@ public:
             if (ValueBool) res = BoolPosValue; else res = BoolNegValue;
             break;
         case tValueType::Float: 
-            res = QString("%1").arg(ValueFloat, 0, 'f', FloatPrecision);
+            res = QString("%1").arg(ValueFloat, 0, 'f', Digits);
             break;
         case tValueType::Integer: 
-            res = QString("%1").arg(ValueInteger);
+            if (IsHex)
+                res = QString("0x%1").arg(ValueInteger, Digits, 16, '0');
+            else if (IsBin)
+                res = QString("b%1").arg(ValueInteger, Digits, 2, '0');
+            else
+                res = QString("%1").arg(ValueInteger);
             break;
         case tValueType::None: 
             res = "";

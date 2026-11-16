@@ -206,7 +206,7 @@ void tTestProcedure::slotRunTest(tTestStruct currentTest) {
         connect(&MessageBoxWaiterTimer, &QTimer::timeout, MessageBoxWaiterLoop, &QEventLoop::quit);
 
         try {
-            CurrentTest.Proc(CurrentTest.Info); // Run test // TODO: check cancel flag!
+            CurrentTest.Proc(); // Run test // TODO: check cancel flag!
         } catch (std::exception& ex) {
             Test_AddDetails("Exception occured during running test: " + QString(ex.what()));
         } catch (...) {

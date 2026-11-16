@@ -227,10 +227,14 @@ bool tTestSpec::CheckRangeExact() {
             Digits = sRange.size() - 1; 
             base = 2;
         }
-        ExactValueInteger = sRange.toLong(&res, base);
+        ExactValueInteger = sRange.toLongLong(&res, base);
         break;
-    case tTestResult::tValueType::Float:
+    case tTestResult::tValueType::Float: {
         ExactValueFloat = sRange.toDouble(&res);
+        int dotPos = sRange.indexOf('.');
+        if (dotPos == -1) Digits = 0;
+        else Digits = sRange.size() - dotPos;
+        }
         break;
     case tTestResult::tValueType::Boolean:
         ExactValueBoolean = Str2Bool(sRange, &res);
@@ -285,18 +289,26 @@ bool tTestSpec::CheckRangeRange() {
                 if (sMin.startsWith("0x")) { IsHex = true; Digits = sMin.size() - 2; base = 16; } 
                 else if (sMin.startsWith("b")) { IsBin = true; Digits = sMin.size() - 1; base = 2; }
                 //else if (res) MinValueInt = sMin.toLong(&res);
-                MinValueInt = sMin.toLong(&res, base);
+                MinValueInt = sMin.toLongLong(&res, base);
             }
 
             if (res) {
                 base = 10;
-                if (sMax.startsWith("0x")) { IsHex = true; Digits = sMax.size() - 2; base = 16; } 
-                else if (sMax.startsWith("b")) { IsBin = true; Digits = sMax.size() - 1; base = 2; }
-                MaxValueInt = sMax.toLong(&res, base);
+                if (sMax.startsWith("0x")) { IsHex = true; Digits = std::max(Digits, int(sMax.size() - 2)); base = 16; } 
+                else if (sMax.startsWith("b")) { IsBin = true; Digits = std::max(Digits, int(sMax.size() - 1)); base = 2; }
+                MaxValueInt = sMax.toLongLong(&res, base);
             }
         } else {
             if (res) MinValueFloat = sMin.toDouble(&res);
             if (res) MaxValueFloat = sMax.toDouble(&res);
+
+            int dotPos = sMin.indexOf('.');
+            if (dotPos == -1) Digits = 0;
+            else Digits = sMin.size() - dotPos;
+
+            dotPos = sMax.indexOf('.');
+            if (dotPos == -1) Digits = 0;
+            else Digits = std::max(Digits, int(sMax.size() - dotPos));
         }
     }
     if (res) Check = tCheckType::Range;

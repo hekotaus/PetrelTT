@@ -70,7 +70,7 @@ void tReport::LinkSpec(tTestSpec* spec) {
 //        Result.SetValueType(TestSpec->GetValueType());
 }
 
-void tReport::SetResult(const tTestResult& testRes) {
+void tReport::SetResult(tTestResult testRes) {
     if (Status != tTestStatus::Testing) {
         SetStatus(tTestStatus::TestError);
         AddDetails(Name + ": Attempt to set value not at testing time!");
@@ -89,6 +89,9 @@ void tReport::SetResult(const tTestResult& testRes) {
         return;
     }
 
+    if (TestSpec->IsBin) testRes.SetBin();
+    else if (TestSpec->IsHex) testRes.SetHex();
+    testRes.SetDigits(TestSpec->Digits);
     ResultValue = testRes.ToString();
     ResultComment = TestSpec->CheckTypeToString();// testRes.GetResultComment();
 }
