@@ -1,5 +1,4 @@
 #pragma once
-//#include <qobject.h>
 #include <QTextDocument>
 #include <qstring.h>
 #include <qcolor.h>
@@ -11,11 +10,9 @@
 // Local
 #include "tReportCommon.h"
 #include "tTestResult.h"
-//#include "tTestProcedure.h"
 #include "tPetrelProjectConfig.h"
 #include "tTestStatus.h"
 #include "tTestInfo.h"
-//#include "tTestProcInfo.h"
 
 class tTestSpec;
 class tReportRoot;

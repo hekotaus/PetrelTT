@@ -148,6 +148,8 @@ public:
     //bool Test_SetSerialNumber(); // 
     void Test_SetSerialNumber(const QString&); // Set SN. If empty, make Shell request SN from user
     bool Test_WaitForSetSerialNumber(int& messageBoxResult, int timeoutSec);
+    void Test_RequestSerialNumber();
+
 
     template <typename T>
     tTestProcedure* Test_SetResult(T resValue) {

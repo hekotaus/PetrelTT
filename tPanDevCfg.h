@@ -5,7 +5,8 @@
 #include <qcombobox.h>
 #include <qpushbutton.h>
 #include <QSerialPortInfo>
-
+#include <qthread.h>
+//#include <Windows.h>
 //#include "tDeviceConfigDialog.h"
 
 class tPanDevCfg : public tPanPetrel {
@@ -44,8 +45,9 @@ public:
         int dy = LabH * 1.5;
         lo->AddWidget(&labComPort, X_1_3, y, W_1_3, LabH);
         lo->AddWidget(&cbComPort, X_2_3, y, W_1_3, CbH);
-        //lo->AddWidget(&btnAuto,    X_3_3, y, W_1_3,  CbH);
+        lo->AddWidget(&btnAuto,    X_3_3, y, W_1_3,  CbH);
 
+        connect(&btnAuto, &QPushButton::clicked, this, &tPanDevCfg_SingleComPort::slotAutoDetect);
         Rescan();
     }
 
@@ -66,5 +68,40 @@ public:
                 cbComPort.setCurrentIndex(cbComPort.count() - 1);
         }
     }
-    //void AutoDetect() {}
+public slots:
+    void slotAutoDetect() {
+        // instruct user to unplug and plug USB adapter
+        // Check, which port appeared
+        bool detected = false;
+        int timeout = 1000; // 0.1sec
+        auto oldPorts = QSerialPortInfo::availablePorts();
+        auto newPorts = QSerialPortInfo::availablePorts();
+        do {
+            detected = ((oldPorts.size() + 1) == newPorts.size());
+            if (!detected) {
+                QThread::msleep(100);
+                oldPorts = newPorts;
+                newPorts = QSerialPortInfo::availablePorts();
+                timeout--;
+                qDebug() << "New ports size" << newPorts.size();
+            }
+        } while (!detected && (timeout > 0));
+        if (!detected) return;
+
+        // Old ports contains one item less
+        // remove all items of last from cur
+        // Convert to QSet
+        QSet<QString> setPorts;
+        for (const auto& port : newPorts)
+            setPorts.insert(port.portName());
+
+        for (const auto& port : oldPorts)
+            setPorts.remove(port.portName());
+
+        if (setPorts.size() != 1) return; // Ambigous situation
+
+        Rescan();
+        cbComPort.setCurrentText(*setPorts.begin());
+        //return *setPorts.begin();
+    }
 };

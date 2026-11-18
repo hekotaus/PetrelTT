@@ -144,6 +144,10 @@ bool tTestProcedure::Test_WaitForMessageBoxResult(int& messageBoxResult, int tim
     return MessageBoxWaiterTimer.isActive();
 }
 
+void tTestProcedure::Test_RequestSerialNumber() {
+
+}
+
 void tTestProcedure::Test_SetSerialNumber(const QString& sn) { // Set SN. If empty, make Shell request SN from user
     emit sigRequestSn(sn);
 }
