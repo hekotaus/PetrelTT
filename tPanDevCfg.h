@@ -149,6 +149,7 @@ public slots:
         Rescan();
         cbComPort.setCurrentText(*setPorts.begin());
         ExitAutoDetect();
+        
         //return *setPorts.begin();
     }
 };

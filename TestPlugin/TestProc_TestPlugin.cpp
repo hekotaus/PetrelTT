@@ -8,16 +8,16 @@ tTestDevice* gpDpt = nullptr; // No DPT here
 QMessageBox* pTestMessageBox;
 //tMessageBox_MotorSwitchState* pMsgBox_SwState;
 
-void Test_11(tTestInfo& ti) {
+void Test_11() {
     TP->Test_SetResult(1.1);
 }
-void Test_12(tTestInfo& ti) {
+void Test_12() {
     TP->Test_SetResult(1.2);
 }
-void Test_21(tTestInfo& ti) {
+void Test_21() {
     TP->Test_SetResult(2.1);
 }
-void Test_22(tTestInfo& ti) {
+void Test_22() {
     TP->Test_SetResult(2.2);
 }
 

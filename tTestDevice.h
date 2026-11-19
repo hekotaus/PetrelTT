@@ -34,7 +34,7 @@ class tTestDevice_SingleComPort : public tTestDevice {
     QByteArray InBuf = QByteArray(INBUF_LEN, 0);
     QByteArray OutBuf = QByteArray(OUTBUF_LEN, 0);
 protected:
-    bool SetPort(QString sport) {
+    bool OpenPort(QString sport) {
         sPort = sport;
         //QSerialPortInfo spi = QSerialPortInfo(sPort);;
         bool bRes = false;
@@ -43,20 +43,31 @@ protected:
         bRes = Port.setBaudRate(QSerialPort::BaudRate::Baud115200);
         if (!bRes) { qDebug() << "Failed to set COM port baud rate"; return false; }
 
-        Port.setDataBits(QSerialPort::Data8);
+        bRes = Port.setDataBits(QSerialPort::Data8);
         if (!bRes) { qDebug() << "Failed to set COM port data bits"; return false; }
 
-        Port.setParity(QSerialPort::NoParity);
+        bRes = Port.setParity(QSerialPort::NoParity);
         if (!bRes) { qDebug() << "Failed to set COM port parity"; return false; }
 
-        Port.setStopBits(QSerialPort::OneStop);
+        bRes = Port.setStopBits(QSerialPort::OneStop);
         if (!bRes) { qDebug() << "Failed to set COM port stop bits"; return false; }
 
-        Port.setReadBufferSize(2048);
-        if (!bRes) { qDebug() << "Failed to set COM port read buffer sizew"; return false; }
+        bRes = Port.setFlowControl(QSerialPort::NoFlowControl);
+        if (!bRes) { qDebug() << "Failed to set COM port flow control"; return false; }
 
-        Port.setWriteBufferSize(2048);
-        if (!bRes) { qDebug() << "Failed to set COM port write buffer sizew"; return false; }
+
+        //Port.setReadBufferSize(2048);
+        //if (!bRes) { qDebug() << "Failed to set COM port read buffer size"; return false; }
+
+        //Port.setWriteBufferSize(2048);
+        //if (!bRes) { qDebug() << "Failed to set COM port write buffer size"; return false; }
+
+        bRes = Port.open(QIODeviceBase::ReadWrite);
+        if (!bRes) {
+            qDebug() << "Failed to open COM port";
+            qDebug() << Port.errorString();
+            return false;
+        }
 
         return true;
     }
@@ -69,30 +80,38 @@ public:
     }
 
     bool Init(tReport* rep) {
-        // TODO: add opening port code
-        return true;
+        return Init(rep, "COM4");
     }
 
     bool Init(tReport* rep, QString sport) {
-        bool res = true;
-        return SetPort(sport) && Init(rep);
+        bool res = OpenPort(sport);
+        return res;
     }
 
     void Done(tReport* rep) override {
         // TODO: add closing port code
+        Port.close();
     }
 
     QString ReadLine() {
-        if (!Port.canReadLine()) return "";
+        //if (!Port.canReadLine())
+        //    return "Can't read line";
 
-        Port.readLineInto(&InBuf, INBUF_LEN);
+        //Port.readLineInto(&InBuf, INBUF_LEN);
+        //int64_t len = Port.read(InBuf.data(), INBUF_LEN);
+        QByteArray inbuf = Port.readAll();
+        int64_t len = inbuf.size();
+        qDebug() << "Respnse len =" << len;
         QString res = QString(InBuf);
         return res;
     }
 
-    void WriteLine(const QString& line) {
+    void WriteLine(QString line) {
+        //if (!line.endsWith("\n")) 
+            line = line + "\r\n";
         OutBuf = line.toLatin1();
-        Port.write(OutBuf);
+        int64_t len = Port.write(OutBuf);
+        qDebug() << "Sent len =" << len;
     }
 
     //void SetSerialNumber(QString sn) {
