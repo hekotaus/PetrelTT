@@ -536,9 +536,11 @@ bool tTestProcInfo::InitDptAndDut(tReport* rep) {
     tReport* r1 = rep->AddReportTesting("InitManualTest", true);
     bool res = true;
     if (pDPT != nullptr) {
-        pDPT->Init(r1);
+        res = pDPT->Init(r1);
         if (!res) {
             pDPT->Done(rep);
+            r1->SetStatusPassFail(res);
+            r1->Expand(true, true);
             return res;
         }
     }

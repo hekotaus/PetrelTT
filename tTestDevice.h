@@ -26,46 +26,63 @@ public:
 };
 
 #include <qserialport.h>
+#include <qthread.h>
+#include <qdeadlinetimer.h>
+#include <memory>
+// Blocking line I/O over one COM port.
+// QSerialPort only queues data in write() and sends it from its own thread's event loop,
+// and it must not be used from any other thread. Init/Done run in the GUI thread while
+// tests run in TestThread, so the port is (re)opened in whichever thread uses it,
+// and all I/O waits with waitFor*() instead of relying on an event loop.
 class tTestDevice_SingleComPort : public tTestDevice {
     QString sPort;
-    QSerialPort Port;
-    static const size_t INBUF_LEN = 0x100;
-    static const size_t OUTBUF_LEN = 0x100;
-    QByteArray InBuf = QByteArray(INBUF_LEN, 0);
-    QByteArray OutBuf = QByteArray(OUTBUF_LEN, 0);
+    std::unique_ptr<QSerialPort> Port;
+    static const int TIMEOUT_MS = 500;
+
+    void ClosePort() {
+        if (!Port) return;
+        QSerialPort* port = Port.release();
+        QThread* owner = port->thread();
+        if ((owner == QThread::currentThread()) || !owner->isRunning()) {
+            delete port; // closes it
+        } else {
+            // Must be closed in its own thread; wait, so the port is free to be reopened here
+            QMetaObject::invokeMethod(port, [port] { delete port; }, Qt::BlockingQueuedConnection);
+        }
+    }
+
+    bool EnsurePort() {
+        if (Port && (Port->thread() == QThread::currentThread()) && Port->isOpen()) return true;
+        ClosePort();
+        return OpenPort();
+    }
+
 protected:
-    bool OpenPort(QString sport) {
-        sPort = sport;
-        //QSerialPortInfo spi = QSerialPortInfo(sPort);;
+    bool OpenPort() {
+        if (sPort.isEmpty()) { qDebug() << "COM port is not set"; return false; }
+        Port = std::make_unique<QSerialPort>(); // Owned by the current thread
         bool bRes = false;
 
-        Port.setPortName(sport);
-        bRes = Port.setBaudRate(QSerialPort::BaudRate::Baud115200);
+        Port->setPortName(sPort);
+        bRes = Port->setBaudRate(QSerialPort::BaudRate::Baud115200);
         if (!bRes) { qDebug() << "Failed to set COM port baud rate"; return false; }
 
-        bRes = Port.setDataBits(QSerialPort::Data8);
+        bRes = Port->setDataBits(QSerialPort::Data8);
         if (!bRes) { qDebug() << "Failed to set COM port data bits"; return false; }
 
-        bRes = Port.setParity(QSerialPort::NoParity);
+        bRes = Port->setParity(QSerialPort::NoParity);
         if (!bRes) { qDebug() << "Failed to set COM port parity"; return false; }
 
-        bRes = Port.setStopBits(QSerialPort::OneStop);
+        bRes = Port->setStopBits(QSerialPort::OneStop);
         if (!bRes) { qDebug() << "Failed to set COM port stop bits"; return false; }
 
-        bRes = Port.setFlowControl(QSerialPort::NoFlowControl);
+        bRes = Port->setFlowControl(QSerialPort::NoFlowControl);
         if (!bRes) { qDebug() << "Failed to set COM port flow control"; return false; }
 
-
-        //Port.setReadBufferSize(2048);
-        //if (!bRes) { qDebug() << "Failed to set COM port read buffer size"; return false; }
-
-        //Port.setWriteBufferSize(2048);
-        //if (!bRes) { qDebug() << "Failed to set COM port write buffer size"; return false; }
-
-        bRes = Port.open(QIODeviceBase::ReadWrite);
+        bRes = Port->open(QIODeviceBase::ReadWrite);
         if (!bRes) {
-            qDebug() << "Failed to open COM port";
-            qDebug() << Port.errorString();
+            qDebug() << "Failed to open COM port" << sPort << Port->errorString();
+            Port.reset();
             return false;
         }
 
@@ -79,39 +96,61 @@ public:
     {
     }
 
-    bool Init(tReport* rep) {
-        return Init(rep, "COM4");
+    ~tTestDevice_SingleComPort() {
+        ClosePort();
+    }
+
+    void SetPortName(const QString& sport) {
+        if (sport == sPort) return;
+        ClosePort();
+        sPort = sport;
+    }
+
+    QString GetPortName() const { return sPort; }
+
+    bool Init(tReport* rep) override {
+        ClosePort();
+        IsInited = OpenPort();
+        return IsInited;
     }
 
     bool Init(tReport* rep, QString sport) {
-        bool res = OpenPort(sport);
-        return res;
+        SetPortName(sport);
+        return tTestDevice_SingleComPort::Init(rep);
     }
 
     void Done(tReport* rep) override {
-        // TODO: add closing port code
-        Port.close();
+        ClosePort();
+        IsInited = false;
     }
 
-    QString ReadLine() {
-        //if (!Port.canReadLine())
-        //    return "Can't read line";
-
-        //Port.readLineInto(&InBuf, INBUF_LEN);
-        //int64_t len = Port.read(InBuf.data(), INBUF_LEN);
-        QByteArray inbuf = Port.readAll();
-        int64_t len = inbuf.size();
-        qDebug() << "Respnse len =" << len;
-        QString res = QString(InBuf);
-        return res;
+    // Returns one line without the line end, or "" on timeout
+    QString ReadLine(int timeoutMs = TIMEOUT_MS) {
+        if (!EnsurePort()) return "";
+        QDeadlineTimer deadline(timeoutMs);
+        while (!Port->canReadLine()) {
+            if (!Port->waitForReadyRead(int(deadline.remainingTime()))) {
+                qDebug() << "COM port read timeout" << sPort;
+                return "";
+            }
+        }
+        return QString::fromLatin1(Port->readLine()).trimmed();
     }
 
-    void WriteLine(QString line) {
-        //if (!line.endsWith("\n")) 
-            line = line + "\r\n";
-        OutBuf = line.toLatin1();
-        int64_t len = Port.write(OutBuf);
-        qDebug() << "Sent len =" << len;
+    // Appends CR LF if the line has no line end. Returns when the data has been sent.
+    bool WriteLine(const QString& line, int timeoutMs = TIMEOUT_MS) {
+        if (!EnsurePort()) return false;
+        QByteArray out = line.toLatin1();
+        if (!out.endsWith('\n')) out += "\r\n";
+        if (Port->write(out) != out.size()) {
+            qDebug() << "COM port write failed" << sPort << Port->errorString();
+            return false;
+        }
+        if (!Port->waitForBytesWritten(timeoutMs)) {
+            qDebug() << "COM port write timeout" << sPort << Port->errorString();
+            return false;
+        }
+        return true;
     }
 
     //void SetSerialNumber(QString sn) {
