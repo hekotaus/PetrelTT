@@ -4,8 +4,10 @@
 #include <QLabel>
 #include <qcombobox.h>
 #include <qpushbutton.h>
+#include <qprogressbar.h>
 #include <QSerialPortInfo>
 #include <qthread.h>
+#include <qapplication.h>
 //#include <Windows.h>
 //#include "tDeviceConfigDialog.h"
 
@@ -26,16 +28,32 @@ public:
 };
 
 class tPanDevCfg_SingleComPort : public tPanDevCfg {
+    void ExitAutoDetect() {
+        labMessage.setText("");
+        btnCancel.setEnabled(false);
+        pbProg.setEnabled(false);
+        pbProg.setValue(0);
+    }
+
 public:
     QLabel labComPort = QLabel("Com port");
     QComboBox cbComPort;
     QPushButton btnAuto = QPushButton("Autodetect");
-
+    QProgressBar pbProg = QProgressBar();
+    QPushButton btnCancel = QPushButton("Cancel");
+    QLabel labMessage = QLabel();
+    bool Cancelled = false;
     tPanDevCfg_SingleComPort(QWidget* parent, int id, QString caption = "")
         : tPanDevCfg(parent, id, caption) {
+
+        qDebug() << "Cancel button enabled" << btnCancel.isEnabled();
+
         AddWidget(&labComPort);
         AddWidget(&cbComPort);
         AddWidget(&btnAuto);
+        AddWidget(&pbProg);
+        AddWidget(&btnCancel);
+        AddWidget(&labMessage);
 
         AddLayout(0, 0, tPanelStyle(eBorderStyle::None, true), StdH);
         SetLayout(1);
@@ -46,9 +64,21 @@ public:
         lo->AddWidget(&labComPort, X_1_3, y, W_1_3, LabH);
         lo->AddWidget(&cbComPort, X_2_3, y, W_1_3, CbH);
         lo->AddWidget(&btnAuto,    X_3_3, y, W_1_3,  CbH);
+        y += FullH;
+        lo->AddWidget(&labMessage, X_1_1, y, W_1_1, LabH);
+        y += FullH;
+        lo->AddWidget(&pbProg, X_1_3, y, W_2_3, LabH);
+        lo->AddWidget(&btnCancel, X_3_3, y, W_1_3, LabH);
 
+        //QApplication::processEvents();
         connect(&btnAuto, &QPushButton::clicked, this, &tPanDevCfg_SingleComPort::slotAutoDetect);
+        connect(&btnCancel, &QPushButton::clicked, this, &tPanDevCfg_SingleComPort::slotCancel);
         Rescan();
+
+        this->Layouts[0]->Elements[&btnCancel].Enabled = false;
+        this->Layouts[0]->Elements[&pbProg].Enabled = false;
+
+        qDebug() << "Cancel button enabled" << btnCancel.isEnabled();
     }
 
     QString GetComPort() const {
@@ -68,25 +98,39 @@ public:
                 cbComPort.setCurrentIndex(cbComPort.count() - 1);
         }
     }
+
 public slots:
+    void slotCancel() {
+        Cancelled = true;
+        qDebug() << "Cancel button enabled" << btnCancel.isEnabled();
+    }
+
     void slotAutoDetect() {
         // instruct user to unplug and plug USB adapter
         // Check, which port appeared
+        labMessage.setText("Unplug and plug the device");
+        btnCancel.setEnabled(true);
+        Cancelled = false;
         bool detected = false;
-        int timeout = 1000; // 0.1sec
+        int timeout = 100; // 0.1sec
         auto oldPorts = QSerialPortInfo::availablePorts();
         auto newPorts = QSerialPortInfo::availablePorts();
         do {
             detected = ((oldPorts.size() + 1) == newPorts.size());
             if (!detected) {
-                QThread::msleep(100);
+                QThread::msleep(200);
+                QApplication::processEvents();
                 oldPorts = newPorts;
                 newPorts = QSerialPortInfo::availablePorts();
                 timeout--;
+                pbProg.setValue(timeout);
                 qDebug() << "New ports size" << newPorts.size();
             }
-        } while (!detected && (timeout > 0));
-        if (!detected) return;
+        } while (!detected && (timeout > 0) && !Cancelled);
+        if (!detected) {
+            ExitAutoDetect();
+            return;
+        }
 
         // Old ports contains one item less
         // remove all items of last from cur
@@ -98,10 +142,13 @@ public slots:
         for (const auto& port : oldPorts)
             setPorts.remove(port.portName());
 
-        if (setPorts.size() != 1) return; // Ambigous situation
-
+        if (setPorts.size() != 1) {
+            ExitAutoDetect();
+            return; // Ambigous situation
+        }
         Rescan();
         cbComPort.setCurrentText(*setPorts.begin());
+        ExitAutoDetect();
         //return *setPorts.begin();
     }
 };
