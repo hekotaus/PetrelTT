@@ -30,37 +30,43 @@ public:
 #include <qdeadlinetimer.h>
 #include <memory>
 // Blocking line I/O over one COM port.
-// QSerialPort only queues data in write() and sends it from its own thread's event loop,
-// and it must not be used from any other thread. Init/Done run in the GUI thread while
-// tests run in TestThread, so the port is (re)opened in whichever thread uses it,
-// and all I/O waits with waitFor*() instead of relying on an event loop.
+// QSerialPort must be used, and closed, only in the thread that opened it: close() cancels
+// the pending overlapped read with CancelIo(), which only affects I/O issued by the calling
+// thread. Closing it elsewhere leaves the read pending, and the driver later completes it
+// into the freed port. Init/Done run in the GUI thread, tests in TestThread (which is stopped
+// after every test), so the port lives in its own IoThread and every port call runs there.
+// All I/O waits with waitFor*(), as there are no port events to handle.
 class tTestDevice_SingleComPort : public tTestDevice {
     QString sPort;
-    std::unique_ptr<QSerialPort> Port;
+    QThread IoThread;
+    QObject IoContext; // Lives in IoThread, used to run code there. Destroyed before IoThread.
+    std::unique_ptr<QSerialPort> Port; // Created, used and deleted in IoThread only
     static const int TIMEOUT_MS = 500;
 
-    void ClosePort() {
-        if (!Port) return;
-        QSerialPort* port = Port.release();
-        QThread* owner = port->thread();
-        if ((owner == QThread::currentThread()) || !owner->isRunning()) {
-            delete port; // closes it
-        } else {
-            // Must be closed in its own thread; wait, so the port is free to be reopened here
-            QMetaObject::invokeMethod(port, [port] { delete port; }, Qt::BlockingQueuedConnection);
-        }
+    // Runs func in IoThread and waits for it
+    template <typename F>
+    void RunInIoThread(F func) {
+        if (QThread::currentThread() == &IoThread) { func(); return; }
+        if (!IoThread.isRunning()) IoThread.start();
+        QMetaObject::invokeMethod(&IoContext, func, Qt::BlockingQueuedConnection);
     }
 
+    void ClosePort() {
+        if (!IoThread.isRunning()) return; // Port has never been opened
+        RunInIoThread([this] { Port.reset(); }); // ~QSerialPort closes it
+    }
+
+    // IoThread only
     bool EnsurePort() {
-        if (Port && (Port->thread() == QThread::currentThread()) && Port->isOpen()) return true;
-        ClosePort();
+        if (Port && Port->isOpen()) return true;
+        Port.reset();
         return OpenPort();
     }
 
-protected:
+    // IoThread only
     bool OpenPort() {
         if (sPort.isEmpty()) { qDebug() << "COM port is not set"; return false; }
-        Port = std::make_unique<QSerialPort>(); // Owned by the current thread
+        Port = std::make_unique<QSerialPort>();
         bool bRes = false;
 
         Port->setPortName(sPort);
@@ -94,10 +100,13 @@ public:
         : tTestDevice(tp)
         , sPort(sport)
     {
+        IoContext.moveToThread(&IoThread);
     }
 
     ~tTestDevice_SingleComPort() {
         ClosePort();
+        IoThread.quit();
+        IoThread.wait();
     }
 
     void SetPortName(const QString& sport) {
@@ -109,8 +118,9 @@ public:
     QString GetPortName() const { return sPort; }
 
     bool Init(tReport* rep) override {
-        ClosePort();
-        IsInited = OpenPort();
+        bool res = false;
+        RunInIoThread([this, &res] { Port.reset(); res = OpenPort(); });
+        IsInited = res;
         return IsInited;
     }
 
@@ -126,31 +136,39 @@ public:
 
     // Returns one line without the line end, or "" on timeout
     QString ReadLine(int timeoutMs = TIMEOUT_MS) {
-        if (!EnsurePort()) return "";
-        QDeadlineTimer deadline(timeoutMs);
-        while (!Port->canReadLine()) {
-            if (!Port->waitForReadyRead(int(deadline.remainingTime()))) {
-                qDebug() << "COM port read timeout" << sPort;
-                return "";
+        QString res = "";
+        RunInIoThread([this, &res, timeoutMs] {
+            if (!EnsurePort()) return;
+            QDeadlineTimer deadline(timeoutMs);
+            while (!Port->canReadLine()) {
+                if (!Port->waitForReadyRead(int(deadline.remainingTime()))) {
+                    qDebug() << "COM port read timeout" << sPort;
+                    return;
+                }
             }
-        }
-        return QString::fromLatin1(Port->readLine()).trimmed();
+            res = QString::fromLatin1(Port->readLine()).trimmed();
+        });
+        return res;
     }
 
     // Appends CR LF if the line has no line end. Returns when the data has been sent.
     bool WriteLine(const QString& line, int timeoutMs = TIMEOUT_MS) {
-        if (!EnsurePort()) return false;
         QByteArray out = line.toLatin1();
         if (!out.endsWith('\n')) out += "\r\n";
-        if (Port->write(out) != out.size()) {
-            qDebug() << "COM port write failed" << sPort << Port->errorString();
-            return false;
-        }
-        if (!Port->waitForBytesWritten(timeoutMs)) {
-            qDebug() << "COM port write timeout" << sPort << Port->errorString();
-            return false;
-        }
-        return true;
+        bool res = false;
+        RunInIoThread([this, &res, &out, timeoutMs] {
+            if (!EnsurePort()) return;
+            if (Port->write(out) != out.size()) {
+                qDebug() << "COM port write failed" << sPort << Port->errorString();
+                return;
+            }
+            if (!Port->waitForBytesWritten(timeoutMs)) {
+                qDebug() << "COM port write timeout" << sPort << Port->errorString();
+                return;
+            }
+            res = true;
+        });
+        return res;
     }
 
     //void SetSerialNumber(QString sn) {
