@@ -150,18 +150,29 @@ public:
     bool Test_WaitForSetSerialNumber(int& messageBoxResult, int timeoutSec);
     void Test_RequestSerialNumber();
 
-
-    template <typename T>
-    tTestProcedure* Test_SetResult(T resValue) {
-        if (CurrentTest.Info.Status == tTestStatus::Testing) {
-            if (!CurrentTest.Info.Result.SetValue(T(resValue))) {
-                Test_AddDetails(CurrentTest.Info.Result.GetResultComment());
-
-            }
-        } else {
-            CurrentTest.Info.Status = tTestStatus::TestError;
-            Test_AddDetails("Attempt to set value not at testing time!");
-        }
-        return this;
-    }
+    
+    template <typename T> tTestProcedure* Test_SetResult(T resValue);
+    //template <> inline tTestProcedure* Test_SetResult<int>(int resValue);
+    //template <> inline tTestProcedure* Test_SetResult<int8_t>(int resValue);
 };
+
+//template <> inline tTestProcedure* tTestProcedure::Test_SetResult<int>(int resValue) { return Test_SetResult(int64_t(resValue)); };
+template <> inline tTestProcedure* tTestProcedure::Test_SetResult<int8_t>(int8_t resValue) { return Test_SetResult(int64_t(resValue)); };
+template <> inline tTestProcedure* tTestProcedure::Test_SetResult<uint8_t>(uint8_t resValue) { return Test_SetResult(int64_t(resValue)); };
+template <> inline tTestProcedure* tTestProcedure::Test_SetResult<int16_t>(int16_t resValue) { return Test_SetResult(int64_t(resValue)); };
+template <> inline tTestProcedure* tTestProcedure::Test_SetResult<uint16_t>(uint16_t resValue) { return Test_SetResult(int64_t(resValue)); };
+//template <> inline tTestProcedure* tTestProcedure::Test_SetResult<int32_t>(int32_t resValue) { return Test_SetResult(int64_t(resValue)); };
+template <> inline tTestProcedure* tTestProcedure::Test_SetResult<uint32_t>(uint32_t resValue) { return Test_SetResult(int64_t(resValue)); };
+template <typename T> inline
+tTestProcedure* tTestProcedure::Test_SetResult(T resValue) {
+    if (CurrentTest.Info.Status == tTestStatus::Testing) {
+        if (!CurrentTest.Info.Result.SetValue(T(resValue))) {
+            Test_AddDetails(CurrentTest.Info.Result.GetResultComment());
+
+        }
+    } else {
+        CurrentTest.Info.Status = tTestStatus::TestError;
+        Test_AddDetails("Attempt to set value not at testing time!");
+    }
+    return this;
+}

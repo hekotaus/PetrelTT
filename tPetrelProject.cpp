@@ -6,8 +6,8 @@
 
 tPetrelProject* gProject = nullptr;
 bool CB_AssignTestFunction(const QString& testName, tTestDelegate testProc) {
-    gProject->TPInfo.AssignTestFunction(testName, testProc);
-    return true;
+    bool res = gProject->TPInfo.AssignTestFunction(testName, testProc);
+    return res;
 }
 
 bool CB_AssignManualDialog(const QString& groupName, tTestDialog* pDialog) {

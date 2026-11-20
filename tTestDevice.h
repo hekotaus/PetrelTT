@@ -65,6 +65,9 @@ class tTestDevice_SingleComPort : public tTestDevice {
 
     // IoThread only
     bool OpenPort() {
+
+        sPort = "COM4"; // TODO: debug only!
+
         if (sPort.isEmpty()) { qDebug() << "COM port is not set"; return false; }
         Port = std::make_unique<QSerialPort>();
         bool bRes = false;
